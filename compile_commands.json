@@ -1,0 +1,496 @@
+[
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "tcc.o",
+   "-c",
+   "tcc.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-DTCC_GITHASH=\"2023-09-16 mob@5f9224c2*\"",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "tcc.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "libtcc.o",
+   "-c",
+   "libtcc.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "libtcc.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-DC2STR",
+   "conftest.c",
+   "-o",
+   "c2str.exe"
+  ],
+  "file": "conftest.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "tccpp.o",
+   "-c",
+   "tccpp.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "tccpp.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "tccgen.o",
+   "-c",
+   "tccgen.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "tccgen.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "tccdbg.o",
+   "-c",
+   "tccdbg.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "tccdbg.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "tccelf.o",
+   "-c",
+   "tccelf.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "tccelf.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "tccasm.o",
+   "-c",
+   "tccasm.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "tccasm.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "tccrun.o",
+   "-c",
+   "tccrun.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "tccrun.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "x86_64-gen.o",
+   "-c",
+   "x86_64-gen.c",
+   "-DCONFIG_LDDIR=\"lib64\"",
+   "-DTCC_TARGET_X86_64",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "x86_64-gen.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "x86_64-link.o",
+   "-c",
+   "x86_64-link.c",
+   "-DCONFIG_LDDIR=\"lib64\"",
+   "-DTCC_TARGET_X86_64",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "x86_64-link.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "i386-asm.o",
+   "-c",
+   "i386-asm.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "i386-asm.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "libtcc1.c",
+   "-o",
+   "libtcc1.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "libtcc1.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "alloca.S",
+   "-o",
+   "alloca.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "alloca.S"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "alloca-bt.S",
+   "-o",
+   "alloca-bt.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "alloca-bt.S"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "stdatomic.c",
+   "-o",
+   "stdatomic.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "stdatomic.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "atomic.S",
+   "-o",
+   "atomic.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "atomic.S"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "builtin.c",
+   "-o",
+   "builtin.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "builtin.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "tcov.c",
+   "-o",
+   "tcov.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "tcov.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "va_list.c",
+   "-o",
+   "va_list.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "va_list.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "dsohandle.c",
+   "-o",
+   "dsohandle.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "dsohandle.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "bt-exe.c",
+   "-o",
+   "../bt-exe.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "bt-exe.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "bt-log.c",
+   "-o",
+   "../bt-log.o",
+   "-B..",
+   "-I.."
+  ],
+  "file": "bt-log.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim/lib",
+  "arguments": [
+   "../tcc",
+   "-c",
+   "bcheck.c",
+   "-o",
+   "../bcheck.o",
+   "-B..",
+   "-I..",
+   "-bt"
+  ],
+  "file": "bcheck.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "i386-gen.o",
+   "-c",
+   "i386-gen.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "i386-gen.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "clang",
+   "-o",
+   "i386-link.o",
+   "-c",
+   "i386-link.c",
+   "-DCONFIG_TRIPLET=\"i386-linux-gnu\"",
+   "-DTCC_TARGET_I386",
+   "-DONE_SOURCE=0",
+   "-ggdb",
+   "-Wdeclaration-after-statement",
+   "-fno-strict-aliasing",
+   "-fheinous-gnu-extensions",
+   "-Wno-pointer-sign",
+   "-Wno-sign-compare",
+   "-Wno-unused-result",
+   "-Wno-string-plus-int",
+   "-Wno-deprecated-declarations",
+   "-I.",
+   "-g"
+  ],
+  "file": "i386-link.c"
+ }
+]

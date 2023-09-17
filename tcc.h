@@ -158,7 +158,8 @@ extern long double strtold (const char *__nptr, char **__endptr);
 /* default target is I386 */
 #if !defined(TCC_TARGET_I386) && !defined(TCC_TARGET_ARM) && \
     !defined(TCC_TARGET_ARM64) && !defined(TCC_TARGET_C67) && \
-    !defined(TCC_TARGET_X86_64) && !defined(TCC_TARGET_RISCV64)
+    !defined(TCC_TARGET_X86_64) && !defined(TCC_TARGET_RISCV64) && \
+    !defined(TCC_TARGET_POXIM) && !defined(TCC_TARGET_POXIM32)
 # if defined __x86_64__
 #  define TCC_TARGET_X86_64
 # elif defined __arm__
@@ -409,6 +410,9 @@ extern long double strtold (const char *__nptr, char **__endptr);
 #ifdef TCC_TARGET_I386
 # include "i386-gen.c"
 # include "i386-link.c"
+#elif defined TCC_TARGET_POXIM
+# include "poxim-gen.c"
+# include "poxim-link.c"
 #elif defined TCC_TARGET_X86_64
 # include "x86_64-gen.c"
 # include "x86_64-link.c"
@@ -1659,6 +1663,17 @@ static inline void write64le(unsigned char *p, uint64_t x) {
 static inline void add64le(unsigned char *p, int64_t x) {
     write64le(p, read64le(p) + x);
 }
+/* ------------ poxim-gen.c ------------ */
+#if defined TCC_TARGET_POXIM
+ST_FUNC void g(int c);
+ST_FUNC void gen_le16(int c);
+ST_FUNC void gen_le32(int c);
+ST_FUNC void gen_addr32(int r, Sym *sym, int c);
+ST_FUNC void gen_addrpc32(int r, Sym *sym, int c);
+ST_FUNC void gen_cvt_csti(int t);
+ST_FUNC void gen_increment_tcov (SValue *sv);
+#endif
+
 
 /* ------------ i386-gen.c ------------ */
 #if defined TCC_TARGET_I386 || defined TCC_TARGET_X86_64 || defined TCC_TARGET_ARM

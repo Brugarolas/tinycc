@@ -16,3 +16,9 @@ $ ggdb ./tcc
 Search for tcc-doc\* after running:
 
 $ make doc
+
+## Resources
+
+- Avr port of TCC https://github.com/thethumbler/avr-tcc
+- Another option https://github.com/chaoslawful/tcc
+- Kernel with tcc https://wiki.osdev.org/TCC

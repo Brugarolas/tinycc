@@ -1,0 +1,4 @@
+#!/usr/bin/sh
+
+./tcc -nostdlib examples/ex1.c -o./tests/out/ex1.bin -I. -Iinclude -L.
+objdump -d ./tests/out/ex1.bin > ./tests/out/ex1.dump
