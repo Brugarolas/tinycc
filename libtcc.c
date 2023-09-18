@@ -29,6 +29,10 @@
 #include "i386-gen.c"
 #include "i386-link.c"
 #include "i386-asm.c"
+#elif defined(TCC_TARGET_POXIM)
+#include "poxim-gen.c"
+#include "poxim-link.c"
+#include "poxim-asm.c"
 #elif defined(TCC_TARGET_ARM)
 #include "arm-gen.c"
 #include "arm-link.c"
