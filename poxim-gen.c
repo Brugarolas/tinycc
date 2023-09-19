@@ -108,6 +108,7 @@ static void gen_bounds_epilog(void);
 #endif
 
 /* XXX: make it faster ? */
+
 ST_FUNC void g(int c)
 {
     int ind1;
@@ -165,10 +166,10 @@ static int oad(int c, int s)
     return t;
 }
 
-ST_FUNC void gen_fill_nops(int bytes)
+ST_FUNC void gen_fill_nops(int ninstructions)
 {
-    while (bytes--)
-      g(0x90);
+    while (ninstructions--)
+      gen_le32(0x00000000);
 }
 
 /* generate jmp to a label */
@@ -212,7 +213,10 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c)
     }
 }
 
-/* load 'r' from value 'sv' */
+/*
+	load 'r' from value 'sv
+	Must generate the code needed to load a stack value into a register.
+*/
 ST_FUNC void load(int r, SValue *sv)
 {
     int v, t, ft, fc, fr;

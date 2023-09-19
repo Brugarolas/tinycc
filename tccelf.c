@@ -2620,10 +2620,14 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
         tcc_output_coff(s1, f);
     else
 #endif
+#ifdef lol
+    ret = tcc_output_binary(s1, f, sec_order);
+#else
     if (s1->output_format == TCC_OUTPUT_FORMAT_ELF)
         ret = tcc_output_elf(s1, f, phnum, phdr, file_offset, sec_order);
     else
         ret = tcc_output_binary(s1, f, sec_order);
+#endif
     fclose(f);
 
     return ret;
