@@ -17,6 +17,7 @@
 #define bf_clear_bit(bitfield, pos) ((bitfield) &= ~(1 << (pos)))
 #define bf_toggle_bit(bitfield, pos) ((bitfield) ^= (1 << (pos)))
 #define bf_read_bit(bitfield, pos) (((bitfield) >> (pos)) & 0x01)
+
 // Force inline and no-inline macros
 #if defined(__GNUC__) || defined(__GNUG__)
 #define force_inline inline __attribute__((always_inline))
@@ -49,6 +50,42 @@ typedef int16_t i16;
 typedef int8_t i8;
 typedef size_t usize;
 typedef ptrdiff_t isize;
+
+inline u8 bit_at(u32 number, int nth_bit) {
+  u32 bit;
+  bit = (number >> nth_bit) & 1U;
+
+  return (u8)bit;
+}
+
+inline void set_bit(u32 *number, u8 nth_bit, u8 choice) {
+  if (choice) {
+    *number |= (1UL << (nth_bit));
+  } else {
+    *number = *number & ~(1ul << (nth_bit));
+  }
+}
+
+inline void fill_bits(u32 *number, u8 start, u8 end, u8 bit_choice) {
+  for (i8 i = start; i >= end; i--) {
+    set_bit(number, i, bit_choice);
+  }
+  return;
+}
+
+inline u32 bits_at(u32 number, u32 start, u32 end) {
+  u32 bits = (number >> end);
+  if (!(start > 31)) {
+    fill_bits(&bits, 31, start - end + 1, 0);
+  }
+  return bits;
+}
+
+inline u32 extend_bit_at(u32 num, u8 bit_place) {
+  u8 bit = bit_at(num, bit_place);
+  fill_bits(&num, 31, bit_place, bit);
+  return num;
+}
 
 char *str_upper(char *str) {
   char *start_of_str = str;
@@ -134,7 +171,7 @@ typedef enum : u8 {
   subi = 0b010011,
   muli = 0b010100,
   divi = 0b010101,
-  remi = 0b010110,
+  modi = 0b010110,
   cmpi = 0b010111,
   /*Memory*/
   l8 = 0b011000,
@@ -200,6 +237,7 @@ typedef enum : u8 {
 typedef struct {
   PoximOperation O;
   u32 Z, X, Y, L, I;
+  u32 partial;
   char format;
 } PoximInstruction;
 
@@ -262,109 +300,67 @@ internal PoximInstruction parse_instruction(u32 inst) {
 
 internal void print_instruction(char *src, PoximInstruction inst) {
   char result[500] = {0};
+  char rz[5], rx[5], ry[5];
+  char assembly_text[32];
 
   switch (inst.O) {
   case mov: {
     // mov r1,1193046           	R1=0x00123456
-    char rz[5];
-		char assembly_text[32];
+    u32 mask = 0b00000000000111111111111111111111ul;
+    u32 partial = mask & ((inst.X << 16) | (inst.Y << 11) | (inst.L << 0));
     reg2str(rz, inst.Z);
-    snprintf(assembly_text, sizeof(assembly_text), "mov %s,%u", rz, inst.I);
-
-    snprintf(result, 256,
-             "%-24s\t"
-             "%s="
-             "0x%08X\n",
-             assembly_text, str_upper(rz), registers[inst.Z]);
+    snprintf(assembly_text, sizeof(assembly_text), "mov %s,%u", rz, partial);
     break;
   }
   case movs: {
     // movs r2,-1048576         	R2=0xFFF00000
-    char rz[5];
+    u32 mask = 0b00000000000111111111111111111111ull;
+    u32 partial = mask & ((inst.X << 16) | (inst.Y << 11) | (inst.L << 0));
+    fill_bits(&partial, 31, 20, bit_at(inst.X, 4));
     reg2str(rz, inst.Z);
-    char assembly_text[32];
-    snprintf(assembly_text, sizeof(assembly_text), "movs %s,%d", rz,
-             registers[inst.Z]);
-
-    snprintf(result, 256,
-             "%-24s\t"
-             "%s="
-             "0x%08X\n",
-             assembly_text, str_upper(rz), registers[inst.Z]);
-
+    snprintf(assembly_text, sizeof(assembly_text), "movs %s,%d", rz, partial);
     break;
   }
   case add: {
-    char rz[5], rx[5], ry[5];
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "add %s,%s,%s", rz, rx, ry);
-    snprintf(result, 256,
-             "%-24s\t"
-             // NOTE(Everton):IS this  supposed to be %4s ?
-             "%s=%s+%s="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), str_upper(ry),
-             registers[inst.Z], SR);
-
     break;
   }
   case sub: {
     // sub r4, r2, r3             	R4 = R2 - R3 = 0x7FFDCBAA, SR =
     // 0x00000008
-    char rz[5], rx[5], ry[5];
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "sub %s,%s,%s", rz, rx, ry);
-    snprintf(result, 256,
-             "%-24s\t"
-             "%s=%s-%s="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), str_upper(ry),
-             registers[inst.Z], SR);
-
     break;
   }
   case       /*:>the first 3 bits of inst.L are:*/
       mul |  // mul	 = op.L: 0b000
       muls | // muls = op.L: 0b010
-      DIV |  // div	 = op.L: 0b100
+      div_ | // div	 = op.L: 0b100
       divs | // divs = op.L: 0b110
       sll |  // sll	 = op.L: 0b001
       sla |  // sla	 = op.L: 0b011
       srl |  // srl	 = op.L: 0b101
       sra:   // sra  = op.L: 0b111
   {
-    switch (GetBits(inst.L, 10, 8)) {
-    case 0b000: // mul
-    {
+
+    char rl[5], rz[5], rx[5], ry[5];
+    switch (bits_at(inst.L, 10, 8)) {
+    // mul
+    case 0b000: {
       // mul r0,r5,r4,r3
       // R0:R5=R4*R3=0x0000000023F4F31C,SR=0x00000008
-      char rl[5], rz[5], rx[5], ry[5];
-      u32 L_4_0 = (u32)GetBits(inst.L, 4, 0);
+      u32 L_4_0 = (u32)bits_at(inst.L, 4, 0);
       reg2str(rl, L_4_0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      char assembly_text[32];
       snprintf(assembly_text, sizeof(assembly_text), "mul %s,%s,%s,%s", rl, rz,
                rx, ry);
-
-      snprintf(result, sizeof(result),
-               "%-24s\t"
-               "%s:%s=%s*%s="
-               "0x%08X%08X,"
-               "SR=0x%08X\n",
-               assembly_text, str_upper(rl), str_upper(rz), str_upper(rx),
-               str_upper(ry), registers[L_4_0], registers[inst.Z], SR);
-
-      ;
       break;
     }
     case 0b010: // muls
@@ -372,24 +368,13 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       // muls r0,r7,r6,r5
       // R0:R7=R6*R5=0x0000000000000000,SR=0x00000040
       char rl[5], rz[5], rx[5], ry[5];
-      u32 L_4_0 = (u32)GetBits(inst.L, 4, 0);
+      u32 L_4_0 = (u32)bits_at(inst.L, 4, 0);
       reg2str(rl, L_4_0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      char assembly_text[32];
       snprintf(assembly_text, sizeof(assembly_text), "muls %s,%s,%s,%s", rl, rz,
                rx, ry);
-
-      snprintf(result, sizeof(result),
-               "%-24s\t"
-               // NOTE(Everton):IS this  supposed to be %4s ?
-               "%s:%s=%s*%s="
-               "0x%08X%08X,"
-               "SR=0x%08X\n",
-               assembly_text, str_upper(rl), str_upper(rz), str_upper(rx),
-               str_upper(ry), registers[L_4_0], registers[inst.Z], SR);
-
       break;
     }
     case 0b100: /*div */
@@ -397,113 +382,54 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       // div r0,r9,r8,r7
       // R0=R8%R7=0x00000000,R9=R8/R7=0x00000000,SR=0x00000060
       char rz[5], rx[5], ry[5], rl[5];
-      u32 r_index_L = GetBits(inst.L, 4, 0);
+      u32 r_index_L = bits_at(inst.L, 4, 0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
       reg2str(rl, r_index_L);
-      char assembly_text[32];
 
       snprintf(assembly_text, sizeof(assembly_text), "div %s,%s,%s,%s", rl, rz,
                rx, ry);
-
-      char percent[3] = "%";
-      snprintf(result, sizeof(result),
-               "%-24s\t"
-               "%s=%s"
-               "%s"
-               "%s="
-               "0x%08X,"
-               "%s=%s/%s="
-               "0x%08X,"
-               "SR=0x%08X\n",
-               assembly_text, str_upper(rl), str_upper(rx), percent,
-               str_upper(ry), ((u32)registers[r_index_L]), str_upper(rz),
-               str_upper(rx), str_upper(ry), ((u32)registers[inst.Z]), SR);
-
       break;
     }
     case 0b110: /*divs*/
     {
       // divs r10,r11,r9,r8
       // R10=R9%R8=0x00000000,R11=R9/R8=0x00000000,SR=0x00000060
-      char rz[5], rx[5], ry[5], rl[5];
-      u32 r_index_L = GetBits(inst.L, 4, 0);
+      u32 r_index_L = bits_at(inst.L, 4, 0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
       reg2str(rl, r_index_L);
-      char assembly_text[32];
 
       snprintf(assembly_text, sizeof(assembly_text), "divs %s,%s,%s,%s", rl, rz,
                rx, ry);
-
-      char percent[3] = "%";
-      snprintf(result, sizeof(result),
-               "%-24s\t"
-               "%s=%s"
-               "%s"
-               "%s="
-               "0x%08X,"
-               "%s=%s/%s="
-               "0x%08X,"
-               "SR=0x%08X\n",
-               assembly_text, str_upper(rl), str_upper(rx), percent,
-               str_upper(ry), ((i32)registers[r_index_L]), str_upper(rz),
-               str_upper(rx), str_upper(ry), ((i32)registers[inst.Z]), SR);
-
       break;
     }
     case 0b001: /*sll */
     {
       // sll r6,r5,r5,0
       // R6:R5=R6:R5<<1=0x0000000047E9E638,SR=0x00000008
-      char rz[5], rx[5], ry[5];
-      u32 L_4_0 = (u32)GetBits(inst.L, 4, 0);
+      u32 L_4_0 = (u32)bits_at(inst.L, 4, 0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      char assembly_text[32];
 
       snprintf(assembly_text, sizeof(assembly_text), "sll %s,%s,%s,%d", rz, rx,
                ry, L_4_0);
-
-      snprintf(result, sizeof(result),
-               "%-24s\t"
-               "%s:%s="
-               "%s:%s<<%d="
-               "0x%08X%08X,"
-               "SR=0x%08X\n",
-               assembly_text, str_upper(rz), str_upper(rx), str_upper(rz),
-               str_upper(ry), L_4_0 + 1, registers[inst.Z], registers[inst.Y],
-               SR);
-
       break;
     }
     case 0b011: /*sla */
     {
       // sla r0,r2,r2,10
       // R0:R2=R0:R2<<11=0x0000000080000000,SR=0x00000001
-      char rz[5], rx[5], ry[5];
-      u32 L_4_0 = (u32)GetBits(inst.L, 4, 0);
+      u32 L_4_0 = (u32)bits_at(inst.L, 4, 0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      char assembly_text[32];
       snprintf(assembly_text, sizeof(assembly_text), "sla %s,%s,%s,%u", rz, rx,
                ry, L_4_0);
-
-      snprintf(result, sizeof(result),
-               "%-24s\t"
-               "%s:%s="
-               "%s:%s<<%ld="
-               "0x%08X%08X,"
-               "SR=0x%08X\n",
-
-               assembly_text, str_upper(rz), str_upper(rx), str_upper(rz),
-               str_upper(ry), (L_4_0 + 1l), registers[inst.Z],
-               registers[inst.X], ((u32)SR));
 
       break;
     }
@@ -511,536 +437,327 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     {
       // srl r10,r9,r9,2
       // R10:R9=R10:R9>>3=0x0000000000000000,SR=0x00000060
-      char rz[5], rx[5], ry[5];
-      u32 L_4_0 = (u32)GetBits(inst.L, 4, 0);
+      u32 L_4_0 = (u32)bits_at(inst.L, 4, 0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      char assembly_text[32];
 
       snprintf(assembly_text, sizeof(assembly_text), "srl %s,%s,%s,%d", rz, rx,
                ry, L_4_0);
-
-      snprintf(result, sizeof(result),
-               "%-24s\t"
-               "%s:%s="
-               "%s:%s>>%d="
-               "0x%08X%08X,"
-               "SR=0x%08X\n",
-               assembly_text, str_upper(rz), str_upper(rx), str_upper(rz),
-               str_upper(ry), L_4_0 + 1, registers[inst.Z], registers[inst.X],
-               SR);
-
       break;
     }
     case 0b111: /*sra */
     {
       // sra r12,r10,r10,3
       // R12:R10=R12:R10>>4=0x0000000000000000,SR=0x0000
-      char rz[5], rx[5], ry[5];
-      u32 L_4_0 = (u32)GetBits(inst.L, 4, 0);
+      u32 L_4_0 = (u32)bits_at(inst.L, 4, 0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      char assembly_text[32];
 
       snprintf(assembly_text, sizeof(assembly_text), "sra %s,%s,%s,%d", rz, rx,
                ry, L_4_0);
-
-      snprintf(result, sizeof(result),
-               "%-24s\t"
-               "%s:%s="
-               "%s:%s>>%d="
-               "0x%08X%08X,"
-               "SR=0x%08X\n",
-               assembly_text, str_upper(rz), str_upper(rx), str_upper(rz),
-               str_upper(ry), (L_4_0 + 1), registers[inst.Z], registers[inst.X],
-               SR);
-
       break;
     }
     }
     break;
   }
 
-  case CMP: // NOTE(Everton): DONE
-  {
+  case cmp: {
     // cmp ir,pc                	SR=0x00000020
-    char rx[5], ry[5];
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "cmp %s,%s", rx, ry);
-
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "SR=0x%08X\n",
-             assembly_text, SR);
-
     break;
   }
 
-  case AND: {
+  case and: {
     // and r13,r1,r5            	R13=R1&R5=0x00002410,SR=0x00000020
-    char rz[5], rx[5], ry[5];
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
 
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "and %s,%s,%s", rz, rx, ry);
-
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=%s&%s="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), str_upper(ry),
-             registers[inst.Z], SR);
-
     break;
   }
-  case OR: {
+  case or: {
     // or r14,r2,r6             	R14=R2|R6=0x80000000,SR=0x00000030
-    char rz[5], rx[5], ry[5];
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "or %s,%s,%s", rz, rx, ry);
-
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=%s|%s="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), str_upper(ry),
-             registers[inst.Z], SR);
     break;
   }
-  case NOT: {
+  case not: {
     // not r15,r7               	R15=~R7=0xFFFFFFFF,SR=0x00000030
-    char rz[5], rx[5];
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "not %s,%s", rz, rx);
-
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=~%s="
-             "0x%08X,"
-             "SR=0x%08X\n",
-
-             assembly_text, str_upper(rz), str_upper(rx), registers[inst.Z],
-             SR);
     break;
   }
-  case XOR: {
+  case xor: {
     // xor r16, r16, r8           	R16 = R16 ^ R8 = 0x00000000, SR =
     // 0x00000060
-    char rz[5], rx[5], ry[5];
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-
-    char assembly_text[32];
-
     snprintf(assembly_text, sizeof(assembly_text), "xor %s,%s,%s", rz, rx, ry);
-
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=%s^%s="
-             "0x%08X,"
-             "SR=0x%08X\n",
-
-             assembly_text, str_upper(rz), str_upper(rx), str_upper(ry),
-             registers[inst.Z], SR);
     break;
   }
   //:> Format Type 'F'
   case addi: {
     // addi r1,r1,32771                R1 = R1 + 0x00008003 = 0xFFFF8003,SR
-    // = 0x00000010
-    char rz[5], rx[5];
+    inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
 
-    u8 imediate_15_bit = GetBit(inst.I, 15);
-    u32 imediate = (i32)inst.I;
-    FillBits(imediate, 31, 16, imediate_15_bit);
-
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "addi %s,%s,%d", rz, rx,
-             (i32)imediate);
-
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=%s+0x%08X="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), (i32)imediate,
-             registers[inst.Z], SR);
-
+             (i32)inst.I);
     break;
   }
 
   case subi: {
     // subi r18, r18, -1          	R18 = R18 - 0xFFFFFFFF = 0x00000001, SR
     // = 0x00000020
-    char rz[5], rx[5];
+    inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-
-    u8 imediate_15_bit = GetBit(inst.I, 15);
-    u32 imediate = (i32)inst.I;
-    FillBits(imediate, 31, 16, imediate_15_bit);
-
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "subi %s,%s,%d", rz, rx,
-             (i32)imediate);
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=%s-0x%08X="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), (i32)imediate,
-             registers[inst.Z], SR);
+             (i32)inst.I);
     break;
   }
   case muli: {
     // muli r19, r17, 2           	R19 = R17 * 0x00000002 = 0x00000002, SR
     // = 0x00000020
-    char rz[5], rx[5];
+    inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-
-    u8 imediate_15_bit = GetBit(inst.I, 15);
-    u32 imediate = (i32)inst.I;
-    FillBits(imediate, 31, 16, imediate_15_bit);
-
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "muli %s,%s,%d", rz, rx,
-             (i32)imediate);
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=%s*0x%08X="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), (i32)imediate,
-             registers[inst.Z], SR);
+             (i32)inst.I);
     break;
   }
   case divi: {
     // divi r20, r19, 2           	R20 = R19 / 0x00000002 = 0x00000001, SR
     // = 0x00000000
-    char rz[5], rx[5];
+    inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-
-    u8 imediate_15_bit = GetBit(inst.I, 15);
-    u32 imediate = (i32)inst.I;
-    FillBits(imediate, 31, 16, imediate_15_bit);
-
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "divi %s,%s,%d", rz, rx,
-             (i32)imediate);
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=%s/0x%08X="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), (i32)imediate,
-             registers[inst.Z], SR);
+             (i32)inst.I);
     break;
   }
-  case remi: {
+  case modi: {
     // modi r20, r19, 2           	R20 = R19 mod  0x00000002 = 0x00000001,
     // SR = 0x00000000
-    char rz[5], rx[5];
+    inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-
-    u8 imediate_15_bit = GetBit(inst.I, 15);
-    u32 imediate = (i32)inst.I;
-    FillBits(imediate, 31, 16, imediate_15_bit);
-
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "modi %s,%s,%d", rz, rx,
-             (i32)imediate);
-    char percent[3] = "%";
-
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "%s=%s%s0x%08X="
-             "0x%08X,"
-             "SR=0x%08X\n",
-             assembly_text, str_upper(rz), str_upper(rx), percent,
-             (i32)imediate, registers[inst.Z], SR);
-
+             (i32)inst.I);
     break;
   }
 
   case cmpi: {
     // cmpi r20, r19, 2           	CMPI = R19 - 0x00000001 = 0x00000001, SR
     // = 0x00000000
-    char rx[5];
+    inst.I = extend_bit_at(inst.I, 15);
+    reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-
-    ExtendBit(inst.I, 15);
-
-    char assembly_text[32];
-    snprintf(assembly_text, sizeof(assembly_text), "cmpi %s,%d", rx,
+    snprintf(assembly_text, sizeof(assembly_text), "cmpi %s,%s,%d", rz, rx,
              (i32)inst.I);
-    snprintf(result, sizeof(result),
-             "%-24s\t"
-             "SR=0x%08X\n",
-             assembly_text, SR);
     break;
   }
 
   case l8: {
-    ReadWriteStr(result, "l8", 8, inst);
+    inst.I = extend_bit_at(inst.I, 15);
+    reg2str(rz, inst.Z);
+    reg2str(rx, inst.X);
+    snprintf(assembly_text, sizeof(assembly_text), "l8 %s, [%s + %d]", rz, rx,
+             inst.I);
     break;
   }
 
   case l16: {
-    ReadWriteStr(result, "l16", 16, inst);
+    inst.I = extend_bit_at(inst.I, 15);
+    reg2str(rz, inst.Z);
+    reg2str(rx, inst.X);
+    snprintf(assembly_text, sizeof(assembly_text), "l16 %s, [%s + %d] << 1", rz,
+             rx, inst.I);
     break;
   }
   case l32: {
-    ReadWriteStr(result, "l32", 32, inst);
+    inst.I = extend_bit_at(inst.I, 15);
+    reg2str(rz, inst.Z);
+    reg2str(rx, inst.X);
+    snprintf(assembly_text, sizeof(assembly_text), "l32 %s, [%s + %d] << 2", rz,
+             rx, inst.I);
     break;
   }
   case s8: {
-    ReadWriteStr(result, "s8", 8, inst);
+    inst.I = extend_bit_at(inst.I, 15);
+    reg2str(rz, inst.Z);
+    reg2str(rx, inst.X);
+    snprintf(assembly_text, sizeof(assembly_text), "s8 [%s + %d], %s", rx,
+             inst.I, rz);
     break;
   }
   case s16: {
-    ReadWriteStr(result, "s8", 16, inst);
+    inst.I = extend_bit_at(inst.I, 15);
+    reg2str(rz, inst.Z);
+    reg2str(rx, inst.X);
+    snprintf(assembly_text, sizeof(assembly_text), "s16 [%s + %d], %s", rx,
+             inst.I, rz);
     break;
   }
   case s32: {
-    ReadWriteStr(result, "s8", 32, inst);
+    inst.I = extend_bit_at(inst.I, 15);
+    reg2str(rz, inst.Z);
+    reg2str(rx, inst.X);
+    snprintf(assembly_text, sizeof(assembly_text), "s32 [%s + %d], %s", rx,
+             inst.I, rz);
     break;
   }
-
   case bae: {
-    BranchStr(result, "bae", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bae %d", (i32)inst.I);
     break;
   }
   case bat: {
 
-    BranchStr(result, "bat", inst.I);
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bat %d", (i32)inst.I);
 
     break;
   }
   case bbe: {
-    BranchStr(result, "bbe", inst.I);
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bbe %d", (i32)inst.I);
     break;
   }
   case bbt: {
-
-    BranchStr(result, "bbt", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bbt %d", (i32)inst.I);
     break;
   }
   case beq: {
-
-    BranchStr(result, "beq", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "beq %d", (i32)inst.I);
     break;
   }
   case bge: {
 
-    BranchStr(result, "bge", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bge %d", (i32)inst.I);
     break;
   }
   case bgt: {
 
-    BranchStr(result, "bgt", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bgt %d", (i32)inst.I);
     break;
   }
   case biv: {
 
-    BranchStr(result, "biv", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "biv %d", (i32)inst.I);
     break;
   }
   case ble: {
-
-    BranchStr(result, "ble", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "ble %d", (i32)inst.I);
     break;
   }
   case blt: {
-
-    BranchStr(result, "blt", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "blt %d", (i32)inst.I);
     break;
   }
   case bne: {
-
-    BranchStr(result, "bne", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bne %d", (i32)inst.I);
     break;
   }
   case bni: {
-
-    BranchStr(result, "bni", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bni %d", (i32)inst.I);
     break;
   }
   case bnz: {
-
-    BranchStr(result, "bnz", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bnz %d", (i32)inst.I);
     break;
   }
   case bun: {
-
-    BranchStr(result, "bun", inst.I);
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bun %d", (i32)inst.I);
     break;
   }
   case bzd: {
-    BranchStr(result, "bzd", inst.I);
-
+    inst.I = extend_bit_at(inst.I, 25);
+    snprintf(assembly_text, sizeof(assembly_text), "bdz %d", (i32)inst.I);
     break;
   }
-  case INT: {
+  case int_: {
     // 0x000000D4:	int 0 CR=0x00000000,PC=0x00000000
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "%s %d", "int", inst.I);
-
-    snprintf(result, 256,
-             "%-24s\t"
-             "CR=0x%08X,PC=0x%08X\n",
-             assembly_text, CR, PC);
     break;
   }
   //::>> FLOW CONTROL:
   case call: {
-    ExtendBit(inst.I, 15);
-    char rx[5];
+    inst.I = extend_bit_at(inst.I, 15);
     reg2str(rx, inst.X);
-
     // call[r0 + 16]             	PC=0x00000040,MEM[0x00007FFC]=0x000002C4
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "%s [%s+%d]", "call", rx,
-             (inst.I));
-
-    // SP + 4 because  we're supposed to print when  the operation is taken
-    // place, but considering we're printing after, we need to "undo"
-    // certain operations;
-    snprintf(result, 256,
-             "%-24s\t"
-             "PC=0x%08X,MEM[0x%08X]=0x%08X\n",
-             assembly_text, PC, SP + 4,
-             SwitchEndianess(MEM.RAM32[(SP + 4) / 4]));
+             (i32)(inst.I));
     break;
   }
   case calli: {
     // call[r0 + 16]             	PC=0x00000040,MEM[0x00007FFC]=0x000002C4
-    ExtendBit(inst.I, 25);
-    char assembly_text[32];
+    inst.I = extend_bit_at(inst.I, 25);
     snprintf(assembly_text, sizeof(assembly_text), "%s %d", "call", inst.I);
-    // SP + 4 because  we're supposed to print when  the operation is taken
-    // place, but considering we're printing after, we need to "undo"
-    // certain operations;
-    snprintf(result, 256,
-             "%-24s\t"
-             "PC=0x%08X,MEM[0x%08X]=0x%08X\n",
-             assembly_text, PC, SP + 4,
-             SwitchEndianess(MEM.RAM32[(SP + 4) / 4]));
     break;
   }
   case ret: {
     // ret                      	PC=MEM[0x00007FFC]=0x000002C4
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "%s", "ret");
-
-    snprintf(result, 256,
-             "%-24s\t"
-             "PC=MEM[0x%08X]=0x%08X\n",
-             assembly_text, SP, SwitchEndianess(MEM.RAM32[(SP) / 4]));
     break;
   }
   case push: {
-    PushPopStr(result, "push", inst);
+    //: TODO: push what
+    snprintf(assembly_text, sizeof(assembly_text), "%s", "push");
     break;
   }
   case pop: {
-    PushPopStr(result, "pop", inst);
+    //: TODO: pop what
+    snprintf(assembly_text, sizeof(assembly_text), "%s", "pop");
     break;
   }
-
-  case sbr: // cbr
-  {
+  // cbr
+  case sbr: {
     // 0x00000034:	sbr sr[1]                	SR=0x00000002
     char instruction[5];
-    if (GetBit(inst.I, 0) == 0) {
+    if (bit_at(inst.I, 0) == 0) {
       sprintf(instruction, "%s", "cbr");
     } else {
       sprintf(instruction, "%s", "sbr");
     }
 
     // mov r1,1193046           	R1=0x00123456
-    char rz[5];
     reg2str(rz, inst.Z);
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "%s %s[%u]", instruction, rz,
              inst.X);
-
-    snprintf(result, 256,
-             "%-24s\t"
-             "%s="
-             "0x%08X\n",
-             assembly_text, str_upper(rz), registers[inst.Z]);
     break;
   }
   case reti: {
     // reti
     // IPC=MEM[0x????????]=0x????????,CR=MEM[0x????????]=0x????????,PC=MEM[0x????????]=0x????????
-    char assembly_text[32];
     snprintf(assembly_text, sizeof(assembly_text), "%s", "reti");
-
-    snprintf(result, 256,
-             "%-24s\t"
-             "IPC=MEM[0x%08X]=0x%08X,"
-             "CR=MEM[0x%08X]=0x%08X,"
-             "PC=MEM[0x%08X]=0x%08X\n",
-             assembly_text, SP - 2 * 4,
-             SwitchEndianess(MEM.RAM32[(SP - 2 * 4) / 4]), SP - 1 * 4,
-             SwitchEndianess(MEM.RAM32[(SP - 1 * 4) / 4]), SP - 0 * 4,
-             SwitchEndianess(MEM.RAM32[(SP - 0 * 4) / 4]));
     break;
   }
 
   default: {
-    return;
+    sprintf(assembly_text, "\tunkown\n");
+    break;
   }
-  }
-  printf(result);
-  assembly_out << result;
-
-  if (int_flag != -1) {
-    if (int_flag == 0) {
-      printf("[SOFTWARE INTERRUPTION]\n");
-      assembly_out << "[SOFTWARE INTERRUPTION]\n";
-    }
-
-    if (int_flag > 0) {
-      printf("[HARDWARE INTERRUPTION %d]\n", int_flag);
-      assembly_out << "[HARDWARE INTERRUPTION " << std::to_string(int_flag)
-                   << "]\n";
-    }
-
-    int_flag = -1;
   }
 }
