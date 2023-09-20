@@ -776,12 +776,12 @@ FILE *input, *output;
 int main(int argc, char *argv[]) {
   input = fopen(argv[1], "r");
   if (input == NULL) {
-    printf("Failed to open the input %s\n", argv[1]);
+    printf("usage: poxim-dump <file.input> [file.output]\n");
     return 24;
   }
   output = fopen(argv[2], "w");
   if (output == NULL) {
-    printf("Failed to open the output %s.\n", argv[2]);
+    output = stdout;
     return 69;
   }
 
@@ -796,13 +796,15 @@ int main(int argc, char *argv[]) {
       printf("mem.RAM32[n++] = %8x; dword = %8x\n", mem.RAM32[n -1], dword );
     }
   }
+
   {
     char text[512];
     for (size_t i = 0; i < count_of(mem.RAM32); i++) {
+      PoximInstruction inst;
       if (mem.RAM32[i] == 0)  {
         continue;
       }
-      PoximInstruction inst = parse_instruction(mem.RAM32[i]);
+      inst = parse_instruction(mem.RAM32[i]);
       sprint_instruction(text, inst);
       fprintf(output, 
             "%4x:\t\t" 
