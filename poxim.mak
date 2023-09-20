@@ -14,4 +14,8 @@ dump: poxim-dump.c
 interp: poxim-interp
 	./poxim-interp ./tests/poxim/res/$(test_file).hex ./tests/poxim/res/$(test_file).interp.out
 
-.PHONY: dump interp
+run:
+	./tcc -c -nostdlib examples/ex1.c -o./tests/out/ex1.bin -I./ -I./include -L./ -Wl,--oformat=binary
+	objdump -M intel -d ./tests/out/ex1.bin > ./tests/out/ex1.dump
+
+.PHONY: dump interp run

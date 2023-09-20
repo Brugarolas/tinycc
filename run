@@ -1,4 +1,0 @@
-#!/usr/bin/sh
-
-./tcc -c -nostdlib examples/ex1.c -o./tests/out/ex1.bin -I./ -I./include -L./ -Wl,--oformat=binary
-objdump -M intel -d ./tests/out/ex1.bin > ./tests/out/ex1.dump
