@@ -1,4 +1,3 @@
-#pragma once
 #include <assert.h>
 #include <ctype.h>
 #include <math.h>
@@ -32,6 +31,7 @@
 #endif
 #define internal static
 #define UNUSED 0x00
+#define MEM_SIZE 1024
 // I saw this typing in rust and casey's stream, i really like it
 typedef float f32;
 typedef double f64;
@@ -51,14 +51,14 @@ typedef int8_t i8;
 typedef size_t usize;
 typedef ptrdiff_t isize;
 
-inline u8 bit_at(u32 number, int nth_bit) {
+u8 bit_at(u32 number, int nth_bit) {
   u32 bit;
   bit = (number >> nth_bit) & 1U;
 
   return (u8)bit;
 }
 
-inline void set_bit(u32 *number, u8 nth_bit, u8 choice) {
+void set_bit(u32 *number, u8 nth_bit, u8 choice) {
   if (choice) {
     *number |= (1UL << (nth_bit));
   } else {
@@ -66,14 +66,14 @@ inline void set_bit(u32 *number, u8 nth_bit, u8 choice) {
   }
 }
 
-inline void fill_bits(u32 *number, u8 start, u8 end, u8 bit_choice) {
+void fill_bits(u32 *number, u8 start, u8 end, u8 bit_choice) {
   for (i8 i = start; i >= end; i--) {
     set_bit(number, i, bit_choice);
   }
   return;
 }
 
-inline u32 bits_at(u32 number, u32 start, u32 end) {
+u32 bits_at(u32 number, u32 start, u32 end) {
   u32 bits = (number >> end);
   if (!(start > 31)) {
     fill_bits(&bits, 31, start - end + 1, 0);
@@ -81,7 +81,7 @@ inline u32 bits_at(u32 number, u32 start, u32 end) {
   return bits;
 }
 
-inline u32 extend_bit_at(u32 num, u8 bit_place) {
+u32 extend_bit_at(u32 num, u8 bit_place) {
   u8 bit = bit_at(num, bit_place);
   fill_bits(&num, 31, bit_place, bit);
   return num;
@@ -298,10 +298,10 @@ internal PoximInstruction parse_instruction(u32 inst) {
   return result;
 }
 
-internal void print_instruction(char *src, PoximInstruction inst) {
+internal void sprint_instruction(char src[512], PoximInstruction inst) {
   char result[500] = {0};
-  char rz[5], rx[5], ry[5];
-  char assembly_text[32];
+  char rl[5], rz[5], rx[5], ry[5];
+  char assembly_text[64];
 
   switch (inst.O) {
   case mov: {
@@ -309,7 +309,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     u32 mask = 0b00000000000111111111111111111111ul;
     u32 partial = mask & ((inst.X << 16) | (inst.Y << 11) | (inst.L << 0));
     reg2str(rz, inst.Z);
-    snprintf(assembly_text, sizeof(assembly_text), "mov %s,%u", rz, partial);
+    snprintf(assembly_text, count_of(assembly_text), "mov %s,%u", rz, partial);
     break;
   }
   case movs: {
@@ -318,14 +318,14 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     u32 partial = mask & ((inst.X << 16) | (inst.Y << 11) | (inst.L << 0));
     fill_bits(&partial, 31, 20, bit_at(inst.X, 4));
     reg2str(rz, inst.Z);
-    snprintf(assembly_text, sizeof(assembly_text), "movs %s,%d", rz, partial);
+    snprintf(assembly_text, count_of(assembly_text), "movs %s,%d", rz, partial);
     break;
   }
   case add: {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, sizeof(assembly_text), "add %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "add %s,%s,%s", rz, rx, ry);
     break;
   }
   case sub: {
@@ -334,7 +334,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, sizeof(assembly_text), "sub %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "sub %s,%s,%s", rz, rx, ry);
     break;
   }
   case       /*:>the first 3 bits of inst.L are:*/
@@ -348,7 +348,6 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       sra:   // sra  = op.L: 0b111
   {
 
-    char rl[5], rz[5], rx[5], ry[5];
     switch (bits_at(inst.L, 10, 8)) {
     // mul
     case 0b000: {
@@ -359,7 +358,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      snprintf(assembly_text, sizeof(assembly_text), "mul %s,%s,%s,%s", rl, rz,
+      snprintf(assembly_text, count_of(assembly_text), "mul %s,%s,%s,%s", rl, rz,
                rx, ry);
       break;
     }
@@ -367,13 +366,12 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     {
       // muls r0,r7,r6,r5
       // R0:R7=R6*R5=0x0000000000000000,SR=0x00000040
-      char rl[5], rz[5], rx[5], ry[5];
       u32 L_4_0 = (u32)bits_at(inst.L, 4, 0);
       reg2str(rl, L_4_0);
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      snprintf(assembly_text, sizeof(assembly_text), "muls %s,%s,%s,%s", rl, rz,
+      snprintf(assembly_text, count_of(assembly_text), "muls %s,%s,%s,%s", rl, rz,
                rx, ry);
       break;
     }
@@ -388,7 +386,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       reg2str(ry, inst.Y);
       reg2str(rl, r_index_L);
 
-      snprintf(assembly_text, sizeof(assembly_text), "div %s,%s,%s,%s", rl, rz,
+      snprintf(assembly_text, count_of(assembly_text), "div %s,%s,%s,%s", rl, rz,
                rx, ry);
       break;
     }
@@ -402,7 +400,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       reg2str(ry, inst.Y);
       reg2str(rl, r_index_L);
 
-      snprintf(assembly_text, sizeof(assembly_text), "divs %s,%s,%s,%s", rl, rz,
+      snprintf(assembly_text, count_of(assembly_text), "divs %s,%s,%s,%s", rl, rz,
                rx, ry);
       break;
     }
@@ -415,7 +413,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, sizeof(assembly_text), "sll %s,%s,%s,%d", rz, rx,
+      snprintf(assembly_text, count_of(assembly_text), "sll %s,%s,%s,%d", rz, rx,
                ry, L_4_0);
       break;
     }
@@ -428,7 +426,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, sizeof(assembly_text), "sla %s,%s,%s,%u", rz, rx,
+      snprintf(assembly_text, count_of(assembly_text), "sla %s,%s,%s,%u", rz, rx,
                ry, L_4_0);
 
       break;
@@ -442,7 +440,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, sizeof(assembly_text), "srl %s,%s,%s,%d", rz, rx,
+      snprintf(assembly_text, count_of(assembly_text), "srl %s,%s,%s,%d", rz, rx,
                ry, L_4_0);
       break;
     }
@@ -455,7 +453,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, sizeof(assembly_text), "sra %s,%s,%s,%d", rz, rx,
+      snprintf(assembly_text, count_of(assembly_text), "sra %s,%s,%s,%d", rz, rx,
                ry, L_4_0);
       break;
     }
@@ -467,7 +465,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     // cmp ir,pc                	SR=0x00000020
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, sizeof(assembly_text), "cmp %s,%s", rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "cmp %s,%s", rx, ry);
     break;
   }
 
@@ -477,7 +475,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
 
-    snprintf(assembly_text, sizeof(assembly_text), "and %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "and %s,%s,%s", rz, rx, ry);
     break;
   }
   case or: {
@@ -485,14 +483,14 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, sizeof(assembly_text), "or %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "or %s,%s,%s", rz, rx, ry);
     break;
   }
   case not: {
     // not r15,r7               	R15=~R7=0xFFFFFFFF,SR=0x00000030
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "not %s,%s", rz, rx);
+    snprintf(assembly_text, count_of(assembly_text), "not %s,%s", rz, rx);
     break;
   }
   case xor: {
@@ -501,7 +499,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, sizeof(assembly_text), "xor %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "xor %s,%s,%s", rz, rx, ry);
     break;
   }
   //:> Format Type 'F'
@@ -511,7 +509,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
 
-    snprintf(assembly_text, sizeof(assembly_text), "addi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "addi %s,%s,%d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -522,7 +520,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "subi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "subi %s,%s,%d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -532,7 +530,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "muli %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "muli %s,%s,%d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -542,7 +540,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "divi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "divi %s,%s,%d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -552,7 +550,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "modi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "modi %s,%s,%d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -563,7 +561,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "cmpi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "cmpi %s,%s,%d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -572,7 +570,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "l8 %s, [%s + %d]", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "l8 %s, [%s + %d]", rz, rx,
              inst.I);
     break;
   }
@@ -581,7 +579,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "l16 %s, [%s + %d] << 1", rz,
+    snprintf(assembly_text, count_of(assembly_text), "l16 %s, [%s + %d] << 1", rz,
              rx, inst.I);
     break;
   }
@@ -589,7 +587,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "l32 %s, [%s + %d] << 2", rz,
+    snprintf(assembly_text, count_of(assembly_text), "l32 %s, [%s + %d] << 2", rz,
              rx, inst.I);
     break;
   }
@@ -597,7 +595,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "s8 [%s + %d], %s", rx,
+    snprintf(assembly_text, count_of(assembly_text), "s8 [%s + %d], %s", rx,
              inst.I, rz);
     break;
   }
@@ -605,7 +603,7 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "s16 [%s + %d], %s", rx,
+    snprintf(assembly_text, count_of(assembly_text), "s16 [%s + %d], %s", rx,
              inst.I, rz);
     break;
   }
@@ -613,93 +611,93 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, sizeof(assembly_text), "s32 [%s + %d], %s", rx,
+    snprintf(assembly_text, count_of(assembly_text), "s32 [%s + %d], %s", rx,
              inst.I, rz);
     break;
   }
   case bae: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bae %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bae %d", (i32)inst.I);
     break;
   }
   case bat: {
 
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bat %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bat %d", (i32)inst.I);
 
     break;
   }
   case bbe: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bbe %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bbe %d", (i32)inst.I);
     break;
   }
   case bbt: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bbt %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bbt %d", (i32)inst.I);
     break;
   }
   case beq: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "beq %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "beq %d", (i32)inst.I);
     break;
   }
   case bge: {
 
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bge %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bge %d", (i32)inst.I);
     break;
   }
   case bgt: {
 
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bgt %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bgt %d", (i32)inst.I);
     break;
   }
   case biv: {
 
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "biv %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "biv %d", (i32)inst.I);
     break;
   }
   case ble: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "ble %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "ble %d", (i32)inst.I);
     break;
   }
   case blt: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "blt %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "blt %d", (i32)inst.I);
     break;
   }
   case bne: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bne %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bne %d", (i32)inst.I);
     break;
   }
   case bni: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bni %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bni %d", (i32)inst.I);
     break;
   }
   case bnz: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bnz %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bnz %d", (i32)inst.I);
     break;
   }
   case bun: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bun %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bun %d", (i32)inst.I);
     break;
   }
   case bzd: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "bdz %d", (i32)inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "bdz %d", (i32)inst.I);
     break;
   }
   case int_: {
     // 0x000000D4:	int 0 CR=0x00000000,PC=0x00000000
-    snprintf(assembly_text, sizeof(assembly_text), "%s %d", "int", inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "%s %d", "int", inst.I);
     break;
   }
   //::>> FLOW CONTROL:
@@ -707,29 +705,29 @@ internal void print_instruction(char *src, PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rx, inst.X);
     // call[r0 + 16]             	PC=0x00000040,MEM[0x00007FFC]=0x000002C4
-    snprintf(assembly_text, sizeof(assembly_text), "%s [%s+%d]", "call", rx,
+    snprintf(assembly_text, count_of(assembly_text), "%s [%s+%d]", "call", rx,
              (i32)(inst.I));
     break;
   }
   case calli: {
     // call[r0 + 16]             	PC=0x00000040,MEM[0x00007FFC]=0x000002C4
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, sizeof(assembly_text), "%s %d", "call", inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "%s %d", "call", inst.I);
     break;
   }
   case ret: {
     // ret                      	PC=MEM[0x00007FFC]=0x000002C4
-    snprintf(assembly_text, sizeof(assembly_text), "%s", "ret");
+    snprintf(assembly_text, count_of(assembly_text), "%s", "ret");
     break;
   }
   case push: {
     //: TODO: push what
-    snprintf(assembly_text, sizeof(assembly_text), "%s", "push");
+    snprintf(assembly_text, count_of(assembly_text), "%s", "push");
     break;
   }
   case pop: {
     //: TODO: pop what
-    snprintf(assembly_text, sizeof(assembly_text), "%s", "pop");
+    snprintf(assembly_text, count_of(assembly_text), "%s", "pop");
     break;
   }
   // cbr
@@ -744,20 +742,81 @@ internal void print_instruction(char *src, PoximInstruction inst) {
 
     // mov r1,1193046           	R1=0x00123456
     reg2str(rz, inst.Z);
-    snprintf(assembly_text, sizeof(assembly_text), "%s %s[%u]", instruction, rz,
+    snprintf(assembly_text, count_of(assembly_text), "%s %s[%u]", instruction, rz,
              inst.X);
     break;
   }
   case reti: {
     // reti
     // IPC=MEM[0x????????]=0x????????,CR=MEM[0x????????]=0x????????,PC=MEM[0x????????]=0x????????
-    snprintf(assembly_text, sizeof(assembly_text), "%s", "reti");
+    snprintf(assembly_text, count_of(assembly_text), "%s", "reti");
     break;
   }
 
   default: {
-    sprintf(assembly_text, "\tunkown\n");
+    sprintf(assembly_text, "unkown");
     break;
   }
   }
+  printf("%s\n", assembly_text);
+  snprintf(src, count_of(assembly_text), "%s", assembly_text);
+}
+
+typedef struct {
+  union {
+    u32 instructions[32 * MEM_SIZE / 4];
+    u8 RAM8[32 * MEM_SIZE];
+    u16 RAM16[32 * MEM_SIZE / 2];
+    u32 RAM32[32 * MEM_SIZE / 4];
+  };
+} PoximMemory;
+
+PoximMemory mem;
+FILE *input, *output;
+int main(int argc, char *argv[]) {
+  input = fopen(argv[1], "r");
+  if (input == NULL) {
+    printf("Failed to open the input %s\n", argv[1]);
+    return 24;
+  }
+  output = fopen(argv[2], "w");
+  if (output == NULL) {
+    printf("Failed to open the output %s.\n", argv[2]);
+    return 69;
+  }
+
+  for (int i = 0; i < argc; i++) {
+    printf("arg[%d] %s \n", i, argv[i]);
+  }
+
+  {
+    uint32_t dword = 0, n = 0;
+    while (fscanf(input, "0x%8X\n", &dword) == 1) {
+      mem.RAM32[n++] = dword;
+      printf("mem.RAM32[n++] = %8x; dword = %8x\n", mem.RAM32[n -1], dword );
+    }
+  }
+  {
+    char text[512];
+    for (size_t i = 0; i < count_of(mem.RAM32); i++) {
+      if (mem.RAM32[i] == 0)  {
+        continue;
+      }
+      PoximInstruction inst = parse_instruction(mem.RAM32[i]);
+      sprint_instruction(text, inst);
+      fprintf(output, 
+            "%4x:\t\t" 
+            "%02x %02x %02x %02x \t\t\t"
+            "%s\n", 
+          (u32)(i*4), 
+              mem.RAM8[i*4 + 0],
+              mem.RAM8[i*4 + 1],
+              mem.RAM8[i*4 + 2],
+              mem.RAM8[i*4 + 3],
+           text
+      );
+    }
+  }
+
+  return 0;
 }

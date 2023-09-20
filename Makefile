@@ -490,10 +490,10 @@ distclean: clean
 	@rm -vf config.h config.mak config.texi
 	@rm -vf $(TCCDOCS)
 
-debug: 
-	gdb --args tcc -c ./examples/ex1.c -o./tests/out/ex1.bin -I. -Iinclude -L.
 
-.PHONY: all clean test debug tar tags ETAGS doc distclean install uninstall FORCE
+include $(TOP)/poxim.mak
+
+.PHONY: all clean test tar tags ETAGS doc distclean install uninstall FORCE util
 
 help:
 	@echo "make"

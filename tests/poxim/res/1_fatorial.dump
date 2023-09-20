@@ -1,0 +1,15 @@
+   0:		11 00 00 dc 			bun 17
+  20:		00 00 01 5c 			cmpi r0,r1,0
+  24:		02 00 00 d0 			bne 2
+  28:		01 00 40 00 			mov r2,1
+  2c:		05 00 00 dc 			bun 5
+  30:		40 00 00 28 			push
+  34:		01 00 21 4c 			subi r1,r1,1
+  38:		f9 ff ff e7 			call -7
+  3c:		40 00 00 2c 			pop
+  40:		00 08 42 10 			mul r0,r2,r2,r1
+  44:		00 00 00 7c 			ret
+  48:		fc 7f c0 03 			mov sp,32764
+  4c:		03 00 20 00 			mov r1,3
+  50:		f3 ff ff e7 			call -13
+  54:		00 00 00 fc 			int 0
