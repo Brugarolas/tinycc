@@ -33,6 +33,8 @@
 #define UNUSED 0x00
 #define MEM_SIZE 1024
 // I saw this typing in rust and casey's stream, i really like it
+typedef enum { false = 0, true = 1 } bool;
+
 typedef float f32;
 typedef double f64;
 
@@ -50,6 +52,31 @@ typedef int16_t i16;
 typedef int8_t i8;
 typedef size_t usize;
 typedef ptrdiff_t isize;
+
+int read_bytes(void *buffer, size_t buffer_size, FILE *input_file) {
+  size_t index = 0;
+  int byte;
+  uint8_t *data_buffer = (uint8_t *)buffer;
+
+  if (input_file == NULL) {
+    perror("Error opening file");
+    return 1;
+  }
+
+  while ((byte = fgetc(input_file)) != EOF) {
+    if (index < buffer_size) {
+      data_buffer[index] = (uint8_t)(byte & 0xFF);
+      index++;
+    } else {
+      fprintf(stdout, "Error buffer too smal pepehand: max_buffer_size: %zu",
+              buffer_size);
+      exit(69);
+    }
+  }
+
+  fclose(input_file);
+  return 0;
+}
 
 u8 bit_at(u32 number, int nth_bit) {
   u32 bit;
@@ -325,7 +352,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, count_of(assembly_text), "add %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "add %s,%s,%s", rz, rx,
+             ry);
     break;
   }
   case sub: {
@@ -334,7 +362,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, count_of(assembly_text), "sub %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "sub %s,%s,%s", rz, rx,
+             ry);
     break;
   }
   case       /*:>the first 3 bits of inst.L are:*/
@@ -358,8 +387,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      snprintf(assembly_text, count_of(assembly_text), "mul %s,%s,%s,%s", rl, rz,
-               rx, ry);
+      snprintf(assembly_text, count_of(assembly_text), "mul %s,%s,%s,%s", rl,
+               rz, rx, ry);
       break;
     }
     case 0b010: // muls
@@ -371,8 +400,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      snprintf(assembly_text, count_of(assembly_text), "muls %s,%s,%s,%s", rl, rz,
-               rx, ry);
+      snprintf(assembly_text, count_of(assembly_text), "muls %s,%s,%s,%s", rl,
+               rz, rx, ry);
       break;
     }
     case 0b100: /*div */
@@ -386,8 +415,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(ry, inst.Y);
       reg2str(rl, r_index_L);
 
-      snprintf(assembly_text, count_of(assembly_text), "div %s,%s,%s,%s", rl, rz,
-               rx, ry);
+      snprintf(assembly_text, count_of(assembly_text), "div %s,%s,%s,%s", rl,
+               rz, rx, ry);
       break;
     }
     case 0b110: /*divs*/
@@ -400,8 +429,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(ry, inst.Y);
       reg2str(rl, r_index_L);
 
-      snprintf(assembly_text, count_of(assembly_text), "divs %s,%s,%s,%s", rl, rz,
-               rx, ry);
+      snprintf(assembly_text, count_of(assembly_text), "divs %s,%s,%s,%s", rl,
+               rz, rx, ry);
       break;
     }
     case 0b001: /*sll */
@@ -413,8 +442,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "sll %s,%s,%s,%d", rz, rx,
-               ry, L_4_0);
+      snprintf(assembly_text, count_of(assembly_text), "sll %s,%s,%s,%d", rz,
+               rx, ry, L_4_0);
       break;
     }
     case 0b011: /*sla */
@@ -426,8 +455,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "sla %s,%s,%s,%u", rz, rx,
-               ry, L_4_0);
+      snprintf(assembly_text, count_of(assembly_text), "sla %s,%s,%s,%u", rz,
+               rx, ry, L_4_0);
 
       break;
     }
@@ -440,8 +469,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "srl %s,%s,%s,%d", rz, rx,
-               ry, L_4_0);
+      snprintf(assembly_text, count_of(assembly_text), "srl %s,%s,%s,%d", rz,
+               rx, ry, L_4_0);
       break;
     }
     case 0b111: /*sra */
@@ -453,8 +482,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "sra %s,%s,%s,%d", rz, rx,
-               ry, L_4_0);
+      snprintf(assembly_text, count_of(assembly_text), "sra %s,%s,%s,%d", rz,
+               rx, ry, L_4_0);
       break;
     }
     }
@@ -475,7 +504,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
 
-    snprintf(assembly_text, count_of(assembly_text), "and %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "and %s,%s,%s", rz, rx,
+             ry);
     break;
   }
   case or: {
@@ -499,7 +529,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, count_of(assembly_text), "xor %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "xor %s,%s,%s", rz, rx,
+             ry);
     break;
   }
   //:> Format Type 'F'
@@ -579,16 +610,16 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "l16 %s, [%s + %d] << 1", rz,
-             rx, inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "l16 %s, [%s + %d] << 1",
+             rz, rx, inst.I);
     break;
   }
   case l32: {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "l32 %s, [%s + %d] << 2", rz,
-             rx, inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "l32 %s, [%s + %d] << 2",
+             rz, rx, inst.I);
     break;
   }
   case s8: {
@@ -742,8 +773,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
 
     // mov r1,1193046           	R1=0x00123456
     reg2str(rz, inst.Z);
-    snprintf(assembly_text, count_of(assembly_text), "%s %s[%u]", instruction, rz,
-             inst.X);
+    snprintf(assembly_text, count_of(assembly_text), "%s %s[%u]", instruction,
+             rz, inst.X);
     break;
   }
   case reti: {
@@ -772,54 +803,70 @@ typedef struct {
 
 PoximMemory mem;
 FILE *input, *output;
+
+// '--bin' flag reads as binary
+bool as_bin = false;
+const char *as_bin_flag = "--bin";
+
 int main(int argc, char *argv[]) {
-  input = fopen(argv[1], "r");
-  if (input == NULL) {
-    printf("usage: poxim-dump <file.input> [file.output]\n");
-    for (int i = 0; i < argc; i++) {
-      printf("arg[%d] %s \n", i, argv[i]);
+#if POXIM_DEBUG
+  for (int i = 0; i < argc; i++) {
+    printf("arg[%d] %s \n", i, argv[i]);
+  }
+#endif
+  if (argc > 1 && strcmp(argv[1], as_bin_flag) == 0) {
+    as_bin = true;
+    // Shift the arguments to skip the '--bin' flag
+    for (int i = 1; i < argc - 1; i++) {
+      argv[i] = argv[i + 1];
     }
+    argv[argc - 1] = NULL;
+    argc--;
+  }
+
+  input = fopen(argv[1], as_bin ? "rb" : "r");
+  if (input == NULL) {
+    printf("usage: poxim-dump [%s] <file.input> [file.output]\n", as_bin_flag);
     return 24;
   }
-  output = fopen(argv[2], "w");
-  if (output == NULL) {
-    output = stdout;
-  }
-
-
   {
     uint32_t dword = 0, n = 0;
-    while (fscanf(input, "0x%8X\n", &dword) == 1) {
-      mem.RAM32[n++] = dword;
+    if (!as_bin) {
+      while (fscanf(input, "0x%8X\n", &dword) == 1) {
+        mem.RAM32[n++] = dword;
 #if POXIM_DEBUG
-      printf("mem.RAM32[n++] = %8x; dword = %8x\n", mem.RAM32[n -1], dword );
+        printf("mem.RAM32[n++] = %8x; dword = %8x\n", mem.RAM32[n - 1], dword);
 #endif
-    }
-  }
-
-  {
-    char text[512];
-    for (size_t i = 0; i < count_of(mem.RAM32); i++) {
-      PoximInstruction inst;
-      if (mem.RAM32[i] == 0)  {
-        continue;
       }
-      inst = parse_instruction(mem.RAM32[i]);
-      sprint_instruction(text, inst);
-      fprintf(output, 
-            "%4x:    " 
-            "%02x %02x %02x %02x       "
-            "%s\n", 
-          (u32)(i*4), 
-              mem.RAM8[i*4 + 0],
-              mem.RAM8[i*4 + 1],
-              mem.RAM8[i*4 + 2],
-              mem.RAM8[i*4 + 3],
-           text
-      );
+    } else {
+      read_bytes(mem.RAM8, count_of(mem.RAM8), input);
     }
-  }
-  fflush(output); 
 
-  return 0;
+    if (output == NULL) {
+      output = stdout;
+    } else {
+      output = fopen(argv[2], "w");
+    }
+
+    {
+      char text[512];
+      for (size_t i = 0; i < count_of(mem.RAM32); i++) {
+        PoximInstruction inst;
+        if (mem.RAM32[i] == 0) {
+          continue;
+        }
+        inst = parse_instruction(mem.RAM32[i]);
+        sprint_instruction(text, inst);
+        fprintf(output,
+                "%4x:    "
+                "%02x %02x %02x %02x       "
+                "%s\n",
+                (u32)(i * 4), mem.RAM8[i * 4 + 0], mem.RAM8[i * 4 + 1],
+                mem.RAM8[i * 4 + 2], mem.RAM8[i * 4 + 3], text);
+      }
+    }
+    fflush(output);
+
+    return 0;
+  }
 }

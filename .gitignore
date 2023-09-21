@@ -1,3 +1,8 @@
+# poxim
+poxim-dump
+poxim-interp
+#
+
 *~
 \#*
 .#*
@@ -21,8 +26,6 @@ tcc_c
 tcc_p
 *-tcc
 libtcc*.def
-poxim-dump
-poxim-interp
 config*.h
 *_.h
 config*.mak
