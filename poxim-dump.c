@@ -758,7 +758,6 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     break;
   }
   }
-  printf("%s\n", assembly_text);
   snprintf(src, count_of(assembly_text), "%s", assembly_text);
 }
 
@@ -777,23 +776,24 @@ int main(int argc, char *argv[]) {
   input = fopen(argv[1], "r");
   if (input == NULL) {
     printf("usage: poxim-dump <file.input> [file.output]\n");
+    for (int i = 0; i < argc; i++) {
+      printf("arg[%d] %s \n", i, argv[i]);
+    }
     return 24;
   }
   output = fopen(argv[2], "w");
   if (output == NULL) {
     output = stdout;
-    return 69;
   }
 
-  for (int i = 0; i < argc; i++) {
-    printf("arg[%d] %s \n", i, argv[i]);
-  }
 
   {
     uint32_t dword = 0, n = 0;
     while (fscanf(input, "0x%8X\n", &dword) == 1) {
       mem.RAM32[n++] = dword;
+#if POXIM_DEBUG
       printf("mem.RAM32[n++] = %8x; dword = %8x\n", mem.RAM32[n -1], dword );
+#endif
     }
   }
 
@@ -807,8 +807,8 @@ int main(int argc, char *argv[]) {
       inst = parse_instruction(mem.RAM32[i]);
       sprint_instruction(text, inst);
       fprintf(output, 
-            "%4x:\t\t" 
-            "%02x %02x %02x %02x \t\t\t"
+            "%4x:    " 
+            "%02x %02x %02x %02x       "
             "%s\n", 
           (u32)(i*4), 
               mem.RAM8[i*4 + 0],
@@ -819,6 +819,7 @@ int main(int argc, char *argv[]) {
       );
     }
   }
+  fflush(output); 
 
   return 0;
 }
