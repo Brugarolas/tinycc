@@ -1,10 +1,7 @@
-arg[0] ./poxim-dump 
-arg[1] --bin 
-arg[2] ./out/ex1.text.dump 
-   0:    55 89 e5 81       reti
-   4:    ec 00 00 00       mov r0,236
-   8:    00 b8 00 00       mov r0,47104
-   c:    00 00 50 e8       unkown
-  10:    fc ff ff ff       int 67108860
-  14:    83 c4 04 b8       beq 312451
-  1c:    c9 c3 00 00       mov r0,50121
+   0:    55 89 e5 81       divi r12,r9,-6783
+   4:    ec 00 00 00       unkown
+   8:    00 b8 00 00       mov r5,1572864
+   c:    00 00 50 e8       mov r0,20712
+  10:    fc ff ff ff       int 16777215
+  14:    83 c4 04 b8       reti
+  1c:    c9 c3 00 00       ble 29556736

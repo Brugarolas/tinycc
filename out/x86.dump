@@ -1,10 +1,10 @@
 
-./tests/out/ex1.text.dump:     file format binary
+./out/ex1.text.dump:     file format binary
 
 
 Disassembly of section .data:
 
-0000000000000000 <.data>:
+00000000 <.data>:
    0:	55                   	push   rbp
    1:	89 e5                	mov    ebp,esp
    3:	81 ec 00 00 00 00    	sub    esp,0x0

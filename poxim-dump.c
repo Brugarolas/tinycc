@@ -53,6 +53,11 @@ typedef int8_t i8;
 typedef size_t usize;
 typedef ptrdiff_t isize;
 
+const u32 swap_endianness32(u32 num) {
+  return ((num >> 24) & 0xFF) | ((num >> 8) & 0xFF00) |
+         ((num << 8) & 0xFF0000) | ((num << 24) & 0xFF000000);
+}
+
 int read_bytes(void *buffer, size_t buffer_size, FILE *input_file) {
   size_t index = 0;
   int byte;
@@ -752,13 +757,55 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     break;
   }
   case push: {
-    //: TODO: push what
-    snprintf(assembly_text, count_of(assembly_text), "%s", "push");
+    u32 X = inst.X;
+    u32 Y = inst.Y;
+    u32 Z = inst.Z;
+
+    u32 L = inst.L;
+    u32 W = bits_at(L, 4, 0);
+    u32 V = bits_at(L, 10, 6);
+    u32 registers_to_push[] = {V, W, X, Y, Z};
+
+    char reg[5];
+    int chars_written = snprintf(assembly_text, count_of(assembly_text), "push");
+    for (u32 i = 0; i < count_of(registers_to_push); i++) {
+      u32 index = registers_to_push[i];
+      reg2str(reg, index);
+      if (index == 0) {
+        break;
+      }
+
+      chars_written +=
+          snprintf(assembly_text + chars_written,
+                   count_of(assembly_text) - chars_written, " %s", reg);
+    }
+
     break;
   }
   case pop: {
-    //: TODO: pop what
-    snprintf(assembly_text, count_of(assembly_text), "%s", "pop");
+    u32 X = inst.X;
+    u32 Y = inst.Y;
+    u32 Z = inst.Z;
+
+    u32 L = inst.L;
+    u32 W = bits_at(L, 4, 0);
+    u32 V = bits_at(L, 10, 6);
+    u32 registers_to_push[] = {V, W, X, Y, Z};
+
+    char reg[5];
+    int chars_written = snprintf(assembly_text, count_of(assembly_text), "pop");
+    for (u32 i = 0; i < count_of(registers_to_push); i++) {
+      u32 index = registers_to_push[i];
+      reg2str(reg, index);
+      if (index == 0) {
+        break;
+      }
+
+      chars_written +=
+          snprintf(assembly_text + chars_written,
+                   count_of(assembly_text) - chars_written, " %s", reg);
+    }
+
     break;
   }
   // cbr
@@ -771,7 +818,6 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       sprintf(instruction, "%s", "sbr");
     }
 
-    // mov r1,1193046           	R1=0x00123456
     reg2str(rz, inst.Z);
     snprintf(assembly_text, count_of(assembly_text), "%s %s[%u]", instruction,
              rz, inst.X);
@@ -855,14 +901,22 @@ int main(int argc, char *argv[]) {
         if (mem.RAM32[i] == 0) {
           continue;
         }
-        inst = parse_instruction(mem.RAM32[i]);
+				if (as_bin) {
+					mem.RAM32[i] = swap_endianness32(mem.RAM32[i]);
+				} 
+				inst = parse_instruction(mem.RAM32[i]);
         sprint_instruction(text, inst);
         fprintf(output,
                 "%4x:    "
                 "%02x %02x %02x %02x       "
                 "%s\n",
-                (u32)(i * 4), mem.RAM8[i * 4 + 0], mem.RAM8[i * 4 + 1],
-                mem.RAM8[i * 4 + 2], mem.RAM8[i * 4 + 3], text);
+                (u32)(i * 4), 
+								mem.RAM8[i * 4 + 3],
+								mem.RAM8[i * 4 + 2],
+								mem.RAM8[i * 4 + 1],
+								mem.RAM8[i * 4 + 0], 
+								text
+				);
       }
     }
     fflush(output);
