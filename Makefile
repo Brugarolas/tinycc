@@ -215,7 +215,9 @@ endif
 
 CORE_FILES = tcc.c tcctools.c libtcc.c tccpp.c tccgen.c tccdbg.c tccelf.c tccasm.c tccrun.c
 CORE_FILES += tcc.h config.h libtcc.h tcctok.h
-poxim_FILES = $(CORE_FILES) poxim-gen.c poxim-link.c poxim-asm.c poxim-asm.h poxim-tok.h
+# NOTE: Uncomment when ready for asm and other stuff  
+# poxim_FILES = $(CORE_FILES) poxim-gen.c poxim-link.c poxim-asm.c poxim-asm.h poxim-tok.h
+poxim_FILES = $(CORE_FILES) poxim-gen.c
 i386_FILES = $(CORE_FILES) i386-gen.c i386-link.c i386-asm.c i386-asm.h i386-tok.h
 i386-win32_FILES = $(i386_FILES) tccpe.c
 x86_64_FILES = $(CORE_FILES) x86_64-gen.c x86_64-link.c i386-asm.c x86_64-asm.h

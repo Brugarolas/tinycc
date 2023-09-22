@@ -18,42 +18,44 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef TARGET_DEFS_ONLY
+#if defined (TARGET_DEFS_ONLY)
 
 /* number of available registers */
-#define NB_REGS         5
-#define NB_ASM_REGS     8
+#define NB_REGS         5 /* will only support r1, r2, r3, r4, r5 for now, all 32 bit*/
+#define NB_ASM_REGS     5 
 #define CONFIG_TCC_ASM
 
 /* a register can belong to several classes. The classes must be
    sorted from more general to more precise (see gv2() code which does
    assumptions on it). */
 #define RC_INT     0x0001 /* generic integer register */
-#define RC_FLOAT   0x0002 /* generic float register */
-#define RC_EAX     0x0004
-#define RC_EDX     0x0008
-#define RC_ECX     0x0010
-#define RC_EBX     0x0020
-#define RC_ST0     0x0040
+#define RC_FLOAT   0x0002 /* generic float register does not exist in poxim */
+#define RC_1     0x0004
+#define RC_2     0x0008
+#define RC_3     0x0010
+#define RC_4     0x0020
+#define RC_F     0x0040 //WARN: all floats must be eliminated for now
+#define RC_5     0x0080
 
-#define RC_IRET    RC_EAX /* function return: integer register */
-#define RC_IRE2    RC_EDX /* function return: second integer register */
-#define RC_FRET    RC_ST0 /* function return: float register */
+/* Anotehr possible ideia for dealing with float could be just doing integer things with it idk*/
+#define RC_IRET    RC_1 /* function return: integer register */
+#define RC_IRE2    RC_2 /* function return: second integer register */
+#define RC_FRET    RC_F /* function return: float register */
 
 /* pretty names for the registers */
 enum {
-    TREG_EAX = 0,
-    TREG_ECX,
-    TREG_EDX,
-    TREG_EBX,
-    TREG_ST0,
-    TREG_ESP = 4
+    r1 = 0,
+    r2,
+    r3,
+    r4,
+    rf,
+    sp = 30
 };
 
 /* return registers for function */
-#define REG_IRET TREG_EAX /* single word int return register */
-#define REG_IRE2 TREG_EDX /* second word return register (for long long) */
-#define REG_FRET TREG_ST0 /* float return register */
+#define REG_IRET r1 /* single word int return register */
+#define REG_IRE2 r2 /* second word return register (for long long) */
+#define REG_FRET rf
 
 /* defined if function parameters must be evaluated in reverse order */
 #define INVERT_FUNC_PARAMS
@@ -82,19 +84,19 @@ enum {
 #include "tcc.h"
 
 ST_DATA const char * const target_machine_defs =
-    "__i386__\0"
-    "__i386\0"
+    "__poxim__\0"
+    "__poxim\0"
     ;
 
 /* define to 1/0 to [not] have EBX as 4th register */
 #define USE_EBX 0
 
 ST_DATA const int reg_classes[NB_REGS] = {
-    /* eax */ RC_INT | RC_EAX,
-    /* ecx */ RC_INT | RC_ECX,
-    /* edx */ RC_INT | RC_EDX,
-    /* ebx */ (RC_INT | RC_EBX) * USE_EBX,
-    /* st0 */ RC_FLOAT | RC_ST0,
+    /* r1 */ RC_INT | RC_1,
+    /* r2 */ RC_INT | RC_2,
+    /* r3 */ RC_INT | RC_3,
+    /* r4 */ (RC_INT | RC_4)
+    // /* rf not equilavente */ RC_FLOAT | RC_ST0,
 };
 
 static unsigned long func_sub_sp_offset;
@@ -376,8 +378,8 @@ static void gcall_or_jmp(int is_jmp)
     }
 }
 
-static const uint8_t fastcall_regs[3] = { TREG_EAX, TREG_EDX, TREG_ECX };
-static const uint8_t fastcallw_regs[2] = { TREG_ECX, TREG_EDX };
+static const uint8_t fastcall_regs[3] = { r1, r3, r2 };
+static const uint8_t fastcallw_regs[2] = { r2, r3 };
 
 /* Return the number of registers needed to return the struct, or 0 if
    returning via struct pointer. */
@@ -429,7 +431,7 @@ ST_FUNC void gfunc_call(int nb_args)
             /* allocate the necessary size on stack */
 #ifdef TCC_TARGET_PE
             if (size >= 4096) {
-                r = get_reg(RC_EAX);
+                r = get_reg(r1);
                 oad(0x68, size); // push size
                 /* cannot call normal 'alloca' with bound checking */
                 gen_static_call(tok_alloc_const("__alloca"));
@@ -447,6 +449,7 @@ ST_FUNC void gfunc_call(int nb_args)
             vstore();
             args_size += size;
         } else if (is_float(vtop->type.t)) {
+            tcc_error("%s, floating point not supported in poxim-gen for now", __func__);
             gv(RC_FLOAT); /* only one float register */
             if ((vtop->type.t & VT_BTYPE) == VT_FLOAT)
                 size = 4;
@@ -617,7 +620,7 @@ ST_FUNC void gfunc_epilog(void)
 
 #if USE_EBX
     o(0x8b);
-    gen_modrm(TREG_EBX, VT_LOCAL, NULL, -(v+4));
+    gen_modrm(r3, VT_LOCAL, NULL, -(v+4));
 #endif
 
     o(0xc9); /* leave */
@@ -788,7 +791,7 @@ ST_FUNC void gen_opi(int op)
             g(c);
         } else {
             /* we generate the shift in ecx */
-            gv2(RC_INT, RC_ECX);
+            gv2(RC_INT, r3);
             r = vtop[-1].r;
             o(0xd3); /* shl/shr/sar %cl, r */
             o(opc | r);
@@ -803,18 +806,18 @@ ST_FUNC void gen_opi(int op)
     case TOK_UMULL:
         /* first operand must be in eax */
         /* XXX: need better constraint for second operand */
-        gv2(RC_EAX, RC_ECX);
+        gv2(r1, r3);
         r = vtop[-1].r;
         fr = vtop[0].r;
         vtop--;
-        save_reg(TREG_EDX);
+        save_reg(r3);
         /* save EAX too if used otherwise */
-        save_reg_upstack(TREG_EAX, 1);
+        save_reg_upstack(r1, 1);
         if (op == TOK_UMULL) {
             o(0xf7); /* mul fr */
             o(0xe0 + fr);
-            vtop->r2 = TREG_EDX;
-            r = TREG_EAX;
+            vtop->r2 = r3;
+            r = r1;
         } else {
             if (op == TOK_UDIV || op == TOK_UMOD) {
                 o(0xf7d231); /* xor %edx, %edx, div fr, %eax */
@@ -824,9 +827,9 @@ ST_FUNC void gen_opi(int op)
                 o(0xf8 + fr);
             }
             if (op == '%' || op == TOK_UMOD)
-                r = TREG_EDX;
+                r = r3;
             else
-                r = TREG_EAX;
+                r = r1;
         }
         vtop->r = r;
         break;
@@ -838,180 +841,31 @@ ST_FUNC void gen_opi(int op)
 
 /* generate a floating point operation 'v = t1 op t2' instruction. The
    two operands are guaranteed to have the same floating point type */
-/* XXX: need to use ST1 too */
+/* DONE: just not support float lol */
 ST_FUNC void gen_opf(int op)
 {
     int a, ft, fc, swapped, r;
-
-    if (op == TOK_NEG) { /* unary minus */
-        gv(RC_FLOAT);
-        o(0xe0d9); /* fchs */
-        return;
-    }
-
-    /* convert constants to memory references */
-    if ((vtop[-1].r & (VT_VALMASK | VT_LVAL)) == VT_CONST) {
-        vswap();
-        gv(RC_FLOAT);
-        vswap();
-    }
-    if ((vtop[0].r & (VT_VALMASK | VT_LVAL)) == VT_CONST)
-        gv(RC_FLOAT);
-
-    /* must put at least one value in the floating point register */
-    if ((vtop[-1].r & VT_LVAL) &&
-        (vtop[0].r & VT_LVAL)) {
-        vswap();
-        gv(RC_FLOAT);
-        vswap();
-    }
-    swapped = 0;
-    /* swap the stack if needed so that t1 is the register and t2 is
-       the memory reference */
-    if (vtop[-1].r & VT_LVAL) {
-        vswap();
-        swapped = 1;
-    }
-    if (op >= TOK_ULT && op <= TOK_GT) {
-        /* load on stack second operand */
-        load(TREG_ST0, vtop);
-        save_reg(TREG_EAX); /* eax is used by FP comparison code */
-        if (op == TOK_GE || op == TOK_GT)
-            swapped = !swapped;
-        else if (op == TOK_EQ || op == TOK_NE)
-            swapped = 0;
-        if (swapped)
-            o(0xc9d9); /* fxch %st(1) */
-        if (op == TOK_EQ || op == TOK_NE)
-            o(0xe9da); /* fucompp */
-        else
-            o(0xd9de); /* fcompp */
-        o(0xe0df); /* fnstsw %ax */
-        if (op == TOK_EQ) {
-            o(0x45e480); /* and $0x45, %ah */
-            o(0x40fC80); /* cmp $0x40, %ah */
-        } else if (op == TOK_NE) {
-            o(0x45e480); /* and $0x45, %ah */
-            o(0x40f480); /* xor $0x40, %ah */
-            op = TOK_NE;
-        } else if (op == TOK_GE || op == TOK_LE) {
-            o(0x05c4f6); /* test $0x05, %ah */
-            op = TOK_EQ;
-        } else {
-            o(0x45c4f6); /* test $0x45, %ah */
-            op = TOK_EQ;
-        }
-        vtop--;
-        vset_VT_CMP(op);
-    } else {
-        /* no memory reference possible for long double operations */
-        if ((vtop->type.t & VT_BTYPE) == VT_LDOUBLE) {
-            load(TREG_ST0, vtop);
-            swapped = !swapped;
-        }
-        
-        switch(op) {
-        default:
-        case '+':
-            a = 0;
-            break;
-        case '-':
-            a = 4;
-            if (swapped)
-                a++;
-            break;
-        case '*':
-            a = 1;
-            break;
-        case '/':
-            a = 6;
-            if (swapped)
-                a++;
-            break;
-        }
-        ft = vtop->type.t;
-        fc = vtop->c.i;
-        if ((ft & VT_BTYPE) == VT_LDOUBLE) {
-            o(0xde); /* fxxxp %st, %st(1) */
-            o(0xc1 + (a << 3));
-        } else {
-            /* if saved lvalue, then we must reload it */
-            r = vtop->r;
-            if ((r & VT_VALMASK) == VT_LLOCAL) {
-                SValue v1;
-                r = get_reg(RC_INT);
-                v1.type.t = VT_INT;
-                v1.r = VT_LOCAL | VT_LVAL;
-                v1.c.i = fc;
-                v1.sym = NULL;
-                load(r, &v1);
-                fc = 0;
-            }
-
-            if ((ft & VT_BTYPE) == VT_DOUBLE)
-                o(0xdc);
-            else
-                o(0xd8);
-            gen_modrm(a, r, vtop->sym, fc);
-        }
-        vtop--;
-    }
+    tcc_error("%s, floating point not supported in poxim-gen for now", __func__);
 }
 
 /* convert integers to fp 't' type. Must handle 'int', 'unsigned int'
    and 'long long' cases. */
-ST_FUNC void gen_cvt_itof(int t)
-{
-    save_reg(TREG_ST0);
-    gv(RC_INT);
-    if ((vtop->type.t & VT_BTYPE) == VT_LLONG) {
-        /* signed long long to float/double/long double (unsigned case
-           is handled generically) */
-        o(0x50 + vtop->r2); /* push r2 */
-        o(0x50 + (vtop->r & VT_VALMASK)); /* push r */
-        o(0x242cdf); /* fildll (%esp) */
-        o(0x08c483); /* add $8, %esp */
-        vtop->r2 = VT_CONST;
-    } else if ((vtop->type.t & (VT_BTYPE | VT_UNSIGNED)) == 
-               (VT_INT | VT_UNSIGNED)) {
-        /* unsigned int to float/double/long double */
-        o(0x6a); /* push $0 */
-        g(0x00);
-        o(0x50 + (vtop->r & VT_VALMASK)); /* push r */
-        o(0x242cdf); /* fildll (%esp) */
-        o(0x08c483); /* add $8, %esp */
-    } else {
-        /* int to float/double/long double */
-        o(0x50 + (vtop->r & VT_VALMASK)); /* push r */
-        o(0x2404db); /* fildl (%esp) */
-        o(0x04c483); /* add $4, %esp */
-    }
-    vtop->r2 = VT_CONST;
-    vtop->r = TREG_ST0;
+ST_FUNC void gen_cvt_itof(int t){
+  tcc_error("%s, floating point not supported in poxim-gen for now", __func__);
 }
+
 
 /* convert fp to int 't' type */
 ST_FUNC void gen_cvt_ftoi(int t)
 {
-    int bt = vtop->type.t & VT_BTYPE;
-    if (bt == VT_FLOAT)
-        vpush_helper_func(TOK___fixsfdi);
-    else if (bt == VT_LDOUBLE)
-        vpush_helper_func(TOK___fixxfdi);
-    else
-        vpush_helper_func(TOK___fixdfdi);
-    vswap();
-    gfunc_call(1);
-    vpushi(0);
-    vtop->r = REG_IRET;
-    if ((t & VT_BTYPE) == VT_LLONG)
-        vtop->r2 = REG_IRE2;
+  tcc_error("%s, floating point not supported in poxim-gen for now", __func__);
 }
 
 /* convert from one floating point type to another */
 ST_FUNC void gen_cvt_ftof(int t)
 {
-    /* all we have to do on i386 is to put the float in a register */
+    tcc_error("%s, floating point not supported in poxim-gen for now", __func__);
+    /* all we have to do on poxim is to put the something in register than call memory to talk with fpu and some other shit that i don't wanna deal with rn*/
     gv(RC_FLOAT);
 }
 
@@ -1101,13 +955,13 @@ static void gen_bounds_epilog(void)
 ST_FUNC void gen_vla_sp_save(int addr) {
     /* mov %esp,addr(%ebp)*/
     o(0x89);
-    gen_modrm(TREG_ESP, VT_LOCAL, NULL, addr);
+    gen_modrm(sp, VT_LOCAL, NULL, addr);
 }
 
 /* Restore the SP from a location on the stack */
 ST_FUNC void gen_vla_sp_restore(int addr) {
     o(0x8b);
-    gen_modrm(TREG_ESP, VT_LOCAL, NULL, addr);
+    gen_modrm(sp, VT_LOCAL, NULL, addr);
 }
 
 /* Subtract from the stack pointer, and push the resulting value onto the stack */
