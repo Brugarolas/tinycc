@@ -1,0 +1,19 @@
+
+./out/ex1.i386.bin:     file format elf32-i386
+
+
+Disassembly of section .text:
+
+00000000 <main>:
+   0:	55                   	push   ebp
+   1:	89 e5                	mov    ebp,esp
+   3:	81 ec 04 00 00 00    	sub    esp,0x4
+   9:	b8 02 00 00 00       	mov    eax,0x2
+   e:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
+  11:	b8 00 00 00 00       	mov    eax,0x0
+  16:	50                   	push   eax
+  17:	e8 fc ff ff ff       	call   18 <main+0x18>
+  1c:	83 c4 04             	add    esp,0x4
+  1f:	b8 00 00 00 00       	mov    eax,0x0
+  24:	c9                   	leave
+  25:	c3                   	ret

@@ -82,8 +82,8 @@ LIBS_P = $(LIBS)
 LDFLAGS_P = $(LDFLAGS)
 
 CONFIG_$(ARCH) = yes
-NATIVE_DEFINES_$(CONFIG_poxim) += -DTCC_TARGET_POXIM
 NATIVE_DEFINES_$(CONFIG_i386) += -DTCC_TARGET_I386
+NATIVE_DEFINES_$(CONFIG_poxim) += -DTCC_TARGET_POXIM
 NATIVE_DEFINES_$(CONFIG_x86_64) += -DTCC_TARGET_X86_64
 NATIVE_DEFINES_$(CONFIG_WIN32) += -DTCC_TARGET_PE
 NATIVE_DEFINES_$(CONFIG_OSX) += -DTCC_TARGET_MACHO
@@ -108,10 +108,10 @@ NATIVE_DEFINES_no_$(CONFIG_bcheck) += -DCONFIG_TCC_BCHECK=0
 NATIVE_DEFINES_no_$(CONFIG_backtrace) += -DCONFIG_TCC_BACKTRACE=0
 NATIVE_DEFINES += $(NATIVE_DEFINES_yes) $(NATIVE_DEFINES_no_no)
 
-DEF-poxim           = -DTCC_TARGET_POXIM
 DEF-i386           = -DTCC_TARGET_I386
 DEF-i386-win32     = -DTCC_TARGET_I386 -DTCC_TARGET_PE
 DEF-i386-OpenBSD   = $(DEF-i386) -DTARGETOS_OpenBSD
+DEF-poxim          = -DTCC_TARGET_POXIM
 DEF-x86_64         = -DTCC_TARGET_X86_64
 DEF-x86_64-win32   = -DTCC_TARGET_X86_64 -DTCC_TARGET_PE
 DEF-x86_64-osx     = -DTCC_TARGET_X86_64 -DTCC_TARGET_MACHO
@@ -215,9 +215,8 @@ endif
 
 CORE_FILES = tcc.c tcctools.c libtcc.c tccpp.c tccgen.c tccdbg.c tccelf.c tccasm.c tccrun.c
 CORE_FILES += tcc.h config.h libtcc.h tcctok.h
-# NOTE: Uncomment when ready for asm and other stuff  
-# poxim_FILES = $(CORE_FILES) poxim-gen.c poxim-link.c poxim-asm.c poxim-asm.h poxim-tok.h
-poxim_FILES = $(CORE_FILES) poxim-gen.c
+poxim_FILES = $(CORE_FILES) poxim-gen.c poxim-link.c poxim-asm.c poxim-asm.h poxim-tok.h
+# poxim_FILES = $(CORE_FILES) poxim-gen.c 
 i386_FILES = $(CORE_FILES) i386-gen.c i386-link.c i386-asm.c i386-asm.h i386-tok.h
 i386-win32_FILES = $(i386_FILES) tccpe.c
 x86_64_FILES = $(CORE_FILES) x86_64-gen.c x86_64-link.c i386-asm.c x86_64-asm.h

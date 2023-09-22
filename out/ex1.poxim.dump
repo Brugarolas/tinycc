@@ -1,6 +1,8 @@
-   0:    28 00 07 80       push sp
-   4:    81 ec 00 00       reti
-   c:    00 00 50 e8       mov r0,20712
-  10:    fc ff ff ff       int 16777215
-  14:    83 c4 04 b8       reti
-  1c:    c9 c3 00 00       ble 29556736
+   0:    28 00 01 80       push r6
+   4:    08 de 00 00       mov r6, sp
+   8:    0f c4 00 00       mov sp, r4
+   c:    81 ec 04 00       reti
+  14:    00 00 50 e8       mov r0, 20712
+  18:    fc ff ff ff       int 16777215
+  1c:    83 c4 04 b9       reti
+  24:    1f 00 00 00       or r24, r0, r0

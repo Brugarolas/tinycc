@@ -341,7 +341,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     u32 mask = 0b00000000000111111111111111111111ul;
     u32 partial = mask & ((inst.X << 16) | (inst.Y << 11) | (inst.L << 0));
     reg2str(rz, inst.Z);
-    snprintf(assembly_text, count_of(assembly_text), "mov %s,%u", rz, partial);
+    snprintf(assembly_text, count_of(assembly_text), "mov %s, %u", rz, partial);
     break;
   }
   case movs: {
@@ -350,15 +350,20 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     u32 partial = mask & ((inst.X << 16) | (inst.Y << 11) | (inst.L << 0));
     fill_bits(&partial, 31, 20, bit_at(inst.X, 4));
     reg2str(rz, inst.Z);
-    snprintf(assembly_text, count_of(assembly_text), "movs %s,%d", rz, partial);
+    snprintf(assembly_text, count_of(assembly_text), "movs %s, %d", rz,
+             partial);
     break;
   }
   case add: {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    reg2str(ry, inst.Y);
-    snprintf(assembly_text, count_of(assembly_text), "add %s,%s,%s", rz, rx,
-             ry);
+    if (inst.Y == 0) {
+      snprintf(assembly_text, count_of(assembly_text), "mov %s, %s", rz, rx);
+    } else {
+      reg2str(ry, inst.Y);
+      snprintf(assembly_text, count_of(assembly_text), "add %s, %s, %s", rz, rx,
+               ry);
+    }
     break;
   }
   case sub: {
@@ -366,9 +371,13 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     // 0x00000008
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    reg2str(ry, inst.Y);
-    snprintf(assembly_text, count_of(assembly_text), "sub %s,%s,%s", rz, rx,
-             ry);
+    if (inst.Y == 0) {
+      snprintf(assembly_text, count_of(assembly_text), "mov %s, %s", rz, rx);
+    } else {
+      reg2str(ry, inst.Y);
+      snprintf(assembly_text, count_of(assembly_text), "sub %s, %s, %s", rz, rx,
+               ry);
+    }
     break;
   }
   case       /*:>the first 3 bits of inst.L are:*/
@@ -392,7 +401,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      snprintf(assembly_text, count_of(assembly_text), "mul %s,%s,%s,%s", rl,
+      snprintf(assembly_text, count_of(assembly_text), "mul %s, %s, %s, %s", rl,
                rz, rx, ry);
       break;
     }
@@ -405,8 +414,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rz, inst.Z);
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
-      snprintf(assembly_text, count_of(assembly_text), "muls %s,%s,%s,%s", rl,
-               rz, rx, ry);
+      snprintf(assembly_text, count_of(assembly_text), "muls %s, %s, %s, %s",
+               rl, rz, rx, ry);
       break;
     }
     case 0b100: /*div */
@@ -420,7 +429,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(ry, inst.Y);
       reg2str(rl, r_index_L);
 
-      snprintf(assembly_text, count_of(assembly_text), "div %s,%s,%s,%s", rl,
+      snprintf(assembly_text, count_of(assembly_text), "div %s, %s, %s, %s", rl,
                rz, rx, ry);
       break;
     }
@@ -434,8 +443,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(ry, inst.Y);
       reg2str(rl, r_index_L);
 
-      snprintf(assembly_text, count_of(assembly_text), "divs %s,%s,%s,%s", rl,
-               rz, rx, ry);
+      snprintf(assembly_text, count_of(assembly_text), "divs %s, %s, %s, %s",
+               rl, rz, rx, ry);
       break;
     }
     case 0b001: /*sll */
@@ -447,7 +456,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "sll %s,%s,%s,%d", rz,
+      snprintf(assembly_text, count_of(assembly_text), "sll %s, %s, %s, %d", rz,
                rx, ry, L_4_0);
       break;
     }
@@ -460,7 +469,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "sla %s,%s,%s,%u", rz,
+      snprintf(assembly_text, count_of(assembly_text), "sla %s, %s, %s, %u", rz,
                rx, ry, L_4_0);
 
       break;
@@ -474,7 +483,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "srl %s,%s,%s,%d", rz,
+      snprintf(assembly_text, count_of(assembly_text), "srl %s, %s, %s, %d", rz,
                rx, ry, L_4_0);
       break;
     }
@@ -487,7 +496,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "sra %s,%s,%s,%d", rz,
+      snprintf(assembly_text, count_of(assembly_text), "sra %s, %s, %s, %d", rz,
                rx, ry, L_4_0);
       break;
     }
@@ -499,7 +508,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     // cmp ir,pc                	SR=0x00000020
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, count_of(assembly_text), "cmp %s,%s", rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "cmp %s, %s", rx, ry);
     break;
   }
 
@@ -509,7 +518,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
 
-    snprintf(assembly_text, count_of(assembly_text), "and %s,%s,%s", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "and %s, %s, %s", rz, rx,
              ry);
     break;
   }
@@ -518,14 +527,15 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, count_of(assembly_text), "or %s,%s,%s", rz, rx, ry);
+    snprintf(assembly_text, count_of(assembly_text), "or %s, %s, %s", rz, rx,
+             ry);
     break;
   }
   case not: {
     // not r15,r7               	R15=~R7=0xFFFFFFFF,SR=0x00000030
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "not %s,%s", rz, rx);
+    snprintf(assembly_text, count_of(assembly_text), "not %s, %s", rz, rx);
     break;
   }
   case xor: {
@@ -534,7 +544,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
     reg2str(ry, inst.Y);
-    snprintf(assembly_text, count_of(assembly_text), "xor %s,%s,%s", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "xor %s, %s, %s", rz, rx,
              ry);
     break;
   }
@@ -545,7 +555,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
 
-    snprintf(assembly_text, count_of(assembly_text), "addi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "addi %s, %s, %d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -556,7 +566,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "subi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "subi %s, %s, %d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -566,7 +576,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "muli %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "muli %s, %s, %d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -576,7 +586,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "divi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "divi %s, %s, %d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -586,7 +596,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "modi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "modi %s, %s, %d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -597,7 +607,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "cmpi %s,%s,%d", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "cmpi %s, %s, %d", rz, rx,
              (i32)inst.I);
     break;
   }
@@ -606,8 +616,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "l8 %s, [%s + %d]", rz, rx,
-             inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "l8 %s,  [%s + %d]", rz,
+             rx, inst.I);
     break;
   }
 
@@ -615,7 +625,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "l16 %s, [%s + %d] << 1",
+    snprintf(assembly_text, count_of(assembly_text), "l16 %s,  [%s + %d] << 1",
              rz, rx, inst.I);
     break;
   }
@@ -623,7 +633,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     inst.I = extend_bit_at(inst.I, 15);
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "l32 %s, [%s + %d] << 2",
+    snprintf(assembly_text, count_of(assembly_text), "l32 %s,  [%s + %d] << 2",
              rz, rx, inst.I);
     break;
   }
@@ -767,7 +777,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     u32 registers_to_push[] = {V, W, X, Y, Z};
 
     char reg[5];
-    int chars_written = snprintf(assembly_text, count_of(assembly_text), "push");
+    int chars_written =
+        snprintf(assembly_text, count_of(assembly_text), "push");
     for (u32 i = 0; i < count_of(registers_to_push); i++) {
       u32 index = registers_to_push[i];
       reg2str(reg, index);
@@ -901,22 +912,17 @@ int main(int argc, char *argv[]) {
         if (mem.RAM32[i] == 0) {
           continue;
         }
-				if (as_bin) {
-					mem.RAM32[i] = swap_endianness32(mem.RAM32[i]);
-				} 
-				inst = parse_instruction(mem.RAM32[i]);
+        if (as_bin) {
+          mem.RAM32[i] = swap_endianness32(mem.RAM32[i]);
+        }
+        inst = parse_instruction(mem.RAM32[i]);
         sprint_instruction(text, inst);
         fprintf(output,
                 "%4x:    "
                 "%02x %02x %02x %02x       "
                 "%s\n",
-                (u32)(i * 4), 
-								mem.RAM8[i * 4 + 3],
-								mem.RAM8[i * 4 + 2],
-								mem.RAM8[i * 4 + 1],
-								mem.RAM8[i * 4 + 0], 
-								text
-				);
+                (u32)(i * 4), mem.RAM8[i * 4 + 3], mem.RAM8[i * 4 + 2],
+                mem.RAM8[i * 4 + 1], mem.RAM8[i * 4 + 0], text);
       }
     }
     fflush(output);

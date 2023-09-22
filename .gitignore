@@ -22,15 +22,17 @@ poxim-interp
 a.out
 tcc_g
 tcc
+tcc-i386
 tcc_c
 tcc_p
 *\-tcc
+*-tcc
 libtcc*.def
 config*.h
 *_.h
 config*.mak
 config.texi
-conftest*
+# conftest*.
 c2str
 tags
 TAGS

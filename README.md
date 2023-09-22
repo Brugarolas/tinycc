@@ -5,6 +5,8 @@ This project tries to extend tiny c compiler to support `Poxim Architecture`
 
 ## Recommended Setup for Development
 
+If you're cross compiling for i386 ``pacman -S lib32-glibc`` is necessary
+
 $ ./configure --cc=clang --ar=ar --extra-cflags="-ggdb" --debug --cpu="poxim"
 
 $ compiledb make # Works better with clangd ls

@@ -139,15 +139,9 @@ enum {
 #define OP_EA     0x40000000
 #define OP_REG    (OP_REG8 | OP_REG16 | OP_REG32 | OP_REG64)
 
-#ifdef TCC_TARGET_X86_64
-# define TREG_XAX   TREG_RAX
-# define TREG_XCX   TREG_RCX
-# define TREG_XDX   TREG_RDX
-#else
-# define TREG_XAX   TREG_EAX
-# define TREG_XCX   TREG_ECX
-# define TREG_XDX   TREG_EDX
-#endif
+# define TREG_XAX   r1
+# define TREG_XCX   r2
+# define TREG_XDX   r3
 
 typedef struct ASMInstr {
     uint16_t sym;

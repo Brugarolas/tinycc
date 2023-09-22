@@ -18,13 +18,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <assert.h>
+#define POXIM_MAX_REGISTERS 31
+
 #if defined(TARGET_DEFS_ONLY)
 
 /* number of available registers */
 #define NB_REGS                                                                \
   5 /* will only support r1, r2, r3, r4, r5 for now, all 32                    \
        bit*/
-#define NB_ASM_REGS 5
+#define NB_ASM_REGS 20
 #define CONFIG_TCC_ASM
 
 /* a register can belong to several classes. The classes must be
@@ -46,7 +49,7 @@
 #define RC_FRET RC_F /* function return: float register */
 
 /* pretty names for the registers */
-enum { r1 = 0, r2, r3, r4, rf, sp = 30 };
+enum { r0 = 0, r1, r2, r3, r4, rf, bp, sp = 30 };
 
 /* return registers for function */
 #define REG_IRET r1 /* single word int return register */
@@ -102,6 +105,7 @@ ST_DATA int func_bound_add_epilog;
 static void gen_bounds_prolog(void);
 static void gen_bounds_epilog(void);
 static void gen_re32(unsigned int c); /* gen reversed 32 bit*/
+
 #endif
 
 /* XXX: make it faster ? */
@@ -124,6 +128,8 @@ ST_FUNC void o(unsigned int c) {
   }
 }
 
+ST_FUNC void gen_le8(int v) { g(v); }
+
 ST_FUNC void gen_le16(int v) {
   g(v);
   g(v >> 8);
@@ -136,6 +142,11 @@ ST_FUNC void gen_le32(int c) {
   g(c >> 24);
 }
 
+static void gen_re16(unsigned int c) {
+  g(c >> 8);
+  g(c);
+};
+/* gen reversed 16 bit*/
 static void gen_re32(unsigned int c) {
   g(c >> 24);
   g(c >> 16);
@@ -164,6 +175,44 @@ static int oad(int c, int s) {
   gen_le32(s);
   return t;
 }
+
+/***************************
+ >> START POXIM Instructions
+****************************/
+static void add(int r1, int r2, int r3) {
+  assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
+         r3 <= POXIM_MAX_REGISTERS);
+  gen_re32(0x02 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
+           (r3 & 0xff) << 11);
+}
+
+static void push5(int r1, int r2, int r3, int r4, int r5) {
+  assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
+         r3 <= POXIM_MAX_REGISTERS &&
+         r4 <= POXIM_MAX_REGISTERS &&
+         r5 <= POXIM_MAX_REGISTERS);
+  gen_re32(0b001010 << 26 | (r1 & 0xff) << 6 | (r2 & 0xff) << 0 |
+           (r3 & 0xff) << 16 |
+           (r4 & 0xff) << 11 |
+           (r5 & 0xff) << 21
+           );
+}
+
+static void push(int r) {
+  push5(r,  0,  0,  0,  0);
+}
+
+static void sub(int r1, int r2, int r3) {
+  assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
+         r3 <= POXIM_MAX_REGISTERS);
+  gen_re32(0x03 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
+           (r3 & 0xff) << 11);
+}
+static void movr(int r1, int r2) { add(r1, r2, 0); };
+
+/***************************
+ << END POXIM Instructions
+****************************/
 
 ST_FUNC void gen_fill_nops(int ninstructions) {
   while (ninstructions--)
@@ -606,10 +655,12 @@ ST_FUNC void gfunc_epilog(void) {
   gen_modrm(r3, VT_LOCAL, NULL, -(v + 4));
 #endif
 
-  o(0xc9); /* leave */
+  // o(0xc9); /* leave */
   if (func_ret_sub == 0) {
-    o(0xc3); /* ret */
+    gen_le32(0x1f); /* ret */
   } else {
+    tcc_error("idk return n ? not supported for now, idk what cases this "
+              "might arise");
     o(0xc2); /* ret n */
     g(func_ret_sub);
     g(func_ret_sub >> 8);
@@ -624,12 +675,14 @@ ST_FUNC void gfunc_epilog(void) {
   } else
 #endif
   {
-    gen_re32(0x28000780); /* push sp */
+    push(bp);
+    movr(bp, sp);
+    sub(sp, v, r0);
     // o(0xe58955);  /* push %ebp, mov %esp, %ebp */
     o(0xec81); /* sub esp, stacksize */
     gen_le32(v);
 #ifdef TCC_TARGET_PE
-    o(0x90); /* adjust to FUNC_PROLOG_SIZE */
+    o(0x000000); /* adjust to FUNC_PROLOG_SIZE  with nop*/
 #endif
   }
   o(0x53 * USE_EBX); /* push ebx */
