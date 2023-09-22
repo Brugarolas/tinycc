@@ -1,6 +1,5 @@
-   0:    55 89 e5 81       divi r12,r9,-6783
-   4:    ec 00 00 00       unkown
-   8:    00 b8 00 00       mov r5,1572864
+   0:    28 00 07 80       push sp
+   4:    81 ec 00 00       reti
    c:    00 00 50 e8       mov r0,20712
   10:    fc ff ff ff       int 16777215
   14:    83 c4 04 b8       reti

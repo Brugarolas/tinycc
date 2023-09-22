@@ -21,12 +21,13 @@ dump: poxim-dump
 interp: poxim-interp
 	./poxim-interp ./$(poxim_dir)/$(test_file).hex ./$(poxim_dir)/$(test_file).interp.out
 
-run: poxim-dump all dump
+
+run: poxim-dump all dump examples/ex1.c
 	./tcc -c -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary
 	objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).bin ./$(out_dir)/$(test_cfile).text.dump
 	objdump -M intel -d ./$(out_dir)/$(test_cfile).bin > ./$(out_dir)/$(test_cfile).dump
 	./poxim-dump --bin ./$(out_dir)/$(test_cfile).text.dump > ./$(out_dir)/$(test_cfile).poxim.dump
-	objdump -b binary -Mintel,x86-64 --adjust-vma=0x0 -D ./$(out_dir)/$(test_cfile).text.dump -m i386 > ./$(out_dir)/x86.dump
+	objdump -b binary -Mintel,x86-64 --adjust-vma=0x0 -D ./$(out_dir)/$(test_cfile).text.dump -m i386 > ./$(out_dir)/$(test_cfile).x86.dump
 	xxd -r -p ./$(poxim_dir)/1_fatorial.hex ./$(poxim_dir)/$(test_file).bin
 	./poxim-dump --bin ./$(poxim_dir)/$(test_file).bin
 

@@ -5,10 +5,11 @@
 Disassembly of section .text:
 
 00000000 <main>:
-   0:	55                   	push   ebp
-   1:	89 e5                	mov    ebp,esp
-   3:	81 ec 00 00 00 00    	sub    esp,0x0
-   9:	b8 00 00 00 00       	mov    eax,0x0
+   0:	28 00                	sub    BYTE PTR [eax],al
+   2:	07                   	pop    es
+   3:	80 81 ec 00 00 00 00 	add    BYTE PTR [ecx+0xec],0x0
+   a:	00 00                	add    BYTE PTR [eax],al
+   c:	00 00                	add    BYTE PTR [eax],al
    e:	50                   	push   eax
    f:	e8 fc ff ff ff       	call   10 <main+0x10>
   14:	83 c4 04             	add    esp,0x4
