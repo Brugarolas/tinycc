@@ -2620,7 +2620,7 @@ static int tcc_write_elf_file(TCCState *s1, const char *filename, int phnum,
         tcc_output_coff(s1, f);
     else
 #endif
-#ifdef lol
+#if 0 // does seg fault
     ret = tcc_output_binary(s1, f, sec_order);
 #else
     if (s1->output_format == TCC_OUTPUT_FORMAT_ELF)

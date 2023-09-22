@@ -24,7 +24,7 @@ tcc_g
 tcc
 tcc_c
 tcc_p
-*-tcc
+*\-tcc
 libtcc*.def
 config*.h
 *_.h

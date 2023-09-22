@@ -42,7 +42,7 @@
    sorted from more general to more precise (see gv2() code which does
    assumptions on it). */
 #define RC_INT     0x0001 /* generic integer register */
-// #define RC_FLOAT   0x0002 /* generic float register */
+#define RC_FLOAT   0x0002 /* generic float register */
 #define RC_R0      0x0004
 #define RC_R1      0x0008
 #define RC_R2      0x0010
