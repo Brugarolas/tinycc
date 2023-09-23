@@ -7,29 +7,14 @@ Disassembly of section .data:
 00000000 <.data>:
        0:	55                   	push   ebp
        1:	89 e5                	mov    ebp,esp
-       3:	81 ec 00 00 00 00    	sub    esp,0x0
-       9:	b8 45 00 00 00       	mov    eax,0x45
-       e:	89 05 00 a0 04 08    	mov    DWORD PTR ds:0x804a000,eax
-      14:	b8 00 90 04 08       	mov    eax,0x8049000
-      19:	50                   	push   eax
-      1a:	b8 00 00 00 00       	mov    eax,0x0
-      1f:	50                   	push   eax
-      20:	e8 05 00 00 00       	call   0x2a
-      25:	83 c4 08             	add    esp,0x8
-      28:	c9                   	leave
-      29:	c3                   	ret
-      2a:	55                   	push   ebp
-      2b:	89 e5                	mov    ebp,esp
-      2d:	81 ec 08 00 00 00    	sub    esp,0x8
-      33:	b8 a4 01 00 00       	mov    eax,0x1a4
-      38:	89 05 04 a0 04 08    	mov    DWORD PTR ds:0x804a004,eax
-      3e:	b8 02 00 00 00       	mov    eax,0x2
-      43:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
-      46:	b8 02 00 00 00       	mov    eax,0x2
-      4b:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
-      4e:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
-      51:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]
-      54:	01 c8                	add    eax,ecx
-      56:	c9                   	leave
-      57:	c3                   	ret
+       3:	81 ec 08 00 00 00    	sub    esp,0x8
+       9:	b8 01 00 00 00       	mov    eax,0x1
+       e:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
+      11:	b8 02 00 00 00       	mov    eax,0x2
+      16:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
+      19:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+      1c:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]
+      1f:	01 c8                	add    eax,ecx
+      21:	c9                   	leave
+      22:	c3                   	ret
 	...

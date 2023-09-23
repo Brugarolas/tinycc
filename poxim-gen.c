@@ -202,6 +202,16 @@ static const u16 swap_endianness16(u16 num) {
 /***************************
  >> START POXIM Instructions
 ****************************/
+b8 first_func = 0;
+ST_FUNC void poxim_compile_init(struct TCCState *s) {
+  // o(0xcafebabe);
+}
+
+ST_FUNC void poxim_gen_init(struct TCCState *s)
+{
+}
+
+
 static void add(int r1, int r2, int r3) {
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
          r3 <= POXIM_MAX_REGISTERS);
@@ -577,7 +587,8 @@ ST_FUNC void gfunc_call(int nb_args) {
         size = 8;
       else
         size = 12;
-      oad(0xec81, size); /* sub $xxx, %esp */
+      // oad(0xec81, size); /* sub $xxx, %esp */
+      sub(sp, sp, size); /* sub sp, sp, xxx */
       if (size == 12)
         o(0x7cdb);
       else

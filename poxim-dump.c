@@ -334,6 +334,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
   char result[512] = {0};
   char rl[8], rz[8], rx[8], ry[8];
   char assembly_text[128];
+	char* bop;
 
   switch (inst.O) {
   case mov: {
@@ -618,51 +619,57 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
 
   case l8: {
     inst.I = extend_bit_at(inst.I, 15);
+		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "l8 %s,  [%s + %d]", rz,
-             rx, inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "l8 %s,  [%s%s%d]", rz,
+             rx, bop, inst.I);
     break;
   }
 
   case l16: {
     inst.I = extend_bit_at(inst.I, 15);
+		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "l16 %s,  [%s + %d] << 1",
-             rz, rx, inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "l16 %s,  [%s%s%d]<<1",
+             rz, rx, bop, inst.I);
     break;
   }
   case l32: {
     inst.I = extend_bit_at(inst.I, 15);
+		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "l32 %s,  [%s + %d] << 2",
-             rz, rx, inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "l32 %s,  [%s%s%d]<<2",
+             rz, rx, bop, inst.I);
     break;
   }
   case s8: {
     inst.I = extend_bit_at(inst.I, 15);
+		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "s8 [%s + %d], %s", rx,
-             inst.I, rz);
+    snprintf(assembly_text, count_of(assembly_text), "s8 [%s%s%d], %s", rx,
+             bop, inst.I, rz);
     break;
   }
   case s16: {
     inst.I = extend_bit_at(inst.I, 15);
+		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "s16 [%s + %d], %s", rx,
-             inst.I, rz);
+    snprintf(assembly_text, count_of(assembly_text), "s16 [%s%s%d]<<1, %s", rx,
+             bop, inst.I, rz);
     break;
   }
   case s32: {
     inst.I = extend_bit_at(inst.I, 15);
+		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "s32 [%s + %d], %s", rx,
-             inst.I, rz);
+    snprintf(assembly_text, count_of(assembly_text), "s32 [%s%s%d]<<2, %s", rx,
+             bop, inst.I, rz);
     break;
   }
   case bae: {

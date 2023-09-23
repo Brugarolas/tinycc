@@ -359,6 +359,9 @@ ST_FUNC void tccgen_init(TCCState *s1)
     vtop = vstack - 1;
     memset(vtop, 0, sizeof *vtop);
 
+#ifdef TCC_TARGET_POXIM
+    poxim_gen_init(s1);
+#endif
     /* define some often used types */
     int_type.t = VT_INT;
 
@@ -367,6 +370,7 @@ ST_FUNC void tccgen_init(TCCState *s1)
         char_type.t |= VT_UNSIGNED;
     char_pointer_type = char_type;
     mk_pointer(&char_pointer_type);
+
 
     func_old_type.t = VT_FUNC;
     func_old_type.ref = sym_push(SYM_FIELD, &int_type, 0, 0);
@@ -390,6 +394,9 @@ ST_FUNC int tccgen_compile(TCCState *s1)
 
     tcc_debug_start(s1);
     tcc_tcov_start (s1);
+#ifdef TCC_TARGET_POXIM
+    poxim_compile_init(s1);
+#endif
 #ifdef TCC_TARGET_ARM
     arm_init(s1);
 #endif

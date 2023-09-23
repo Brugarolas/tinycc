@@ -1,21 +1,15 @@
 #!/usr/local/bin/tcc -run
 #include <tcclib.h>
 
-int mycock;
-int lol;
-int main(argc, argv);
+int main(void);
 
-void _start(void){
-  mycock = 69;
-  main(0 , &"");
-}
+// void _start(void){
+//   main();
+// }
 
-int main(argc, argv)
-  int argc;
-  char** argv;
+int main(void)
 {
-    lol = 420;
-    const int a = 2;
+    const int a = 1;
     const int b = 2;
     (void)a;
     (void)b;

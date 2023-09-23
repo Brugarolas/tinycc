@@ -1666,6 +1666,8 @@ static inline void add64le(unsigned char *p, int64_t x) {
 }
 /* ------------ poxim-gen.c ------------ */
 #if defined TCC_TARGET_POXIM
+ST_FUNC void poxim_compile_init(struct TCCState *s);
+ST_FUNC void poxim_gen_init(struct TCCState *s);
 ST_FUNC void g(int c);
 ST_FUNC void gen_le16(int c);
 ST_FUNC void gen_le32(int c);
