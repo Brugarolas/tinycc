@@ -10,13 +10,15 @@ Disassembly of section .text:
    8:	4f                   	dec    edi
    9:	de 00                	fiadd  WORD PTR [eax]
    b:	04 00                	add    al,0x0
-   d:	00 00                	add    BYTE PTR [eax],al
-   f:	02 89 45 fc 00 00    	add    cl,BYTE PTR [ecx+0xfc45]
-  15:	00 00                	add    BYTE PTR [eax],al
-  17:	50                   	push   eax
-  18:	e8 fc ff ff ff       	call   19 <main+0x19>
-  1d:	83 c4 04             	add    esp,0x4
-  20:	00 00                	add    BYTE PTR [eax],al
-  22:	00 00                	add    BYTE PTR [eax],al
-  24:	7c 00                	jl     26 <main+0x26>
+   d:	20 00                	and    BYTE PTR [eax],al
+   f:	02 74 06 ff          	add    dh,BYTE PTR [esi+eax*1-0x1]
+  13:	fc                   	cld
+  14:	00 20                	add    BYTE PTR [eax],ah
+  16:	00 00                	add    BYTE PTR [eax],al
+  18:	50                   	push   eax
+  19:	e8 fc ff ff ff       	call   1a <main+0x1a>
+  1e:	0b de                	or     ebx,esi
+  20:	20 00                	and    BYTE PTR [eax],al
+  22:	00 40 00             	add    BYTE PTR [eax+0x0],al
+  25:	00 7c 00 00          	add    BYTE PTR [eax+eax*1+0x0],bh
 	...

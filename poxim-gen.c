@@ -104,7 +104,7 @@ static unsigned long func_bound_ind;
 ST_DATA int func_bound_add_epilog;
 static void gen_bounds_prolog(void);
 static void gen_bounds_epilog(void);
-static void gen_re32(unsigned int c); /* gen reversed 32 bit*/
+static void gen_be32(unsigned int c); /* gen reversed 32 bit*/
 
 #endif
 
@@ -143,12 +143,12 @@ ST_FUNC void gen_le32(int c) {
 }
 
 /* gen reversed 16 bit*/
-static void gen_re16(unsigned int c) {
+static void gen_be16(unsigned int c) {
   g(c >> 8);
   g(c);
 };
 
-static void gen_re32(unsigned int c) {
+static void gen_be32(unsigned int c) {
   g(c >> 24);
   g(c >> 16);
   g(c >> 8);
@@ -186,7 +186,8 @@ static const u64 swap_endianness64(u64 num) {
   return ((num & 0x00000000000000FF) << 56) |
          ((num & 0x000000000000FF00) << 40) |
          ((num & 0x0000000000FF0000) << 24) |
-         ((num & 0x00000000FF000000) << 8) | ((num & 0x000000FF00000000) >> 8) |
+         ((num & 0x00000000FF000000) << 8 ) |
+				 ((num & 0x000000FF00000000) >> 8 ) |
          ((num & 0x0000FF0000000000) >> 24) |
          ((num & 0x00FF000000000000) >> 40) |
          ((num & 0xFF00000000000000) >> 56);
@@ -203,7 +204,7 @@ static const u16 swap_endianness16(u16 num) {
 static void add(int r1, int r2, int r3) {
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
          r3 <= POXIM_MAX_REGISTERS);
-  gen_re32(0x02 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
+  gen_be32(0x02 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
            (r3 & 0xff) << 11);
 }
 
@@ -212,7 +213,7 @@ static void push5(int r1, int r2, int r3, int r4, int r5) {
          r3 <= POXIM_MAX_REGISTERS &&
          r4 <= POXIM_MAX_REGISTERS &&
          r5 <= POXIM_MAX_REGISTERS);
-  gen_re32(0b001010 << 26 | (r1 & 0xff) << 6 | (r2 & 0xff) << 0 |
+  gen_be32(0b001010 << 26 | (r1 & 0xff) << 6 | (r2 & 0xff) << 0 |
            (r3 & 0xff) << 16 |
            (r4 & 0xff) << 11 |
            (r5 & 0xff) << 21
@@ -226,14 +227,14 @@ static void push(int r) {
 static void sub(int r1, int r2, int r3) {
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
          r3 <= POXIM_MAX_REGISTERS);
-  gen_re32(0x03 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
+  gen_be32(0x03 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
            (r3 & 0xff) << 11);
 }
 
 static void subi(int r1, int r2, int i) {
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
          i <= 0xFFFF);
-  gen_re32(0b010011 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
+  gen_be32(0b010011 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
            (i) << 0);
 }
 
@@ -248,9 +249,12 @@ static void mov(int r, int i) {
 	// g(0x92fa);
 	// g((u32)i);
 	// g((u32)i);
-  gen_re32(0x00 << 26 |
-           (i & 0xFF00) << 8 |
-           (i & 0x00FF) << 0);
+  gen_be32(
+		0x00 << 26 |
+		(r & 0b111) << 21 |
+		(i & 0xFF00) << 8 |
+		(i & 0x00FF) << 0
+	);
 }
 /***************************
  << END POXIM Instructions
@@ -312,7 +316,7 @@ ST_FUNC void load(int r, SValue *sv) {
   sv = pe_getimport(sv, &v2);
 #endif
 
-	// r = r + 1 ; /* Because r0 is alway zero in PoximArch*/
+	r = r + 1 ; /* Because r0 is alway zero in PoximArch*/
   fr = sv->r;
   ft = sv->type.t & ~VT_DEFSIGN;
   fc = sv->c.i;
@@ -362,9 +366,13 @@ ST_FUNC void load(int r, SValue *sv) {
       // gen_addr32(fr, sv->sym, fc);
     } else if (v == VT_LOCAL) {
       if (fc) {
+				int rt = get_reg(RC_INT);
+				printf("r = %d, rt = %d local 0x8945 ?  <<<<<<<<<<\n", r, rt);
+				assert(0);
         o(0x8d); /* lea xxx(%ebp), r */
         gen_modrm(r, VT_LOCAL, sv->sym, fc);
       } else {
+				printf("0x8945 ?  <<<<<<<<<<\n");
         o(0x89);
         o(0xe8 + r); /* mov %ebp, r */
       }
@@ -389,6 +397,7 @@ ST_FUNC void load(int r, SValue *sv) {
 /* store register 'r' in lvalue 'v' */
 ST_FUNC void store(int r, SValue *v) {
   int fr, bt, ft, fc;
+	u32 inst = 0;
 
 #ifdef TCC_TARGET_PE
   SValue v2;
@@ -416,10 +425,22 @@ ST_FUNC void store(int r, SValue *v) {
       o(0x66);
     if (bt == VT_BYTE || bt == VT_BOOL)
       o(0x88);
-    else
-      o(0x89);
+    else{ //VT_INT
+			assert(bt == VT_INT);
+			inst = 0b011101;
+		}
   }
-  if (fr == VT_CONST || fr == VT_LOCAL || (v->r & VT_LVAL)) {
+  if (fr == VT_CONST )  {
+			assert(0 && "poxim not hanlded");
+
+	} else if (fr == VT_LOCAL) {
+		/* currently, we use only ebp as base */
+		// v->r
+		//TODO: listen, all these store and load of 32 bit has a Flaw
+		// this flaw is being shift by two, because idk, 32 bit idk
+		gen_be32(inst << 26 | r << 21 | bp << 16  | (fc & 0xFFFF));
+			
+	} else if (v->r & VT_LVAL) {
     gen_modrm(r, v->r, v->sym, fc);
   } else if (fr != r) {
     o(0xc0 + fr + r * 8); /* mov r, fr */
@@ -427,12 +448,7 @@ ST_FUNC void store(int r, SValue *v) {
 }
 
 static void gadd_sp(int val) {
-  if (val == (char)val) {
-    o(0xc483);
-    g(val);
-  } else {
-    oad(0xc481, val); /* add $xxx, %esp */
-  }
+		add(sp, sp, val);
 }
 
 #if defined CONFIG_TCC_BCHECK || defined TCC_TARGET_PE
