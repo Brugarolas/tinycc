@@ -452,7 +452,7 @@ ST_FUNC void store(int r, SValue *v) {
 		}
   }
   if (fr == VT_CONST )  {
-			assert(0 && "poxim not hanlded");
+      mov(r, fc);
 
 	} else if (fr == VT_LOCAL) {
 		/* currently, we use only ebp as base */
@@ -462,6 +462,7 @@ ST_FUNC void store(int r, SValue *v) {
 		gen_be32(inst << 26 | r << 21 | bp << 16  | (fc & 0xFFFF));
 			
 	} else if (v->r & VT_LVAL) {
+    tcc_error("poxim not hanlded %s", __func__);
     gen_modrm(r, v->r, v->sym, fc);
   } else if (fr != r) {
     o(0xc0 + fr + r * 8); /* mov r, fr */

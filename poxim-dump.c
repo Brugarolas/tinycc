@@ -64,8 +64,8 @@ int read_bytes(void *buffer, size_t buffer_size, FILE *input_file) {
   uint8_t *data_buffer = (uint8_t *)buffer;
 
   if (input_file == NULL) {
-    perror("Error opening file");
-    return 1;
+    fprintf(stdout, "Error input_file is nullz\n" );
+    exit(69);
   }
 
   while ((byte = fgetc(input_file)) != EOF) {
@@ -73,7 +73,7 @@ int read_bytes(void *buffer, size_t buffer_size, FILE *input_file) {
       data_buffer[index] = (uint8_t)(byte & 0xFF);
       index++;
     } else {
-      fprintf(stdout, "Error buffer too smal pepehand: max_buffer_size: %zu",
+      fprintf(stdout, "Error buffer too smal pepehand: max_buffer_size: %zu\n",
               buffer_size);
       exit(69);
     }
@@ -331,9 +331,9 @@ internal PoximInstruction parse_instruction(u32 inst) {
 }
 
 internal void sprint_instruction(char src[512], PoximInstruction inst) {
-  char result[500] = {0};
-  char rl[5], rz[5], rx[5], ry[5];
-  char assembly_text[64];
+  char result[512] = {0};
+  char rl[8], rz[8], rx[8], ry[8];
+  char assembly_text[128];
 
   switch (inst.O) {
   case mov: {
@@ -911,11 +911,16 @@ int main(int argc, char *argv[]) {
 
     {
       char text[512];
+      u32 previous = 0;
+      PoximInstruction inst;
       for (size_t i = 0; i < count_of(mem.RAM32); i++) {
-        PoximInstruction inst;
+				previous = i == 0 ? 0 : mem.RAM32[i-1];
         if (mem.RAM32[i] == 0) {
+					if(previous != 0)  {
+						fprintf(output, "  ...\n");
+					}
           continue;
-        }
+				}
         if (as_bin) {
           mem.RAM32[i] = swap_endianness32(mem.RAM32[i]);
         }
@@ -925,8 +930,11 @@ int main(int argc, char *argv[]) {
                 "%4x:    "
                 "%02x %02x %02x %02x       "
                 "%s\n",
-                (u32)(i * 4), mem.RAM8[i * 4 + 3], mem.RAM8[i * 4 + 2],
-                mem.RAM8[i * 4 + 1], mem.RAM8[i * 4 + 0], text);
+                (u32)(i * 4), 
+								mem.RAM8[i * 4 + 3], mem.RAM8[i * 4 + 2],
+                mem.RAM8[i * 4 + 1], mem.RAM8[i * 4 + 0],
+								text
+				);
       }
     }
     fflush(output);
