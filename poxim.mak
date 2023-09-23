@@ -6,11 +6,12 @@ test_cfile := ex1
 test_cfile := ex1
 out_dir := out
 poxim_dir := "tests/poxim"
+TCC = tcc
 
 debug: run
 	gdb --args tcc -c ./examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I. -Iinclude -L.
 
-debug-i386: run-i386 
+debug-i386: 
 	gdb --args tcc-i386 -c ./examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I. -Iinclude -L.
 
 poxim-interp: poxim-interp.cpp
@@ -29,16 +30,18 @@ interp: poxim-interp
 	./poxim-interp ./$(poxim_dir)/$(test_file).hex ./$(poxim_dir)/$(test_file).interp.out
 
 
-run: poxim-dump all dump examples/ex1.c
-	./tcc -c -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary
-	objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).bin ./$(out_dir)/$(test_cfile).text.dump
-	objdump -M intel -d ./$(out_dir)/$(test_cfile).bin > ./$(out_dir)/$(test_cfile).dump
-	./poxim-dump --bin ./$(out_dir)/$(test_cfile).text.dump > ./$(out_dir)/$(test_cfile).poxim.dump
+	# ./tcc -nostdlib -static examples/ex1.c -o./out/ex1.bin -I./ -I./include -L./ -Wl,--oformat=binary
+# TODO: Need to check with -Wl,o=binary works on poxim that would save us a whole lotta troble
+run: poxim-dump all examples/ex1.c
+	./tcc -nostdlib -static examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary
+	./poxim-dump --bin $(out_dir)/$(test_cfile).bin > $(out_dir)/$(test_cfile).poximdump
+	# objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).bin > ./$(out_dir)/$(test_cfile).objcopy
+	# objdump -M intel -m i386 -d ./$(out_dir)/$(test_cfile).objcopy > ./$(out_dir)/$(test_cfile).objdump
 
-run-i386: poxim-dump all dump examples/ex1.c
+run-i386: poxim-dump all examples/ex1.c
 	./tcc-i386 -c -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./ -Wl,--oformat=binary
 	objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).i386.bin ./$(out_dir)/$(test_cfile).text.i386.dump
-	objdump -M intel -d ./$(out_dir)/$(test_cfile).i386.bin > ./$(out_dir)/$(test_cfile).i386.dump
+	objdump -M intel -m i386 -d ./$(out_dir)/$(test_cfile).i386.bin > ./$(out_dir)/$(test_cfile).i386.dump
 	./poxim-dump --bin ./$(out_dir)/$(test_cfile).text.i386.dump > ./$(out_dir)/$(test_cfile).poxim.i386.dump
 
 

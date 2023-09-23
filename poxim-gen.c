@@ -20,7 +20,8 @@
 
 #include <poxim.h>
 #define POXIM_MAX_REGISTERS 32
-
+#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3)
+#define FUNC_PROLOG_SIZE (4*N_INSTRUCTIONS_FOR_FUNC_PROLOG)
 #if defined(TARGET_DEFS_ONLY)
 
 /* number of available registers */
@@ -208,20 +209,33 @@ static void add(int r1, int r2, int r3) {
            (r3 & 0xff) << 11);
 }
 
-static void push5(int r1, int r2, int r3, int r4, int r5) {
+static void push_or_pop(b8 is_pop, int r1, int r2, int r3, int r4, int r5) {
+  u8 inst = is_pop ? 0b001011 : 0b001010;
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
          r3 <= POXIM_MAX_REGISTERS &&
          r4 <= POXIM_MAX_REGISTERS &&
          r5 <= POXIM_MAX_REGISTERS);
-  gen_be32(0b001010 << 26 | (r1 & 0xff) << 6 | (r2 & 0xff) << 0 |
+  gen_be32(inst << 26 | (r1 & 0xff) << 6 | (r2 & 0xff) << 0 |
            (r3 & 0xff) << 16 |
            (r4 & 0xff) << 11 |
            (r5 & 0xff) << 21
            );
 }
 
+static void push5(int r1, int r2, int r3, int r4, int r5) {
+  push_or_pop(0, r1, r2, r3, r4, r5);
+}
+
+static void pop5(int r1, int r2, int r3, int r4, int r5) {
+  push_or_pop(1, r1, r2, r3, r4, r5);
+}
+
 static void push(int r) {
   push5(r,  0,  0,  0,  0);
+}
+
+static void pop(int r) {
+  pop5(r,  0,  0,  0,  0);
 }
 
 static void sub(int r1, int r2, int r3) {
@@ -309,6 +323,7 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
 */
 ST_FUNC void load(int r, SValue *sv) {
   int v, t, ft, fc, fr;
+  u8 inst;
   SValue v1;
 
 #ifdef TCC_TARGET_PE
@@ -353,10 +368,15 @@ ST_FUNC void load(int r, SValue *sv) {
       o(0xbf0f); /* movswl */
     } else if ((ft & VT_TYPE) == (VT_SHORT | VT_UNSIGNED)) {
       o(0xb70f); /* movzwl */
-    } else {
-      o(0x8b); /* movl */
+    } else { 
+      assert((ft & VT_TYPE) == (VT_INT ));
+      /* l32 */
+			inst = 0b011010;
     }
-    gen_modrm(r, fr, sv->sym, fc);
+    gen_be32(inst << 26 | r << 21 | bp << 16  | (fc & 0xFFFF));
+    //TODO: This realloct by using   gen_addr32(r, sym, c); this might turn out to be a problem
+    // gen_modrm(r, fr, sv->sym, fc);
+
   } else {
     if (v == VT_CONST) {
       // o(0xb8 + r);/* mov $xx, r */
@@ -398,6 +418,7 @@ ST_FUNC void load(int r, SValue *sv) {
 ST_FUNC void store(int r, SValue *v) {
   int fr, bt, ft, fc;
 	u32 inst = 0;
+	r += 1;
 
 #ifdef TCC_TARGET_PE
   SValue v2;
@@ -436,7 +457,7 @@ ST_FUNC void store(int r, SValue *v) {
 	} else if (fr == VT_LOCAL) {
 		/* currently, we use only ebp as base */
 		// v->r
-		//TODO: listen, all these store and load of 32 bit has a Flaw
+		// TODO: listen, all these store and load of 32 bit has a Flaw
 		// this flaw is being shift by two, because idk, 32 bit idk
 		gen_be32(inst << 26 | r << 21 | bp << 16  | (fc & 0xFFFF));
 			
@@ -613,8 +634,6 @@ ST_FUNC void gfunc_call(int nb_args) {
   vtop--;
 }
 
-#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3)
-#define FUNC_PROLOG_SIZE (4*N_INSTRUCTIONS_FOR_FUNC_PROLOG)
 
 /* generate function prolog of type 't' */
 ST_FUNC void gfunc_prolog(Sym *func_sym) {
@@ -715,7 +734,10 @@ ST_FUNC void gfunc_epilog(void) {
   gen_modrm(r3, VT_LOCAL, NULL, -(v + 4));
 #endif
 
-  // o(0xc9); /* leave */
+  // o(0xc9); 
+  /* leave */
+  movr(sp, bp);
+  pop(bp);
   if (func_ret_sub == 0) {
     gen_le32(0x7c); /* ret */
   } else {
@@ -735,7 +757,7 @@ ST_FUNC void gfunc_epilog(void) {
   } else
 #endif
   {
-		/* push %ebp, mov %esp, %ebp */
+		/* push %ebp; mov %esp, %ebp */
     push(bp);
     movr(bp, sp);
 
