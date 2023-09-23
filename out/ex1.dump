@@ -7,14 +7,16 @@ Disassembly of section .text:
 00000000 <main>:
    0:	28 00                	sub    BYTE PTR [eax],al
    2:	01 80 08 de 00 00    	add    DWORD PTR [eax+0xde08],eax
-   8:	0f c4 00 00          	pinsrw mm0,WORD PTR [eax],0x0
-   c:	81 ec 04 00 00 00    	sub    esp,0x4
-  12:	00 00                	add    BYTE PTR [eax],al
-  14:	00 00                	add    BYTE PTR [eax],al
-  16:	50                   	push   eax
-  17:	e8 fc ff ff ff       	call   18 <main+0x18>
-  1c:	83 c4 04             	add    esp,0x4
-  1f:	b9 00 00 00 00       	mov    ecx,0x0
-  24:	1f                   	pop    ds
-  25:	00 00                	add    BYTE PTR [eax],al
+   8:	4f                   	dec    edi
+   9:	de 00                	fiadd  WORD PTR [eax]
+   b:	04 00                	add    al,0x0
+   d:	00 00                	add    BYTE PTR [eax],al
+   f:	02 89 45 fc 00 00    	add    cl,BYTE PTR [ecx+0xfc45]
+  15:	00 00                	add    BYTE PTR [eax],al
+  17:	50                   	push   eax
+  18:	e8 fc ff ff ff       	call   19 <main+0x19>
+  1d:	83 c4 04             	add    esp,0x4
+  20:	00 00                	add    BYTE PTR [eax],al
+  22:	00 00                	add    BYTE PTR [eax],al
+  24:	7c 00                	jl     26 <main+0x26>
 	...

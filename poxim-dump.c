@@ -341,7 +341,11 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     u32 mask = 0b00000000000111111111111111111111ul;
     u32 partial = mask & ((inst.X << 16) | (inst.Y << 11) | (inst.L << 0));
     reg2str(rz, inst.Z);
-    snprintf(assembly_text, count_of(assembly_text), "mov %s, %u", rz, partial);
+    if (rz[1] == '0' && partial == 0) {
+      snprintf(assembly_text, count_of(assembly_text), "nop");
+    } else {
+      snprintf(assembly_text, count_of(assembly_text), "mov %s, %u", rz, partial);
+    }
     break;
   }
   case movs: {

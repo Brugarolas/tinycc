@@ -1,8 +1,9 @@
    0:    28 00 01 80       push r6
    4:    08 de 00 00       mov r6, sp
-   8:    0f c4 00 00       mov sp, r4
-   c:    81 ec 04 00       reti
-  14:    00 00 50 e8       mov r0, 20712
-  18:    fc ff ff ff       int 16777215
-  1c:    83 c4 04 b9       reti
-  24:    1f 00 00 00       or r24, r0, r0
+   8:    4f de 00 04       subi sp, sp, 4
+   c:    00 00 00 02       mov r0, 2
+  10:    89 45 fc 00       unkown
+  14:    00 00 00 50       mov r0, 80
+  18:    e8 fc ff ff       unkown
+  1c:    ff 83 c4 04       int 58967044
+  24:    7c 00 00 00       ret

@@ -7,14 +7,15 @@ Disassembly of section .data:
 00000000 <.data>:
    0:	28 00                	sub    BYTE PTR [rax],al
    2:	01 80 08 de 00 00    	add    DWORD PTR [rax+0xde08],eax
-   8:	0f c4 00 00          	pinsrw mm0,WORD PTR [rax],0x0
-   c:	81 ec 04 00 00 00    	sub    esp,0x4
-  12:	00 00                	add    BYTE PTR [rax],al
-  14:	00 00                	add    BYTE PTR [rax],al
-  16:	50                   	push   rax
-  17:	e8 fc ff ff ff       	call   0x18
-  1c:	83 c4 04             	add    esp,0x4
-  1f:	b9 00 00 00 00       	mov    ecx,0x0
-  24:	1f                   	(bad)
-  25:	00 00                	add    BYTE PTR [rax],al
+   8:	4f de 00             	rex.WRXB fiadd WORD PTR [r8]
+   b:	04 00                	add    al,0x0
+   d:	00 00                	add    BYTE PTR [rax],al
+   f:	02 89 45 fc 00 00    	add    cl,BYTE PTR [rcx+0xfc45]
+  15:	00 00                	add    BYTE PTR [rax],al
+  17:	50                   	push   rax
+  18:	e8 fc ff ff ff       	call   0x19
+  1d:	83 c4 04             	add    esp,0x4
+  20:	00 00                	add    BYTE PTR [rax],al
+  22:	00 00                	add    BYTE PTR [rax],al
+  24:	7c 00                	jl     0x26
 	...

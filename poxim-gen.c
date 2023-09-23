@@ -18,8 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <assert.h>
-#define POXIM_MAX_REGISTERS 31
+#include <poxim.h>
+#define POXIM_MAX_REGISTERS 32
 
 #if defined(TARGET_DEFS_ONLY)
 
@@ -142,11 +142,12 @@ ST_FUNC void gen_le32(int c) {
   g(c >> 24);
 }
 
+/* gen reversed 16 bit*/
 static void gen_re16(unsigned int c) {
   g(c >> 8);
   g(c);
 };
-/* gen reversed 16 bit*/
+
 static void gen_re32(unsigned int c) {
   g(c >> 24);
   g(c >> 16);
@@ -175,6 +176,26 @@ static int oad(int c, int s) {
   gen_le32(s);
   return t;
 }
+
+static const u32 swap_endianness32(u32 num) {
+  return ((num >> 24) & 0xFF) | ((num >> 8) & 0xFF00) |
+         ((num << 8) & 0xFF0000) | ((num << 24) & 0xFF000000);
+}
+
+static const u64 swap_endianness64(u64 num) {
+  return ((num & 0x00000000000000FF) << 56) |
+         ((num & 0x000000000000FF00) << 40) |
+         ((num & 0x0000000000FF0000) << 24) |
+         ((num & 0x00000000FF000000) << 8) | ((num & 0x000000FF00000000) >> 8) |
+         ((num & 0x0000FF0000000000) >> 24) |
+         ((num & 0x00FF000000000000) >> 40) |
+         ((num & 0xFF00000000000000) >> 56);
+}
+
+static const u16 swap_endianness16(u16 num) {
+  return ((num >> 8) & 0xFF) | ((num << 8) & 0xFF00);
+}
+
 
 /***************************
  >> START POXIM Instructions
@@ -208,8 +229,29 @@ static void sub(int r1, int r2, int r3) {
   gen_re32(0x03 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
            (r3 & 0xff) << 11);
 }
+
+static void subi(int r1, int r2, int i) {
+  assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
+         i <= 0xFFFF);
+  gen_re32(0b010011 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
+           (i) << 0);
+}
+
 static void movr(int r1, int r2) { add(r1, r2, 0); };
 
+static void mov(int r, int i) {
+  assert(r <= POXIM_MAX_REGISTERS && 
+         i <= 0xFFFF);
+	printf("mov i = %d", i );
+
+	// g((u32)i);
+	// g(0x92fa);
+	// g((u32)i);
+	// g((u32)i);
+  gen_re32(0x00 << 26 |
+           (i & 0xFF00) << 8 |
+           (i & 0x00FF) << 0);
+}
 /***************************
  << END POXIM Instructions
 ****************************/
@@ -270,6 +312,7 @@ ST_FUNC void load(int r, SValue *sv) {
   sv = pe_getimport(sv, &v2);
 #endif
 
+	// r = r + 1 ; /* Because r0 is alway zero in PoximArch*/
   fr = sv->r;
   ft = sv->type.t & ~VT_DEFSIGN;
   fc = sv->c.i;
@@ -289,6 +332,7 @@ ST_FUNC void load(int r, SValue *sv) {
       load(fr, &v1);
     }
     if ((ft & VT_BTYPE) == VT_FLOAT) {
+			tcc_error("We aint supporting float, boy");
       o(0xd9); /* flds */
       r = 0;
     } else if ((ft & VT_BTYPE) == VT_DOUBLE) {
@@ -311,8 +355,11 @@ ST_FUNC void load(int r, SValue *sv) {
     gen_modrm(r, fr, sv->sym, fc);
   } else {
     if (v == VT_CONST) {
-      o(0xb8 + r); /* mov $xx, r */
-      gen_addr32(fr, sv->sym, fc);
+      // o(0xb8 + r);/* mov $xx, r */
+      // o(0xb8 + r);	 /* mov $xx, r */
+			mov(r, fc);		 /* mov r, fc */
+      // gen_addr32(fr, sv->sym, fc);
+      // gen_addr32(fr, sv->sym, fc);
     } else if (v == VT_LOCAL) {
       if (fc) {
         o(0x8d); /* lea xxx(%ebp), r */
@@ -550,11 +597,8 @@ ST_FUNC void gfunc_call(int nb_args) {
   vtop--;
 }
 
-#ifdef TCC_TARGET_PE
-#define FUNC_PROLOG_SIZE (10 + USE_EBX)
-#else
-#define FUNC_PROLOG_SIZE (9 + USE_EBX)
-#endif
+#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3)
+#define FUNC_PROLOG_SIZE (4*N_INSTRUCTIONS_FOR_FUNC_PROLOG)
 
 /* generate function prolog of type 't' */
 ST_FUNC void gfunc_prolog(Sym *func_sym) {
@@ -657,7 +701,7 @@ ST_FUNC void gfunc_epilog(void) {
 
   // o(0xc9); /* leave */
   if (func_ret_sub == 0) {
-    gen_le32(0x1f); /* ret */
+    gen_le32(0x7c); /* ret */
   } else {
     tcc_error("idk return n ? not supported for now, idk what cases this "
               "might arise");
@@ -675,17 +719,16 @@ ST_FUNC void gfunc_epilog(void) {
   } else
 #endif
   {
+		/* push %ebp, mov %esp, %ebp */
     push(bp);
     movr(bp, sp);
-    sub(sp, v, r0);
-    // o(0xe58955);  /* push %ebp, mov %esp, %ebp */
-    o(0xec81); /* sub esp, stacksize */
-    gen_le32(v);
+
+		/* sub esp, stacksize */
+		subi(sp, sp, v);
 #ifdef TCC_TARGET_PE
     o(0x000000); /* adjust to FUNC_PROLOG_SIZE  with nop*/
 #endif
   }
-  o(0x53 * USE_EBX); /* push ebx */
   ind = saved_ind;
 }
 
@@ -975,7 +1018,7 @@ static void gen_bounds_epilog(void) {
 
 /* Save the stack pointer onto the stack */
 ST_FUNC void gen_vla_sp_save(int addr) {
-  /* mov %esp,addr(%ebp)*/
+  /* mov %esp, addr(%ebp)*/
   o(0x89);
   gen_modrm(sp, VT_LOCAL, NULL, addr);
 }

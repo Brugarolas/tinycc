@@ -7,8 +7,11 @@ test_cfile := ex1
 out_dir := out
 poxim_dir := "tests/poxim"
 
-debug: 
+debug: run
 	gdb --args tcc -c ./examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I. -Iinclude -L.
+
+debug-i386: run-i386 
+	gdb --args tcc-i386 -c ./examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I. -Iinclude -L.
 
 poxim-interp: poxim-interp.cpp
 	g++ -Wall -O3 ./poxim-interp.cpp -o poxim-interp
