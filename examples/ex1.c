@@ -9,11 +9,8 @@ void _start(void); asm (
 
 void int0(void); asm (                                                                                
 "int0:\n"
-		/* mov sp, 0x7FFC */
-		".byte 0xFC;"
-		".byte 0x00;"
-		".byte 0x00;"
-		".byte 0x00;"
+		/* int 0 */
+		".long 0x000000FC;"
 );
 
 int main(void)

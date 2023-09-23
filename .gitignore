@@ -19,6 +19,7 @@ poxim-interp
 *.bz2
 *.zip
 .gdb_history
+bin2strhex
 a.out
 tcc_g
 tcc

@@ -20,6 +20,9 @@ poxim-interp: poxim-interp.cpp
 poxim-dump: ./poxim-dump.c
 	gcc ./poxim-dump.c -ggdb -o poxim-dump
 
+utils: poxim-dump bin2strhex.c
+	gcc bin2strhex.c -o bin2strhex
+
 dump: poxim-dump
 	./poxim-dump ./$(poxim_dir)/$(test_file).hex ./$(poxim_dir)/$(test_file).dump
 	objdump -b binary -Mintel,x86-64 --adjust-vma=0x0 -D ./$(out_dir)/$(test_cfile).text.dump -m i386 > ./$(out_dir)/$(test_cfile).x86.dump
@@ -32,7 +35,7 @@ interp: poxim-interp
 
 # ./tcc -nostdlib -static examples/ex1.c -o./out/ex1.bin -I./ -I./include -L./ -Wl,--oformat=binary
 # DONE: necessary flags to compile directly to binary as we need: -nostdlib -static -Wl,--oformat=binary 
-run: poxim-dump all examples/ex1.c run-i386
+run: poxim-dump all examples/ex1.c run-i386 utils
 	./tcc -nostdlib -static examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary
 	./poxim-dump --bin $(out_dir)/$(test_cfile).bin > $(out_dir)/$(test_cfile).poximdump
 	# objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).bin > ./$(out_dir)/$(test_cfile).objcopy
@@ -46,4 +49,4 @@ run-i386: examples/ex1.c
 	# objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).i386.bin ./$(out_dir)/$(test_cfile).text.i386.dump
 
 
-.PHONY: dump interp run
+.PHONY: dump interp run utils

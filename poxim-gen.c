@@ -110,8 +110,7 @@ static void gen_be32(unsigned int c); /* gen reversed 32 bit*/
 
 #endif
 
-/* XXX: make it faster ? */
-
+/* DONE: don't make it faster */
 ST_FUNC void g(int c) {
   int ind1;
   if (nocode_wanted)
@@ -342,7 +341,6 @@ ST_FUNC void load(int r, SValue *sv) {
   sv = pe_getimport(sv, &v2);
 #endif
 
-	r = r + 1 ; /* Because r0 is alway zero in PoximArch*/
   fr = sv->r;
   ft = sv->type.t & ~VT_DEFSIGN;
   fc = sv->c.i;
@@ -384,7 +382,7 @@ ST_FUNC void load(int r, SValue *sv) {
       /* l32 */
 			inst = 0b011010;
     }
-    gen_be32(inst << 26 | r << 21 | bp << 16  | (fc & 0xFFFF));
+    gen_be32(inst << 26 | (r+1) << 21 | bp << 16  | (fc & 0xFFFF));
     //TODO: This realloct by using   gen_addr32(r, sym, c); this might turn out to be a problem
     // gen_modrm(r, fr, sv->sym, fc);
 
@@ -419,8 +417,7 @@ ST_FUNC void load(int r, SValue *sv) {
       gsym(fc);
       oad(0xb8 + r, t ^ 1); /* mov $0, r */
     } else if (v != r) {
-      o(0x89);
-      o(0xc0 + r + v * 8); /* mov v, r */
+      movr(r, v);
     }
   }
 }
@@ -753,7 +750,6 @@ ST_FUNC void gfunc_epilog(void) {
   gen_modrm(r3, VT_LOCAL, NULL, -(v + 4));
 #endif
 
-  // o(0xc9); /* leave */
   movr(sp, bp);
   pop(bp);
   if (func_ret_sub == 0) {
@@ -864,11 +860,12 @@ ST_FUNC void gen_opi(int op) {
       }
     } else {
       gv2(RC_INT, RC_INT);
-      r = vtop[-1].r;
-      fr = vtop[0].r;
-				// TODO: We need to know what opc means in this context
-      o((opc << 3) | 0x01);
-      o(0xc0 + r + fr * 8);
+      r = vtop[-1].r + 1;
+      fr = vtop[0].r + 1;
+			// TODO: We need to know what opc means in this context
+			add(r, r, fr);
+      // o((opc << 3) | 0x01);
+      // o(0xc0 + r + fr * 8);
     }
     vtop--;
     if (op >= TOK_ULT && op <= TOK_GT)
