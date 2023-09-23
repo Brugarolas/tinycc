@@ -103,6 +103,7 @@ static int func_ret_sub;
 static addr_t func_bound_offset;
 static unsigned long func_bound_ind;
 ST_DATA int func_bound_add_epilog;
+ST_DATA int func_bound_is_naked = 0 ;
 static void gen_bounds_prolog(void);
 static void gen_bounds_epilog(void);
 static void gen_be32(unsigned int c); /* gen reversed 32 bit*/
@@ -202,7 +203,7 @@ static const u16 swap_endianness16(u16 num) {
 /***************************
  >> START POXIM Instructions
 ****************************/
-b8 first_func = 0;
+static b8 first_func = 1;
 ST_FUNC void poxim_compile_init(struct TCCState *s) {
   // o(0xcafebabe);
 }
@@ -655,9 +656,11 @@ ST_FUNC void gfunc_prolog(Sym *func_sym) {
   const uint8_t *fastcall_regs_ptr;
   Sym *sym;
   CType *type;
+	b8 is_naked = 0;
 
   sym = func_type->ref;
   func_call = sym->f.func_call;
+  is_naked = sym->f.func_naked;
   addr = 8;
   loc = 0;
   func_vc = 0;
@@ -673,6 +676,7 @@ ST_FUNC void gfunc_prolog(Sym *func_sym) {
     fastcall_regs_ptr = NULL;
   }
   param_index = 0;
+
 
   ind += FUNC_PROLOG_SIZE;
   func_sub_sp_offset = ind;
@@ -732,11 +736,14 @@ ST_FUNC void gfunc_prolog(Sym *func_sym) {
 /* generate function epilog */
 ST_FUNC void gfunc_epilog(void) {
   addr_t v, saved_ind;
-
 #ifdef CONFIG_TCC_BCHECK
   if (tcc_state->do_bounds_check)
     gen_bounds_epilog();
 #endif
+	if (func_bound_is_naked) {
+		return;
+	}
+
 
   /* align local size to word & save local variables */
   v = (-loc + 3) & -4;
@@ -746,8 +753,7 @@ ST_FUNC void gfunc_epilog(void) {
   gen_modrm(r3, VT_LOCAL, NULL, -(v + 4));
 #endif
 
-  // o(0xc9); 
-  /* leave */
+  // o(0xc9); /* leave */
   movr(sp, bp);
   pop(bp);
   if (func_ret_sub == 0) {
@@ -860,6 +866,7 @@ ST_FUNC void gen_opi(int op) {
       gv2(RC_INT, RC_INT);
       r = vtop[-1].r;
       fr = vtop[0].r;
+				// TODO: We need to know what opc means in this context
       o((opc << 3) | 0x01);
       o(0xc0 + r + fr * 8);
     }

@@ -1173,6 +1173,8 @@ static void merge_funcattr(struct FuncAttr *fa, struct FuncAttr *fa1)
       fa->func_type = fa1->func_type;
     if (fa1->func_args && !fa->func_args)
       fa->func_args = fa1->func_args;
+    if (fa1->func_naked)
+      fa->func_naked = 1;
     if (fa1->func_noreturn)
       fa->func_noreturn = 1;
     if (fa1->func_ctor)
@@ -3945,6 +3947,9 @@ redo:
         case TOK_NORETURN1:
         case TOK_NORETURN2:
             ad->f.func_noreturn = 1;
+            break;
+        case TOK_NAKED:
+            ad->f.func_naked = 1;
             break;
         case TOK_CDECL1:
         case TOK_CDECL2:

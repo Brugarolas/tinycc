@@ -5,16 +5,22 @@
 Disassembly of section .data:
 
 00000000 <.data>:
-       0:	55                   	push   ebp
-       1:	89 e5                	mov    ebp,esp
-       3:	81 ec 08 00 00 00    	sub    esp,0x8
-       9:	b8 01 00 00 00       	mov    eax,0x1
-       e:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
-      11:	b8 02 00 00 00       	mov    eax,0x2
-      16:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
-      19:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
-      1c:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]
-      1f:	01 c8                	add    eax,ecx
-      21:	c9                   	leave
-      22:	c3                   	ret
+       0:	03 c0                	add    eax,eax
+       2:	7f fc                	jg     0x0
+       4:	fc                   	cld
+       5:	00 00                	add    BYTE PTR [eax],al
+       7:	00 55 89             	add    BYTE PTR [ebp-0x77],dl
+       a:	e5 81                	in     eax,0x81
+       c:	ec                   	in     al,dx
+       d:	08 00                	or     BYTE PTR [eax],al
+       f:	00 00                	add    BYTE PTR [eax],al
+      11:	b8 01 00 00 00       	mov    eax,0x1
+      16:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
+      19:	b8 02 00 00 00       	mov    eax,0x2
+      1e:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
+      21:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+      24:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]
+      27:	01 c8                	add    eax,ecx
+      29:	c9                   	leave
+      2a:	c3                   	ret
 	...

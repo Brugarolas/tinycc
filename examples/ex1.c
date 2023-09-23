@@ -1,11 +1,20 @@
 #!/usr/local/bin/tcc -run
 #include <tcclib.h>
 
-int main(void);
+void _start(void); asm (                                                                                
+"_start:\n"
+		/* mov sp, 0x7FFC */
+		".long 0xFC7FC003;\n"
+);
 
-// void _start(void){
-//   main();
-// }
+void int0(void); asm (                                                                                
+"int0:\n"
+		/* mov sp, 0x7FFC */
+		".byte 0xFC;"
+		".byte 0x00;"
+		".byte 0x00;"
+		".byte 0x00;"
+);
 
 int main(void)
 {

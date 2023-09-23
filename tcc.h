@@ -559,6 +559,7 @@ struct FuncAttr {
     unsigned
     func_call   : 3, /* calling convention (0..5), see below */
     func_type   : 2, /* FUNC_OLD/NEW/ELLIPSIS */
+		func_naked : 1, /*  attribute((naked))don't generate epilog, nor prologue*/
     func_noreturn : 1, /* attribute((noreturn)) */
     func_ctor   : 1, /* attribute((constructor)) */
     func_dtor   : 1, /* attribute((destructor)) */
