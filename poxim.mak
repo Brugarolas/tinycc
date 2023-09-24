@@ -12,7 +12,7 @@ debug: run
 	gdb --args 	./tcc -nostdlib -static examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary 
 
 debug-i386: 
-	gdb --args tcc-i386 -c ./examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I. -Iinclude -L.
+	gdb --args -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./ -Wl,--oformat=binary
 
 poxim-interp: poxim-interp.cpp
 	g++ -Wall -O3 ./poxim-interp.cpp -o poxim-interp
@@ -30,7 +30,7 @@ dump: poxim-dump
 	./poxim-dump --bin ./$(poxim_dir)/$(test_file).bin
 
 interp: poxim-interp
-	./poxim-interp ./$(poxim_dir)/$(test_file).hex ./$(poxim_dir)/$(test_file).interp.out
+	./poxim-interp code.hex code.out && cat code.out
 
 
 # ./tcc -nostdlib -static examples/ex1.c -o./out/ex1.bin -I./ -I./include -L./ -Wl,--oformat=binary

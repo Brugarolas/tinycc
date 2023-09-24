@@ -76,3 +76,9 @@ typedef ptrdiff_t isize;
 const u32 swap_endianness32(u32 num);
 const u64 swap_endianness64(u64 num);
 const u16 swap_endianness16(u16 num);
+
+const u8 bit_at(u32 number, int nth_bit);
+const u32 bits_at(u32 number, u32 start, u32 end);
+const u32 extend_bit_at(u32 num, u8 bit_place);
+void set_bit(u32 *number, u8 nth_bit, u8 choice);
+void fill_bits(u32 *number, u8 start, u8 end, u8 bit_choice);

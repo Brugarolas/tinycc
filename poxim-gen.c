@@ -479,8 +479,7 @@ static void gcall_or_jmp(int is_jmp) {
     greloc(cur_text_section, vtop->sym, ind + 1, R_386_PC32);
     /* constant and relocation case */
     /* call/jmp im */
-    imm =  (vtop->c.i - 4) & 0x03FFFFFF;
-    imm =  (0) & 0x03FFFFFF;
+    // imm =  (vtop->c.i) & 0x03FFFFFF;
     // imm =  (vtop->c.i - 4) & 0x03FFFFFF;
 
     if (is_jmp) {

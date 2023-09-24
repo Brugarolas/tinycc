@@ -25,12 +25,11 @@
 #ifdef NEED_RELOC_TYPE
 /* Returns 1 for a code relocation, 0 for a data relocation. For unknown
    relocations, returns -1. */
-int code_reloc (int reloc_type)
-{
-    switch (reloc_type) {
+int code_reloc (int reloc_type) {
+  switch (reloc_type) {
 	case R_386_RELATIVE:
 	case R_386_16:
-        case R_386_32:
+  case R_386_32:
 	case R_386_GOTPC:
 	case R_386_GOTOFF:
 	case R_386_GOT32:
@@ -41,13 +40,13 @@ int code_reloc (int reloc_type)
 	case R_386_TLS_LDM:
 	case R_386_TLS_LDO_32:
 	case R_386_TLS_LE:
-            return 0;
+       return 0;
 
 	case R_386_PC16:
 	case R_386_PC32:
 	case R_386_PLT32:
 	case R_386_JMP_SLOT:
-            return 1;
+       return 1;
     }
     return -1;
 }
@@ -175,6 +174,7 @@ ST_FUNC void relocate_plt(TCCState *s1)
   NOTE(EVERTON): Took me year to find where relocation occurs  goddanm 
   mostly because the concept of relocation inst so well understood by me 
   see : https://en.wikipedia.org/wiki/Relocation_%28computing%29
+  NOTE: the code section is the s1->sections[1] , got it ?  don't forget this
 */
 void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t addr, addr_t val)
 {
@@ -194,12 +194,12 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t 
                 } else {
                     qrel->r_info = ELFW(R_INFO)(0, R_386_RELATIVE);
                     qrel++;
-                }
+                } 
             }
             add32le(ptr, val);
             return;
-        case R_386_PC32: /* PC relative 32 bit */
             if (s1->output_type == TCC_OUTPUT_DLL) {
+        case R_386_PC32: /* PC relative 32 bit */
                 /* DLL relocation */
                 esym_index = get_sym_attr(s1, sym_index, 0)->dyn_index;
                 if (esym_index) {
@@ -212,10 +212,13 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t 
             
             {
               //XXX:
-              uint32_t* inst_ptr = (uint32_t*)(ptr-1);
-              uint32_t inst = *inst_ptr;
-              *inst_ptr = inst | 
-                    (swap_endianness32(val - addr) & 0x03FFFFFF);
+              u32* inst_ptr = (u32*)(ptr-1);
+              u32 inst = swap_endianness32(*inst_ptr);
+              i32 a = extend_bit_at(inst & 0x03FFFFFF, 25);
+              i32 b = extend_bit_at((val - addr) & 0x03FFFFFF, 25);
+              i32 offset = (((a+b)& 0x03FFFFFF));
+              *inst_ptr = swap_endianness32(bits_at(inst, 31, 26) << 26 | offset);
+              tcc_warning("val = %d, addr = %d", val, addr);
               // add32le(ptr, val - addr);
             }
             return;

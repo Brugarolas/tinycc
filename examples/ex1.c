@@ -1,11 +1,18 @@
 
 void oi(void);
+void hello(void);
+
+void hello(void) {
+}
 
 int main(void) {
+    hello();
     oi();
 }
 
-asm(
-  "oi:\n"
-);
+void oi(void) {
+}
+// asm(
+//   "oi:\n"
+// );
 

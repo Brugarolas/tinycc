@@ -1,9 +1,0 @@
-   0:    28 00 01 80       push r6
-   4:    08 de 00 00       mov r6, sp
-   8:    4f de 00 00       subi sp, sp, 0
-   c:    e4 00 00 03       call 3<<2
-  10:    00 20 00 00       mov r1, 0
-  14:    0b c6 00 00       mov sp, r6
-  18:    2c 00 01 80       pop r6
-  1c:    7c 00 00 00       ret
-  ...

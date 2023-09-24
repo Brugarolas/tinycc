@@ -8,8 +8,19 @@ Disassembly of section .data:
        0:	55                   	push   ebp
        1:	89 e5                	mov    ebp,esp
        3:	81 ec 00 00 00 00    	sub    esp,0x0
-       9:	e8 07 00 00 00       	call   0x15
-       e:	b8 00 00 00 00       	mov    eax,0x0
-      13:	c9                   	leave
-      14:	c3                   	ret
+       9:	c9                   	leave
+       a:	c3                   	ret
+       b:	55                   	push   ebp
+       c:	89 e5                	mov    ebp,esp
+       e:	81 ec 00 00 00 00    	sub    esp,0x0
+      14:	e8 e7 ff ff ff       	call   0x0
+      19:	e8 07 00 00 00       	call   0x25
+      1e:	b8 00 00 00 00       	mov    eax,0x0
+      23:	c9                   	leave
+      24:	c3                   	ret
+      25:	55                   	push   ebp
+      26:	89 e5                	mov    ebp,esp
+      28:	81 ec 00 00 00 00    	sub    esp,0x0
+      2e:	c9                   	leave
+      2f:	c3                   	ret
 	...
