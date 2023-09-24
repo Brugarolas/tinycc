@@ -20,7 +20,7 @@
 
 #include <poxim.h>
 #define POXIM_MAX_REGISTERS 32
-#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3+2)
+#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3+3)
 #define FUNC_PROLOG_SIZE (4 * (N_INSTRUCTIONS_FOR_FUNC_PROLOG))
 #if defined(TARGET_DEFS_ONLY)
 
@@ -745,6 +745,7 @@ ST_FUNC void gfunc_epilog(void) {
 #endif
 
   movr(sp, bp);
+  pop(bp2);
   pop(bp);
   if (func_ret_sub == 0) {
     gen_le32(0x7c); /* ret */
@@ -767,13 +768,14 @@ ST_FUNC void gfunc_epilog(void) {
   {
     /* push %ebp; mov %esp, %ebp */
     push(bp);
+		push(bp2);
     movr(bp, sp);
 		movr(bp2, bp);
     sra(r0, bp2, bp2, 2);
     // gen_be32(0x10E03F01);
 
     /* sub esp, stacksize */
-    subi(sp, sp, v);
+    subi(sp, sp, v + 4);
 #ifdef TCC_TARGET_PE
     o(0x000000); /* adjust to FUNC_PROLOG_SIZE  with nop*/
 #endif

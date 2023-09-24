@@ -14,17 +14,16 @@ void _start(void) {
    main(); int0();
 } 
 
-int oi(void);
 
+int oi(void);
+// Loading immediate integer is actually 20bits max
 int main(void)
 {
     int a = 420;
     int b = 0x69;
-    (void)a;
-    (void)b;
-    oi();
-    int0();
-    return a+b;
+    int c = a+b;
+    c += oi();
+    return 0xcafe;
 }
 
 int oi(void) {  return 0x69;}
