@@ -20,8 +20,8 @@
 
 #include <poxim.h>
 #define POXIM_MAX_REGISTERS 32
-#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3)
-#define FUNC_PROLOG_SIZE (4 * N_INSTRUCTIONS_FOR_FUNC_PROLOG)
+#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3+2)
+#define FUNC_PROLOG_SIZE (4 * (N_INSTRUCTIONS_FOR_FUNC_PROLOG))
 #if defined(TARGET_DEFS_ONLY)
 
 /* number of available registers */
@@ -50,7 +50,7 @@
 #define RC_FRET RC_F /* function return: float register */
 
 /* pretty names for the registers */
-enum { r0 = 0, r1, r2, r3, r4, rf, bp, rt, sp = 30 };
+enum { r0 = 0, r1, r2, r3, r4, rf, bp, bp2, rt, sp = 30 };
 
 /* return registers for function */
 #define REG_IRET r1 /* single word int return register */
@@ -249,10 +249,22 @@ static void s32(int r1, int r2, int i) {
   gen_be32(inst << 26 | (r1 & 0b111) << 21 | (r2 & 0b111) << 16 | (i & 0xFFFF));
 }
 
+static void shift(u8 sub_inst, int rz, int rx, int ry, int i) {
+  u32 inst = 0b00100;
+  gen_be32(inst << 26 
+					 | (rz & 0b11111)			<< 21 
+					 | (rx & 0b11111)			<< 16 
+					 | (ry & 0b11111)			<< 11 
+					 | (sub_inst & 0b111) << 8
+					 | ((int)log2((f64)i) & 0b1111));
+}
+
 static void sra(int rz, int rx, int ry, int i) {
-  u32 inst = 0b000100;
-  gen_be32(inst << 26 | (rz & 0b11111) << 21 | (rx & 0b11111) << 16 |
-           (ry & 0b11111) << 11 | (i & 0x3ff));
+	shift(0b111,rz, rx, ry, i);
+}
+
+static void srl(int rz, int rx, int ry, int i) {
+	shift(0b101, rz, rx, ry, i);
 }
 /***************************
  << END POXIM Instructions
@@ -356,9 +368,8 @@ ST_FUNC void load(int r, SValue *sv) {
       /* l32 */
       inst = 0b011010;
     }
-    // movr(rt, bp);
-    // movr(rt, bp);
-    gen_be32(inst << 26 | (r + 1) << 21 | bp << 16 | (fc & 0xFFFF));
+    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | (fc >> 2 & 0xFFFF));
+
     // TODO: This realloct by using   gen_addr32(r, sym, c); this might turn
     // out to be a problem
     //  gen_modrm(r, fr, sv->sym, fc);
@@ -441,10 +452,7 @@ ST_FUNC void store(int r, SValue *v) {
     // v->r
     // TODO: listen, all these store and load of 32 bit has a Flaw
     // this flaw is being shift by two, because idk, 32 bit idk
-    // movr(rt, bp);
-    // // sra(r0, rt, bp, 2);
-    // gen_be32(0x10E03F01);
-    gen_be32(inst << 26 | (r + 1) << 21 | rt << 16 | (fc >> 2 & 0xFFFF));
+    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | (fc >> 2 & 0xFFFF));
 
   } else if (v->r & VT_LVAL) {
     tcc_error("poxim not hanlded %s", __func__);
@@ -760,6 +768,9 @@ ST_FUNC void gfunc_epilog(void) {
     /* push %ebp; mov %esp, %ebp */
     push(bp);
     movr(bp, sp);
+		movr(bp2, bp);
+    sra(r0, bp2, bp2, 2);
+    // gen_be32(0x10E03F01);
 
     /* sub esp, stacksize */
     subi(sp, sp, v);
