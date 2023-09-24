@@ -211,12 +211,13 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t 
             }
             
             {
-              //XXX:
+              //XXX: You  need to understand this, 'val'-'addr' gives you how many bytes 
+              // from 'ptr' is the address of the function that you need to call 
               u32* inst_ptr = (u32*)(ptr-1);
               u32 inst = swap_endianness32(*inst_ptr);
               i32 a = extend_bit_at(inst & 0x03FFFFFF, 25);
               i32 b = extend_bit_at((val - addr) & 0x03FFFFFF, 25);
-              i32 offset = (((a+b)& 0x03FFFFFF));
+              i32 offset = ((((b)>> 2 )& 0x03FFFFFF)) ;
               *inst_ptr = swap_endianness32(bits_at(inst, 31, 26) << 26 | offset);
               tcc_warning("val = %d, addr = %d", val, addr);
               // add32le(ptr, val - addr);
