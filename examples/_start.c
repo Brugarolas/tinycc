@@ -1,33 +1,27 @@
-#!/usr/local/bin/tcc -run
-#include <tcclib.h>
-
-void 
-_start(void); asm (                                                                                
-"_start:\n"
+asm (                                                                                
+"_init:\n"
 		/* mov sp, 0x7FFC */
 		".long 0xFC7FC003;\n"
+		".long 0x010000DC;\n"
 );
-
-void 
-int0(void); asm (                                                                                
+void int0(void); asm (                                                                                
 "int0:\n"
 		/* int 0 */
 		".long 0x000000FC;"
 );
+int main(void);
+void _start(void) {
+   main(); int0();
+} 
 
 int oi(void);
 
-int main(void)
-{
-    const int a = 1;
-    const int b = 2;
-    (void)a;
-    (void)b;
-    int0();
+int main(void) {
+    int a = 420;
+    int b = 69;
     oi();
+    int0();
     return a+b;
 }
 
 int oi(void) {  return 0x69;}
-
-

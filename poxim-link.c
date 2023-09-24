@@ -184,6 +184,7 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t 
 
     switch (type) {
         case R_386_32:
+						assert( 0 && "poxim doesnt support R_386_32 Direct 32 bit relocation yet ");
             if (s1->output_type & TCC_OUTPUT_DYN) {
                 esym_index = get_sym_attr(s1, sym_index, 0)->dyn_index;
                 qrel->r_offset = rel->r_offset;
@@ -219,7 +220,6 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t 
               i32 b = extend_bit_at((val - addr) & 0x03FFFFFF, 25);
               i32 offset = ((((b)>> 2 )& 0x03FFFFFF)) ;
               *inst_ptr = swap_endianness32(bits_at(inst, 31, 26) << 26 | offset);
-              tcc_warning("val = %d, addr = %d", val, addr);
               // add32le(ptr, val - addr);
             }
             return;

@@ -21,7 +21,7 @@
 #include <poxim.h>
 #define POXIM_MAX_REGISTERS 32
 #define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3)
-#define FUNC_PROLOG_SIZE (4*N_INSTRUCTIONS_FOR_FUNC_PROLOG)
+#define FUNC_PROLOG_SIZE (4 * N_INSTRUCTIONS_FOR_FUNC_PROLOG)
 #if defined(TARGET_DEFS_ONLY)
 
 /* number of available registers */
@@ -50,7 +50,7 @@
 #define RC_FRET RC_F /* function return: float register */
 
 /* pretty names for the registers */
-enum { r0 = 0, r1, r2, r3, r4, rf, bp, sp = 30 };
+enum { r0 = 0, r1, r2, r3, r4, rf, bp, rt, sp = 30 };
 
 /* return registers for function */
 #define REG_IRET r1 /* single word int return register */
@@ -103,7 +103,7 @@ static int func_ret_sub;
 static addr_t func_bound_offset;
 static unsigned long func_bound_ind;
 ST_DATA int func_bound_add_epilog;
-ST_DATA int func_bound_is_naked = 0 ;
+ST_DATA int func_bound_is_naked = 0;
 static void gen_bounds_prolog(void);
 static void gen_bounds_epilog(void);
 static void gen_be32(unsigned int c); /* gen reversed 32 bit*/
@@ -178,8 +178,6 @@ static int oad(int c, int s) {
   return t;
 }
 
-
-
 /***************************
  >> START POXIM Instructions
 ****************************/
@@ -188,10 +186,7 @@ ST_FUNC void poxim_compile_init(struct TCCState *s) {
   // o(0xcafebabe);
 }
 
-ST_FUNC void poxim_gen_init(struct TCCState *s)
-{
-}
-
+ST_FUNC void poxim_gen_init(struct TCCState *s) {}
 
 static void add(int r1, int r2, int r3) {
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
@@ -203,14 +198,10 @@ static void add(int r1, int r2, int r3) {
 static void push_or_pop(b8 is_pop, int r1, int r2, int r3, int r4, int r5) {
   u8 inst = is_pop ? 0b001011 : 0b001010;
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
-         r3 <= POXIM_MAX_REGISTERS &&
-         r4 <= POXIM_MAX_REGISTERS &&
+         r3 <= POXIM_MAX_REGISTERS && r4 <= POXIM_MAX_REGISTERS &&
          r5 <= POXIM_MAX_REGISTERS);
   gen_be32(inst << 26 | (r1 & 0xff) << 6 | (r2 & 0xff) << 0 |
-           (r3 & 0xff) << 16 |
-           (r4 & 0xff) << 11 |
-           (r5 & 0xff) << 21
-           );
+           (r3 & 0xff) << 16 | (r4 & 0xff) << 11 | (r5 & 0xff) << 21);
 }
 
 static void push5(int r1, int r2, int r3, int r4, int r5) {
@@ -221,13 +212,9 @@ static void pop5(int r1, int r2, int r3, int r4, int r5) {
   push_or_pop(1, r1, r2, r3, r4, r5);
 }
 
-static void push(int r) {
-  push5(r,  0,  0,  0,  0);
-}
+static void push(int r) { push5(r, 0, 0, 0, 0); }
 
-static void pop(int r) {
-  pop5(r,  0,  0,  0,  0);
-}
+static void pop(int r) { pop5(r, 0, 0, 0, 0); }
 
 static void sub(int r1, int r2, int r3) {
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
@@ -237,27 +224,35 @@ static void sub(int r1, int r2, int r3) {
 }
 
 static void subi(int r1, int r2, int i) {
-  assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
-         i <= 0xFFFF);
-  gen_be32(0b010011 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
-           (i) << 0);
+  assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS && i <= 0xFFFF);
+  gen_be32(0b010011 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 | (i) << 0);
 }
 
 static void movr(int r1, int r2) { add(r1, r2, 0); };
 
 static void mov(int r, int i) {
-  assert(r <= POXIM_MAX_REGISTERS && 
-         i <= 0xFFFF);
-	// g((u32)i);
-	// g(0x92fa);
-	// g((u32)i);
-	// g((u32)i);
-  gen_be32(
-		0x00 << 26 |
-		(r & 0b111) << 21 |
-		(i & 0xFF00) << 8 |
-		(i & 0x00FF) << 0
+	if (!(r <= POXIM_MAX_REGISTERS && i <= 0xFFFFF)) {
+		tcc_error("It's possible i have made a mistake, int is actually 20 bits on a const mov, i'm sorry");
+	}
+  // g((u32)i);
+  // g(0x92fa);
+  // g((u32)i);
+  // g((u32)i);
+  gen_be32(0x00 << 26 
+					 | (r & 0b11111) << 21 
+					 | (i & 0xFFFFFFFF)
 	);
+}
+
+static void s32(int r1, int r2, int i) {
+  u32 inst = 0b011010;
+  gen_be32(inst << 26 | (r1 & 0b111) << 21 | (r2 & 0b111) << 16 | (i & 0xFFFF));
+}
+
+static void sra(int rz, int rx, int ry, int i) {
+  u32 inst = 0b000100;
+  gen_be32(inst << 26 | (rz & 0b11111) << 21 | (rx & 0b11111) << 16 |
+           (ry & 0b11111) << 11 | (i & 0x3ff));
 }
 /***************************
  << END POXIM Instructions
@@ -339,7 +334,7 @@ ST_FUNC void load(int r, SValue *sv) {
       load(fr, &v1);
     }
     if ((ft & VT_BTYPE) == VT_FLOAT) {
-			tcc_error("We aint supporting float, boy");
+      tcc_error("We aint supporting float, boy");
       o(0xd9); /* flds */
       r = 0;
     } else if ((ft & VT_BTYPE) == VT_DOUBLE) {
@@ -356,31 +351,32 @@ ST_FUNC void load(int r, SValue *sv) {
       o(0xbf0f); /* movswl */
     } else if ((ft & VT_TYPE) == (VT_SHORT | VT_UNSIGNED)) {
       o(0xb70f); /* movzwl */
-    } else { 
-      assert((ft & VT_TYPE) == (VT_INT ));
+    } else {
+      assert((ft & VT_TYPE) == (VT_INT));
       /* l32 */
-			inst = 0b011010;
+      inst = 0b011010;
     }
-    gen_be32(inst << 26 | (r+1) << 21 | bp << 16  | (fc & 0xFFFF));
-    //TODO: This realloct by using   gen_addr32(r, sym, c); this might turn out to be a problem
-    // gen_modrm(r, fr, sv->sym, fc);
+    // movr(rt, bp);
+    // movr(rt, bp);
+    gen_be32(inst << 26 | (r + 1) << 21 | bp << 16 | (fc & 0xFFFF));
+    // TODO: This realloct by using   gen_addr32(r, sym, c); this might turn
+    // out to be a problem
+    //  gen_modrm(r, fr, sv->sym, fc);
 
   } else {
     if (v == VT_CONST) {
-      // o(0xb8 + r);/* mov $xx, r */
-      // o(0xb8 + r);	 /* mov $xx, r */
-			mov(r, fc);		 /* mov r, fc */
-      // gen_addr32(fr, sv->sym, fc);
+      // o(0xb8 + r);     /* mov $xx, r */
+      mov(r+1, fc); /* mov r, fc */
       // gen_addr32(fr, sv->sym, fc);
     } else if (v == VT_LOCAL) {
       if (fc) {
-				int rt = get_reg(RC_INT);
-				printf("r = %d, rt = %d local 0x8945 ?  <<<<<<<<<<\n", r, rt);
-				assert(0);
+        int rt = get_reg(RC_INT);
+        printf("r = %d, rt = %d local 0x8945 ?  <<<<<<<<<<\n", r, rt);
+        assert(0);
         o(0x8d); /* lea xxx(%ebp), r */
         gen_modrm(r, VT_LOCAL, sv->sym, fc);
       } else {
-				printf("0x8945 ?  <<<<<<<<<<\n");
+        printf("0x8945 ?  <<<<<<<<<<\n");
         o(0x89);
         o(0xe8 + r); /* mov %ebp, r */
       }
@@ -404,8 +400,7 @@ ST_FUNC void load(int r, SValue *sv) {
 /* store register 'r' in lvalue 'v' */
 ST_FUNC void store(int r, SValue *v) {
   int fr, bt, ft, fc;
-	u32 inst = 0;
-	r += 1;
+  u32 inst = 0;
 
 #ifdef TCC_TARGET_PE
   SValue v2;
@@ -433,22 +428,25 @@ ST_FUNC void store(int r, SValue *v) {
       o(0x66);
     if (bt == VT_BYTE || bt == VT_BOOL)
       o(0x88);
-    else{ //VT_INT
-			assert(bt == VT_INT);
-			inst = 0b011101;
-		}
+    else { // VT_INT
+      assert(bt == VT_INT);
+      inst = 0b011101;
+    }
   }
-  if (fr == VT_CONST )  {
-      mov(r, fc);
+  if (fr == VT_CONST) {
+    mov(r + 1, swap_endianness32(fc));
 
-	} else if (fr == VT_LOCAL) {
-		/* currently, we use only ebp as base */
-		// v->r
-		// TODO: listen, all these store and load of 32 bit has a Flaw
-		// this flaw is being shift by two, because idk, 32 bit idk
-		gen_be32(inst << 26 | r << 21 | bp << 16  | (fc & 0xFFFF));
-			
-	} else if (v->r & VT_LVAL) {
+  } else if (fr == VT_LOCAL) {
+    /* currently, we use only ebp as base */
+    // v->r
+    // TODO: listen, all these store and load of 32 bit has a Flaw
+    // this flaw is being shift by two, because idk, 32 bit idk
+    // movr(rt, bp);
+    // // sra(r0, rt, bp, 2);
+    // gen_be32(0x10E03F01);
+    gen_be32(inst << 26 | (r + 1) << 21 | rt << 16 | (fc >> 2 & 0xFFFF));
+
+  } else if (v->r & VT_LVAL) {
     tcc_error("poxim not hanlded %s", __func__);
     gen_modrm(r, v->r, v->sym, fc);
   } else if (fr != r) {
@@ -456,9 +454,7 @@ ST_FUNC void store(int r, SValue *v) {
   }
 }
 
-static void gadd_sp(int val) {
-		add(sp, sp, val);
-}
+static void gadd_sp(int val) { add(sp, sp, val); }
 
 #if defined CONFIG_TCC_BCHECK || defined TCC_TARGET_PE
 static void gen_static_call(int v) {
@@ -483,12 +479,12 @@ static void gcall_or_jmp(int is_jmp) {
     // imm =  (vtop->c.i - 4) & 0x03FFFFFF;
 
     if (is_jmp) {
-      gen_be32(0b110111 << 26 | imm  ); /* call/jmp im */
+      gen_be32(0b110111 << 26 | imm); /* call/jmp im */
     } else {
       gen_be32(0b111001 << 26 | imm); /* call/jmp im */
       printf("imm = %x\n", imm);
     }
-    // oad(0xe8 + is_jmp, vtop->c.i - 4); 
+    // oad(0xe8 + is_jmp, vtop->c.i - 4);
   } else {
     /* otherwise, indirect call */
     tcc_error("indirect call not supported in poxim");
@@ -637,7 +633,6 @@ ST_FUNC void gfunc_call(int nb_args) {
   vtop--;
 }
 
-
 /* generate function prolog of type 't' */
 ST_FUNC void gfunc_prolog(Sym *func_sym) {
   CType *func_type = &func_sym->type;
@@ -646,7 +641,7 @@ ST_FUNC void gfunc_prolog(Sym *func_sym) {
   const uint8_t *fastcall_regs_ptr;
   Sym *sym;
   CType *type;
-	b8 is_naked = 0;
+  b8 is_naked = 0;
 
   sym = func_type->ref;
   func_call = sym->f.func_call;
@@ -666,7 +661,6 @@ ST_FUNC void gfunc_prolog(Sym *func_sym) {
     fastcall_regs_ptr = NULL;
   }
   param_index = 0;
-
 
   ind += FUNC_PROLOG_SIZE;
   func_sub_sp_offset = ind;
@@ -730,10 +724,9 @@ ST_FUNC void gfunc_epilog(void) {
   if (tcc_state->do_bounds_check)
     gen_bounds_epilog();
 #endif
-	if (func_bound_is_naked) {
-		return;
-	}
-
+  if (func_bound_is_naked) {
+    return;
+  }
 
   /* align local size to word & save local variables */
   v = (-loc + 3) & -4;
@@ -764,12 +757,12 @@ ST_FUNC void gfunc_epilog(void) {
   } else
 #endif
   {
-		/* push %ebp; mov %esp, %ebp */
+    /* push %ebp; mov %esp, %ebp */
     push(bp);
     movr(bp, sp);
 
-		/* sub esp, stacksize */
-		subi(sp, sp, v);
+    /* sub esp, stacksize */
+    subi(sp, sp, v);
 #ifdef TCC_TARGET_PE
     o(0x000000); /* adjust to FUNC_PROLOG_SIZE  with nop*/
 #endif
@@ -855,8 +848,8 @@ ST_FUNC void gen_opi(int op) {
       gv2(RC_INT, RC_INT);
       r = vtop[-1].r + 1;
       fr = vtop[0].r + 1;
-			// TODO: We need to know what opc means in this context
-			add(r, r, fr);
+      // TODO: We need to know what opc means in this context
+      add(r, r, fr);
       // o((opc << 3) | 0x01);
       // o(0xc0 + r + fr * 8);
     }
