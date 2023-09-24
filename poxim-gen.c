@@ -267,8 +267,6 @@ static void movr(int r1, int r2) { add(r1, r2, 0); };
 static void mov(int r, int i) {
   assert(r <= POXIM_MAX_REGISTERS && 
          i <= 0xFFFF);
-	printf("mov i = %d", i );
-
 	// g((u32)i);
 	// g(0x92fa);
 	// g((u32)i);
@@ -484,6 +482,7 @@ static void gadd_sp(int val) {
 #if defined CONFIG_TCC_BCHECK || defined TCC_TARGET_PE
 static void gen_static_call(int v) {
   Sym *sym;
+  tcc_error("%s, we aitn doing that yet", __func__);
 
   sym = external_helper_sym(v);
   oad(0xe8, -4);
@@ -494,12 +493,26 @@ static void gen_static_call(int v) {
 /* 'is_jmp' is '1' if it is a jump */
 static void gcall_or_jmp(int is_jmp) {
   int r;
+  int imm;
   if ((vtop->r & (VT_VALMASK | VT_LVAL)) == VT_CONST && (vtop->r & VT_SYM)) {
-    /* constant and relocation case */
     greloc(cur_text_section, vtop->sym, ind + 1, R_386_PC32);
-    oad(0xe8 + is_jmp, vtop->c.i - 4); /* call/jmp im */
+    /* constant and relocation case */
+    /* call/jmp im */
+    imm =  (vtop->c.i - 4) & 0x03FFFFFF;
+    imm =  (0) & 0x03FFFFFF;
+    // imm =  (vtop->c.i - 4) & 0x03FFFFFF;
+
+    if (is_jmp) {
+      gen_be32(0b110111 << 26 | imm  ); /* call/jmp im */
+    } else {
+      gen_be32(0b111001 << 26 | imm); /* call/jmp im */
+      printf("imm = %x\n", imm);
+    }
+    // oad(0xe8 + is_jmp, vtop->c.i - 4); 
   } else {
     /* otherwise, indirect call */
+    tcc_error("indirect call not supported in poxim");
+    assert(0);
     r = gv(RC_INT);
     o(0xff); /* call/jmp *r */
     o(0xd0 + r + (is_jmp << 4));

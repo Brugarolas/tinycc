@@ -1,0 +1,7 @@
+[START OF SIMULATION]
+0x00000000:	mov sp,32764            	SP=0x00007FFC
+0x00000004:	bun 7                   	PC=0x00000024
+0x00000024:	call -2                 	PC=0x00000020,MEM[0x00007FFC]=0x00000028
+0x00000020:	ret                     	PC=MEM[0x00007FFC]=0x00000028
+0x00000028:	int 0                   	CR=0x00000000,PC=0x00000000
+[END OF SIMULATION]

@@ -769,7 +769,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
   case calli: {
     // call[r0 + 16]             	PC=0x00000040,MEM[0x00007FFC]=0x000002C4
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%s %d", "call", inst.I);
+    snprintf(assembly_text, count_of(assembly_text), "%s %d<<2", "call", inst.I);
     break;
   }
   case ret: {

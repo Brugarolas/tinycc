@@ -43,7 +43,7 @@ run: poxim-dump all examples/ex1.c run-i386 utils
 
 run-i386: examples/ex1.c
 	# ./tcc-i386 -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./
-	./tcc-i386 -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./ -Wl,--oformat=binary
+	./tcc-i386 -c -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./ -Wl,--oformat=binary
 	objdump -b binary --adjust-vma=0x0 -Mintel,i386 -m i386 -D ./$(out_dir)/$(test_cfile).i386.bin > ./$(out_dir)/$(test_cfile).i386.objdump
 	# objdump	-b binary -Mintel,i386  -D ./x64code.bin -m i386 > x64code.s
 	# objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).i386.bin ./$(out_dir)/$(test_cfile).text.i386.dump
