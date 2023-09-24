@@ -72,3 +72,7 @@ typedef ptrdiff_t isize;
         (unsigned long)(1000000 * (end_time - start_time) / CLOCKS_PER_SEC));  \
   } while (0)
 
+
+const u32 swap_endianness32(u32 num);
+const u64 swap_endianness64(u64 num);
+const u16 swap_endianness16(u16 num);

@@ -144,7 +144,7 @@ PROGS = tcc$(EXESUF)
 TCCLIBS = $(LIBTCCDEF) $(LIBTCC) $(LIBTCC1)
 TCCDOCS = tcc.1 tcc-doc.html tcc-doc.info
 
-all: $(PROGS) $(TCCLIBS) $(TCCDOCS)
+all: $(PROGS) $(TCCLIBS) $(TCCDOCS) poxim.h
 
 # cross compiler targets to build
 TCC_X = i386 x86_64 i386-win32 x86_64-win32 x86_64-osx arm arm64 arm-wince c67
@@ -216,6 +216,7 @@ endif
 CORE_FILES = tcc.c tcctools.c libtcc.c tccpp.c tccgen.c tccdbg.c tccelf.c tccasm.c tccrun.c
 CORE_FILES += tcc.h config.h libtcc.h tcctok.h
 poxim_FILES = $(CORE_FILES) poxim-gen.c poxim-link.c poxim-asm.c poxim-asm.h poxim-tok.h
+poxim_FILES +=  poxim.c poxim.h 
 # poxim_FILES = $(CORE_FILES) poxim-gen.c 
 i386_FILES = $(CORE_FILES) i386-gen.c i386-link.c i386-asm.c i386-asm.h i386-tok.h
 i386-win32_FILES = $(i386_FILES) tccpe.c

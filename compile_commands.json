@@ -10,7 +10,7 @@
    "-DCONFIG_TRIPLET=\"poxim-linux-gnu\"",
    "-DTCC_TARGET_POXIM",
    "-DONE_SOURCE=0",
-   "-DTCC_GITHASH=\"2023-09-18 mob@06b18ef4*\"",
+   "-DTCC_GITHASH=\"2023-09-23 mob@ae1bee6f*\"",
    "-ggdb",
    "-Wdeclaration-after-statement",
    "-fno-strict-aliasing",
@@ -567,5 +567,41 @@
    "-g"
   ],
   "file": "poxim-asm.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "gcc",
+   "./poxim-dump.c",
+   "-ggdb",
+   "-o",
+   "poxim-dump"
+  ],
+  "file": "./poxim-dump.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "gcc",
+   "bin2strhex.c",
+   "-o",
+   "bin2strhex"
+  ],
+  "file": "bin2strhex.c"
+ },
+ {
+  "directory": "/home/excyber/code/tinycc-poxim",
+  "arguments": [
+   "./tcc",
+   "-nostdlib",
+   "-static",
+   "examples/ex1.c",
+   "-o./out/ex1.bin",
+   "-I./",
+   "-I./include",
+   "-L./",
+   "-Wl,--oformat=binary"
+  ],
+  "file": "examples/ex1.c"
  }
 ]

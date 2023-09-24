@@ -19,8 +19,8 @@
 #define RELOCATE_DLLPLT 1
 
 #else /* !TARGET_DEFS_ONLY */
-
 #include "tcc.h"
+#include "poxim.h"
 
 #ifdef NEED_RELOC_TYPE
 /* Returns 1 for a code relocation, 0 for a data relocation. For unknown
@@ -171,6 +171,11 @@ ST_FUNC void relocate_plt(TCCState *s1)
 #endif
 #endif
 
+/* 
+  NOTE(EVERTON): Took me year to find where relocation occurs  goddanm 
+  mostly because the concept of relocation inst so well understood by me 
+  see : https://en.wikipedia.org/wiki/Relocation_%28computing%29
+*/
 void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t addr, addr_t val)
 {
     int sym_index, esym_index;
@@ -193,7 +198,7 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t 
             }
             add32le(ptr, val);
             return;
-        case R_386_PC32:
+        case R_386_PC32: /* PC relative 32 bit */
             if (s1->output_type == TCC_OUTPUT_DLL) {
                 /* DLL relocation */
                 esym_index = get_sym_attr(s1, sym_index, 0)->dyn_index;
@@ -204,7 +209,15 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t 
                     return;
                 }
             }
-            add32le(ptr, val - addr);
+            
+            {
+              //XXX:
+              uint32_t* inst_ptr = (uint32_t*)(ptr-1);
+              uint32_t inst = *inst_ptr;
+              *inst_ptr = inst | 
+                    (swap_endianness32(val - addr) & 0x03FFFFFF);
+              // add32le(ptr, val - addr);
+            }
             return;
         case R_386_PLT32:
             add32le(ptr, val - addr);
