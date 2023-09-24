@@ -224,9 +224,8 @@ u32 SwitchEndianess(const u32 &number);
 
 void ExecuteCode(u32 instructions[]);
 void ProcessExpression(Expression single_instruction);
-// void StoreHexInstructions(const char* filename, std::vector<u32>&
-// expression);
-void StoreHexInstructions(const char *filename, u32 instructions[]);
+void StoreHexInstructions(const char *filename, u32 instructions[], size_t max_instructions);
+void StoreBinaryInstructions(const char *filename, u32 instructions[], size_t max_instructions);
 void Branch(u32 imediate, bool is_signed);
 u8 &AccessMemory(u32 index);
 
@@ -681,14 +680,31 @@ GLOBAL std::ofstream assembly_out;
 /*===========================Start of
  * Program============================================================================*/
 
+// '--bin' flag reads as binary
+bool as_bin = false;
+const char *as_bin_flag = "--bin";
+
 int main(int argc, char **argv) {
+  if (argc > 1 && strcmp(argv[1], as_bin_flag) == 0) {
+    as_bin = true;
+    // Shift the arguments to skip the '--bin' flag
+    for (int i = 1; i < argc - 1; i++) {
+      argv[i] = argv[i + 1];
+    }
+    argv[argc - 1] = NULL;
+    argc--;
+  }
   const char *filename_in = argv[1];
   const char *filename_out = argv[2];
   if (filename_in == nullptr) {
     filename_in = ".in";
     filename_out = ".out";
   }
-  StoreHexInstructions(filename_in, MEM.instructions);
+  if(as_bin){
+    StoreBinaryInstructions(filename_in, MEM.instructions, sizeof(MEM.instructions));
+  } else {
+    StoreHexInstructions(filename_in, MEM.instructions, sizeof(MEM.instructions));
+  }
   assembly_out.open(filename_out, std::ios::out);
 
   ExecuteCode(MEM.instructions);
@@ -2283,21 +2299,45 @@ void Branch(u32 imediate, bool is_signed) {
   }
 }
 
-void StoreHexInstructions(const char *filename, u32 instructions[]) {
+void StoreHexInstructions(const char *filename, u32 instructions[], size_t max_instructions) {
   std::ifstream hex_in;
   hex_in.open(filename, std::ios::in);
+  
   if (hex_in.is_open()) {
     std::string instruction;
     u32 instruction_counter = 0;
 
-    while (std::getline(hex_in, instruction)) {
+    while (std::getline(hex_in, instruction) && instruction_counter < max_instructions) {
       const char *inst = instruction.c_str();
       instructions[instruction_counter] = SwitchEndianess(HexToBin(inst));
 
       instruction_counter++;
     }
+    
+    hex_in.close(); // Close the file after reading max_instructions or reaching EOF
+  } else {
+    std::cerr << "Failed to open file: " << filename << std::endl;
   }
-  hex_in.close();
+}
+
+void StoreBinaryInstructions(const char *filename, u32 instructions[], size_t max_instructions) {
+  std::ifstream binary_in;
+  binary_in.open(filename, std::ios::in | std::ios::binary);
+
+  if (binary_in.is_open()) {
+    u32 instruction;
+    u32 instruction_counter = 0;
+
+    while (binary_in.read(reinterpret_cast<char*>(&instruction), sizeof(instruction)) &&
+           instruction_counter < max_instructions) {
+      instructions[instruction_counter] = instruction;
+      instruction_counter++;
+    }
+
+    binary_in.close(); // Close the file after reading max_instructions or reaching EOF
+  } else {
+    std::cerr << "Failed to open file: " << filename << std::endl;
+  }
 }
 
 void ReadWriteStr(char result[256], const char *instruction, u8 bits_count,
