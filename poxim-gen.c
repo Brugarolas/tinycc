@@ -460,7 +460,9 @@ ST_FUNC void store(int r, SValue *v) {
     }
   }
   if (fr == VT_CONST) {
-    mov(r + 1, swap_endianness32(fc));
+    // mov(r + 1, swap_endianness32(fc));
+		// TODO:  check the endiannes of this, does it need changing?
+    mov(r + 1, (fc));
 
   } else if (fr == VT_LOCAL) {
     /* currently, we use only ebp as base */
