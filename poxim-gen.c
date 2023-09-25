@@ -233,10 +233,14 @@ static void sub(int r1, int r2, int r3) {
   gen_be32(0x03 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
            (r3 & 0xff) << 11);
 }
-
-static void subi(int r1, int r2, int i) {
-  assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS && i <= 0xFFFF);
-  gen_be32(0b010011 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 | (i) << 0);
+static void subi(int rz, int rx, int i) {
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS &&
+         i <= 0xFFFF);
+  gen_be32( 0b010011 << 26 
+					 |(rz & 0xff)  << 21 
+					 |(rx & 0xff)  << 16
+					 |(i  & 0xffff)
+	);
 }
 
 static void movr(int r1, int r2) { add(r1, r2, 0); };
@@ -414,7 +418,7 @@ ST_FUNC void load(int r, SValue *sv) {
       gsym(fc);
       oad(0xb8 + r, t ^ 1); /* mov $0, r */
     } else if (v != r) {
-      movr(r, v);
+      movr(r+1, v+1);/* mov  r, v */
     }
   }
 }
@@ -858,29 +862,27 @@ ST_FUNC void gen_opi(int op) {
     if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
       /* constant case */
       vswap();
-      r = gv(RC_INT);
+      r = gv(RC_INT) + 1;
       vswap();
       c = vtop->c.i;
-      if (c == (char)c) {
-        /* generate inc and dec for smaller code */
-        if ((c == 1 || c == -1) && (op == '+' || op == '-')) {
-          opc = (c == 1) ^ (op == '+');
-          o(0x40 | (opc << 3) | r); // inc,dec
-        } else {
-          o(0x83);
-          o(0xc0 | (opc << 3) | r);
-          g(c);
-        }
+      if (op == '+') {
+				addi(r, r, c);
       } else {
-        o(0x81);
-        oad(0xc0 | (opc << 3) | r, c);
+				subi(r, r, c);
+        // o(0x81);
+        // oad(0xc0 | (opc << 3) | r, c);
       }
     } else {
       gv2(RC_INT, RC_INT);
       r = vtop[-1].r + 1;
       fr = vtop[0].r + 1;
-      // TODO: We need to know what opc means in this context
-      add(r, r, fr);
+      // TODO: Wadde need to know what opc means in this context
+			// NOTE:  Do believe opc is the '+' or '-'
+      if (op == '+') {
+				add(r, r, fr);
+			} else {
+				sub(r, r, fr);
+			}
       // o((opc << 3) | 0x01);
       // o(0xc0 + r + fr * 8);
     }

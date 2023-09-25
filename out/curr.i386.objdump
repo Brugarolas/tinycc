@@ -5,42 +5,57 @@
 Disassembly of section .data:
 
 00000000 <.data>:
-       0:	55                   	push   ebp
-       1:	89 e5                	mov    ebp,esp
-       3:	81 ec 00 00 00 00    	sub    esp,0x0
-       9:	c9                   	leave
-       a:	c3                   	ret
-       b:	55                   	push   ebp
-       c:	89 e5                	mov    ebp,esp
-       e:	81 ec 00 00 00 00    	sub    esp,0x0
-      14:	b8 05 00 00 00       	mov    eax,0x5
-      19:	50                   	push   eax
-      1a:	b8 04 00 00 00       	mov    eax,0x4
-      1f:	50                   	push   eax
-      20:	b8 03 00 00 00       	mov    eax,0x3
-      25:	50                   	push   eax
-      26:	b8 02 00 00 00       	mov    eax,0x2
-      2b:	50                   	push   eax
-      2c:	b8 01 00 00 00       	mov    eax,0x1
-      31:	50                   	push   eax
-      32:	e8 c9 ff ff ff       	call   0x0
-      37:	83 c4 14             	add    esp,0x14
-      3a:	b8 00 00 00 00       	mov    eax,0x0
-      3f:	c9                   	leave
-      40:	c3                   	ret
-      41:	03 c0                	add    eax,eax
-      43:	7f fc                	jg     0x41
-      45:	dc 00                	fadd   QWORD PTR [eax]
-      47:	00 01                	add    BYTE PTR [ecx],al
-      49:	fc                   	cld
-      4a:	00 00                	add    BYTE PTR [eax],al
-      4c:	00 55 89             	add    BYTE PTR [ebp-0x77],dl
-      4f:	e5 81                	in     eax,0x81
-      51:	ec                   	in     al,dx
-      52:	00 00                	add    BYTE PTR [eax],al
-      54:	00 00                	add    BYTE PTR [eax],al
-      56:	e8 b0 ff ff ff       	call   0xb
-      5b:	e8 e9 ff ff ff       	call   0x49
-      60:	c9                   	leave
-      61:	c3                   	ret
+       0:	03 c0                	add    eax,eax
+       2:	7f fc                	jg     0x0
+       4:	dc 00                	fadd   QWORD PTR [eax]
+       6:	00 01                	add    BYTE PTR [ecx],al
+       8:	fc                   	cld
+       9:	00 00                	add    BYTE PTR [eax],al
+       b:	00 55 89             	add    BYTE PTR [ebp-0x77],dl
+       e:	e5 81                	in     eax,0x81
+      10:	ec                   	in     al,dx
+      11:	00 00                	add    BYTE PTR [eax],al
+      13:	00 00                	add    BYTE PTR [eax],al
+      15:	e8 29 00 00 00       	call   0x43
+      1a:	e8 e9 ff ff ff       	call   0x8
+      1f:	c9                   	leave
+      20:	c3                   	ret
+      21:	55                   	push   ebp
+      22:	89 e5                	mov    ebp,esp
+      24:	81 ec 00 00 00 00    	sub    esp,0x0
+      2a:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+      2d:	8b 4d 0c             	mov    ecx,DWORD PTR [ebp+0xc]
+      30:	01 c8                	add    eax,ecx
+      32:	8b 4d 10             	mov    ecx,DWORD PTR [ebp+0x10]
+      35:	01 c8                	add    eax,ecx
+      37:	8b 4d 14             	mov    ecx,DWORD PTR [ebp+0x14]
+      3a:	01 c8                	add    eax,ecx
+      3c:	8b 4d 18             	mov    ecx,DWORD PTR [ebp+0x18]
+      3f:	01 c8                	add    eax,ecx
+      41:	c9                   	leave
+      42:	c3                   	ret
+      43:	55                   	push   ebp
+      44:	89 e5                	mov    ebp,esp
+      46:	81 ec 08 00 00 00    	sub    esp,0x8
+      4c:	b8 02 00 00 00       	mov    eax,0x2
+      51:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
+      54:	b8 05 00 00 00       	mov    eax,0x5
+      59:	50                   	push   eax
+      5a:	b8 04 00 00 00       	mov    eax,0x4
+      5f:	50                   	push   eax
+      60:	b8 03 00 00 00       	mov    eax,0x3
+      65:	50                   	push   eax
+      66:	b8 02 00 00 00       	mov    eax,0x2
+      6b:	50                   	push   eax
+      6c:	b8 01 00 00 00       	mov    eax,0x1
+      71:	50                   	push   eax
+      72:	e8 aa ff ff ff       	call   0x21
+      77:	83 c4 14             	add    esp,0x14
+      7a:	83 e8 45             	sub    eax,0x45
+      7d:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
+      80:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+      83:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]
+      86:	01 c8                	add    eax,ecx
+      88:	c9                   	leave
+      89:	c3                   	ret
 	...

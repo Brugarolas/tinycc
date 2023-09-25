@@ -623,7 +623,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
 		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %s,  [%s%s%d]","l8 ", rz,
+    snprintf(assembly_text, count_of(assembly_text), "%-6s %s, [%s%s%d]","l8 ", rz,
              rx, bop, inst.I);
     break;
   }
@@ -633,7 +633,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
 		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %s,  [%s%s%d]<<1","l16 ",
+    snprintf(assembly_text, count_of(assembly_text), "%-6s %s, [%s%s%d]<<1","l16 ",
              rz, rx, bop, inst.I);
     break;
   }
@@ -642,7 +642,7 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
 		bop = (i32)inst.I < 0 ? "" : "+";
     reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %s,  [%s%s%d]<<2","l32 ",
+    snprintf(assembly_text, count_of(assembly_text), "%-6s %s, [%s%s%d]<<2","l32 ",
              rz, rx, bop, inst.I);
     break;
   }
