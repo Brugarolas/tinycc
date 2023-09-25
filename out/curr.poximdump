@@ -1,0 +1,49 @@
+   0:    28 00 01 80       push   r6
+   4:    28 00 01 c0       push   r7
+   8:    08 de 00 00       mov    r6, sp
+   c:    08 e6 00 00       mov    r7, r6
+  10:    10 07 3f 01       sra    r0, r7, r7, 1
+  14:    4f de 00 04       subi   sp, sp, 4
+  18:    0b c6 00 00       mov    sp, r6
+  1c:    2c 00 01 c0       pop    r7
+  20:    2c 00 01 80       pop    r6
+  24:    7c 00 00 00       ret   
+  28:    28 00 01 80       push   r6
+  2c:    28 00 01 c0       push   r7
+  30:    08 de 00 00       mov    r6, sp
+  34:    08 e6 00 00       mov    r7, r6
+  38:    10 07 3f 01       sra    r0, r7, r7, 1
+  3c:    4f de 00 04       subi   sp, sp, 4
+  40:    00 20 00 05       mov    r1, 5
+  44:    28 00 00 40       push   r1
+  48:    00 20 00 04       mov    r1, 4
+  4c:    28 00 00 40       push   r1
+  50:    00 20 00 03       mov    r1, 3
+  54:    28 00 00 40       push   r1
+  58:    00 20 00 02       mov    r1, 2
+  5c:    28 00 00 40       push   r1
+  60:    00 20 00 01       mov    r1, 1
+  64:    28 00 00 40       push   r1
+  68:    e7 ff ff e5       call   -27<<2        # 0x0
+  6c:    4b c0 00 14       addi   sp, r0, 20
+  70:    00 40 00 00       mov    r2, 0
+  74:    0b c6 00 00       mov    sp, r6
+  78:    2c 00 01 c0       pop    r7
+  7c:    2c 00 01 80       pop    r6
+  80:    7c 00 00 00       ret   
+  84:    03 c0 7f fc       mov    sp, 32764
+  88:    dc 00 00 01       bun    1
+  8c:    fc 00 00 00       int    0
+  90:    28 00 01 80       push   r6
+  94:    28 00 01 c0       push   r7
+  98:    08 de 00 00       mov    r6, sp
+  9c:    08 e6 00 00       mov    r7, r6
+  a0:    10 07 3f 01       sra    r0, r7, r7, 1
+  a4:    4f de 00 04       subi   sp, sp, 4
+  a8:    e7 ff ff df       call   -33<<2        # 0x28
+  ac:    e7 ff ff f7       call   -9<<2        # 0x8c
+  b0:    0b c6 00 00       mov    sp, r6
+  b4:    2c 00 01 c0       pop    r7
+  b8:    2c 00 01 80       pop    r6
+  bc:    7c 00 00 00       ret   
+  ...

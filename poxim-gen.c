@@ -191,9 +191,20 @@ ST_FUNC void poxim_gen_init(struct TCCState *s) {}
 static void add(int r1, int r2, int r3) {
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
          r3 <= POXIM_MAX_REGISTERS);
-  gen_be32(0x02 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
+  gen_be32(0x02<< 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
            (r3 & 0xff) << 11);
 }
+
+static void addi(int rz, int rx, int i) {
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS &&
+         i <= 0xFFFF);
+  gen_be32( 0b010010 << 26 
+					 |(rz & 0xff)  << 21 
+					 |(rx & 0xff)  << 16
+					 |(i  & 0xffff)
+	);
+}
+
 
 static void push_or_pop(b8 is_pop, int r1, int r2, int r3, int r4, int r5) {
   u8 inst = is_pop ? 0b001011 : 0b001010;
@@ -462,7 +473,7 @@ ST_FUNC void store(int r, SValue *v) {
   }
 }
 
-static void gadd_sp(int val) { add(sp, sp, val); }
+static void gadd_sp(int val) { addi(sp, r0, val); }
 
 #if defined CONFIG_TCC_BCHECK || defined TCC_TARGET_PE
 static void gen_static_call(int v) {
@@ -596,12 +607,19 @@ ST_FUNC void gfunc_call(int nb_args) {
       /* XXX: implicit cast ? */
       r = gv(RC_INT);
       if ((vtop->type.t & VT_BTYPE) == VT_LLONG) {
+				tcc_error(" poxim can't deal with long long data size");
         size = 8;
         o(0x50 + vtop->r2); /* push r */
       } else {
         size = 4;
       }
-      o(0x50 + r); /* push r */
+			/*
+				we do a + 1 below because of the same reason as always,
+				r0 is reserved for the zero register 
+				push r ;
+			*/
+			push(r + 1);
+      // o(0x50 + r); 
       args_size += size;
     }
     vtop--;

@@ -2,8 +2,7 @@
 # test_file := 1_exemplo
 # test_file := 1_fatorial
 test_file := 2_fpu
-test_cfile := ex1
-test_cfile := ex1
+test_cfile := curr
 out_dir := out
 poxim_dir := "tests/poxim"
 TCC = tcc
