@@ -502,8 +502,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
       reg2str(rx, inst.X);
       reg2str(ry, inst.Y);
 
-      snprintf(assembly_text, count_of(assembly_text), "%-6s %s, %s, %s, %d","sra ", rz,
-               rx, ry, L_4_0);
+      snprintf(assembly_text, count_of(assembly_text), "%-6s %s, %s, %s, %d    # 0x%x","sra ", rz,
+               rx, ry,L_4_0, L_4_0+1);
       break;
     }
     }

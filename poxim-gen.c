@@ -20,7 +20,9 @@
 
 #include <poxim.h>
 #define POXIM_MAX_REGISTERS 32
-#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (3+3)
+#define PARAMETER_OFFSET (8)
+#define N_INSTRUCTIONS_FOR_FUNC_PROLOG (6)
+#define BP_OFFSET (0) 
 #define FUNC_PROLOG_SIZE (4 * (N_INSTRUCTIONS_FOR_FUNC_PROLOG))
 #if defined(TARGET_DEFS_ONLY)
 
@@ -93,7 +95,7 @@ ST_DATA const int reg_classes[NB_REGS] = {
     /* r1 */ RC_INT | RC_1,
     /* r2 */ RC_INT | RC_2,
     /* r3 */ RC_INT | RC_3,
-    /* r4 */ (RC_INT | RC_4)
+    /* r4 */ RC_INT | RC_4
     // /* rf not equilavente */ RC_FLOAT | RC_ST0,
 };
 
@@ -191,20 +193,20 @@ ST_FUNC void poxim_gen_init(struct TCCState *s) {}
 static void add(int r1, int r2, int r3) {
   assert(r1 <= POXIM_MAX_REGISTERS && r2 <= POXIM_MAX_REGISTERS &&
          r3 <= POXIM_MAX_REGISTERS);
-  gen_be32(0x02<< 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
+  gen_be32(0x02 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
            (r3 & 0xff) << 11);
 }
 
 static void addi(int rz, int rx, int i) {
-  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS &&
-         i <= 0xFFFF);
-  gen_be32( 0b010010 << 26 
-					 |(rz & 0xff)  << 21 
-					 |(rx & 0xff)  << 16
-					 |(i  & 0xffff)
-	);
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS && i <= 0xFFFF);
+  gen_be32(0b010010 << 26 | (rz & 0xff) << 21 | (rx & 0xff) << 16 |
+           (i & 0xffff));
 }
 
+static void cmp(int rx, int ry) {
+  assert(rx <= POXIM_MAX_REGISTERS && ry <= POXIM_MAX_REGISTERS);
+  gen_be32(0b000101 << 26 | (rx & 0xff) << 16 | (ry & 0xff) << 11);
+}
 
 static void push_or_pop(b8 is_pop, int r1, int r2, int r3, int r4, int r5) {
   u8 inst = is_pop ? 0b001011 : 0b001010;
@@ -223,6 +225,10 @@ static void pop5(int r1, int r2, int r3, int r4, int r5) {
   push_or_pop(1, r1, r2, r3, r4, r5);
 }
 
+static void push2(int r1, int r2) { push5(r1, r2, 0, 0, 0); }
+
+static void pop2(int r1, int r2) { pop5(r1, r2, 0, 0, 0); }
+
 static void push(int r) { push5(r, 0, 0, 0, 0); }
 
 static void pop(int r) { pop5(r, 0, 0, 0, 0); }
@@ -234,53 +240,47 @@ static void sub(int r1, int r2, int r3) {
            (r3 & 0xff) << 11);
 }
 static void subi(int rz, int rx, int i) {
-  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS &&
-         i <= 0xFFFF);
-  gen_be32( 0b010011 << 26 
-					 |(rz & 0xff)  << 21 
-					 |(rx & 0xff)  << 16
-					 |(i  & 0xffff)
-	);
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS && i <= 0xFFFF);
+  gen_be32(0b010011 << 26 | (rz & 0xff) << 21 | (rx & 0xff) << 16 |
+           (i & 0xffff));
 }
 
 static void movr(int r1, int r2) { add(r1, r2, 0); };
 
 static void mov(int r, int i) {
-	if (!(r <= POXIM_MAX_REGISTERS && i <= 0xFFFFF)) {
-		tcc_error("It's possible i have made a mistake, int is actually 20 bits on a const mov, i'm sorry");
-	}
+  if (!(r <= POXIM_MAX_REGISTERS && i <= 0xFFFFF)) {
+    tcc_error("It's possible i have made a mistake, int is actually 20 "
+              "bits on a const mov, i'm sorry");
+  }
   // g((u32)i);
   // g(0x92fa);
   // g((u32)i);
   // g((u32)i);
-  gen_be32(0x00 << 26 
-					 | (r & 0b11111) << 21 
-					 | (i & 0xFFFFFFFF)
-	);
+  gen_be32(0x00 << 26 | (r & 0b11111) << 21 | (i & 0xFFFFFFFF));
 }
 
-static void s32(int r1, int r2, int i) {
+static void s32(int rz, int rx, int i) {
+  u32 inst = 0b011101;
+  gen_be32(inst << 26 | (rz & 0b11111) << 21 | (rx & 0b11111) << 16 | (i & 0xFFFF));
+
+}
+
+static void l32(int r1, int r2, int i) {
   u32 inst = 0b011010;
-  gen_be32(inst << 26 | (r1 & 0b111) << 21 | (r2 & 0b111) << 16 | (i & 0xFFFF));
+  gen_be32(inst << 26 | (r1 & 0b11111) << 21 | (r2 & 0b11111) << 16 | (i & 0xFFFF));
 }
 
-static void shift(u8 sub_inst, int rz, int rx, int ry, int i) {
+static void shift(u8 sub_inst, int rz, int rx, int ry, unsigned int i) {
   u32 inst = 0b00100;
-  gen_be32(inst << 26 
-					 | (rz & 0b11111)			<< 21 
-					 | (rx & 0b11111)			<< 16 
-					 | (ry & 0b11111)			<< 11 
-					 | (sub_inst & 0b111) << 8
-					 | ((int)log2((f64)i) & 0b1111));
+  gen_be32(inst << 26 | (rz & 0b11111) << 21 | (rx & 0b11111) << 16 |
+           (ry & 0b11111) << 11 | (sub_inst & 0b111) << 8 |
+           ((unsigned int)(i - 1) & 0b1111));
+  // | ((unsigned int)log2((f64)i) & 0b1111));
 }
 
-static void sra(int rz, int rx, int ry, int i) {
-	shift(0b111,rz, rx, ry, i);
-}
+static void sra(int rz, int rx, int ry, int i) { shift(0b111, rz, rx, ry, i); }
 
-static void srl(int rz, int rx, int ry, int i) {
-	shift(0b101, rz, rx, ry, i);
-}
+static void srl(int rz, int rx, int ry, int i) { shift(0b101, rz, rx, ry, i); }
 /***************************
  << END POXIM Instructions
 ****************************/
@@ -306,6 +306,14 @@ ST_FUNC void gen_addrpc32(int r, Sym *sym, int c) {
   gen_le32(c - 4);
 }
 
+static void gen_poxim_addr(int r, Sym *sym, int c) {
+  if ((r & VT_VALMASK) == VT_CONST) {
+    if (r & VT_SYM) {
+      greloc(cur_text_section, sym, ind, R_386_32);
+    }
+    gen_le32(c);
+  }
+}
 /* generate a modrm reference. 'op_reg' contains the additional 3
    opcode bits */
 static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
@@ -329,11 +337,11 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
 }
 
 /*
-        load 'r' from value 'sv
-        Must generate the code needed to load a stack value into a register.
+  load 'r' from value 'sv
+  Must generate the code needed to load a stack value into a register.
 */
 ST_FUNC void load(int r, SValue *sv) {
-  int v, t, ft, fc, fr;
+  int v, t, ft, fc, fr, bt;
   u8 inst;
   SValue v1;
 
@@ -347,6 +355,7 @@ ST_FUNC void load(int r, SValue *sv) {
   fc = sv->c.i;
 
   ft &= ~(VT_VOLATILE | VT_CONSTANT);
+  bt = ft & VT_BTYPE;
 
   v = fr & VT_VALMASK;
   if (fr & VT_LVAL) {
@@ -360,65 +369,84 @@ ST_FUNC void load(int r, SValue *sv) {
         fr = get_reg(RC_INT);
       load(fr, &v1);
     }
-    if ((ft & VT_BTYPE) == VT_FLOAT) {
+    if (bt == VT_FLOAT) {
       tcc_error("We aint supporting float, boy");
       o(0xd9); /* flds */
       r = 0;
-    } else if ((ft & VT_BTYPE) == VT_DOUBLE) {
+    } else if (bt == VT_DOUBLE) {
+      tcc_error("We aint supporting double, boy");
       o(0xdd); /* fldl */
       r = 0;
-    } else if ((ft & VT_BTYPE) == VT_LDOUBLE) {
+    } else if (bt == VT_LDOUBLE) {
+      tcc_error("We aint supporting long double, boy");
       o(0xdb); /* fldt */
       r = 5;
     } else if ((ft & VT_TYPE) == VT_BYTE || (ft & VT_TYPE) == VT_BOOL) {
+      tcc_error("We aint supporting byte for now or bool");
       o(0xbe0f); /* movsbl */
     } else if ((ft & VT_TYPE) == (VT_BYTE | VT_UNSIGNED)) {
+      tcc_error("We aint supporting unsigned byte for now or bool");
       o(0xb60f); /* movzbl */
     } else if ((ft & VT_TYPE) == VT_SHORT) {
+      tcc_error("We aint supporting short for now or bool");
       o(0xbf0f); /* movswl */
     } else if ((ft & VT_TYPE) == (VT_SHORT | VT_UNSIGNED)) {
+      tcc_error("We aint supporting unsigned short for now or bool");
       o(0xb70f); /* movzwl */
-    } else {
-      assert((ft & VT_TYPE) == (VT_INT));
+    } else if ((ft & VT_TYPE) == (VT_INT)) {
       /* l32 */
       inst = 0b011010;
-    }
-    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | (fc >> 2 & 0xFFFF));
+    } else if ((ft & VT_TYPE) == (VT_PTR)) {
+      /* l32 */
+      inst = 0b011010;
+    } else {
+      assert( 0 && "waht VT_Type is ft?");
 
-    // TODO: This realloct by using   gen_addr32(r, sym, c); this might turn
+    }
+    // THIS IS wrong when getting argumentts from the stack
+    // we need a BP_OFFSET to make it right, but then it gets the store wrong
+    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | ((fc + BP_OFFSET) >> 2 & 0xFFFF));
+
+    // TODO:@symbolcheck This realloct by using   gen_addr32(r, sym, c); this might turn
     // out to be a problem
     //  gen_modrm(r, fr, sv->sym, fc);
 
   } else {
     if (v == VT_CONST) {
       // o(0xb8 + r);     /* mov $xx, r */
-      mov(r+1, fc); /* mov r, fc */
-      // gen_addr32(fr, sv->sym, fc);
+      mov(r + 1, fc); /* mov r, fc */
+                      // gen_addr32(fr, sv->sym, fc);
     } else if (v == VT_LOCAL) {
       if (fc) {
         int rt = get_reg(RC_INT);
-        printf("r = %d, rt = %d local 0x8945 ?  <<<<<<<<<<\n", r, rt);
-        assert(0);
-        o(0x8d); /* lea xxx(%ebp), r */
-        gen_modrm(r, VT_LOCAL, sv->sym, fc);
+        printf("r = %d, rt = %d fc = 0x%x | %d <<<<<<<<<<\n", r, rt, fc, fc);
+        /* mov r, fc */
+        addi(r + 1, bp2, fc >> 2);
+        // TODO:  check if we can do someething like this addi(r+1, bp2, fc >> 2);
+        //  o(0x8d); /* lea xxx(%ebp), r */
+        // TODO:@symbolcheck
+        gen_poxim_addr(r, sv->sym, fc);
+        // gen_modrm(r, VT_LOCAL, sv->sym, fc);
       } else {
-        printf("0x8945 ?  <<<<<<<<<<\n");
+        tcc_error("%s poxim-gen does not support fc == 0 ? ", __func__);
         o(0x89);
         o(0xe8 + r); /* mov %ebp, r */
       }
     } else if (v == VT_CMP) {
+      tcc_error("%s poxim-gen does not support load cmp", __func__);
       o(0x0f); /* setxx %br */
       o(fc);
       o(0xc0 + r);
       o(0xc0b60f + r * 0x90000); /* movzbl %al, %eax */
     } else if (v == VT_JMP || v == VT_JMPI) {
+      tcc_error("%s poxim-gen does not support load jmp", __func__);
       t = v & 1;
       oad(0xb8 + r, t); /* mov $1, r */
       o(0x05eb);        /* jmp after */
       gsym(fc);
       oad(0xb8 + r, t ^ 1); /* mov $0, r */
     } else if (v != r) {
-      movr(r+1, v+1);/* mov  r, v */
+      movr(r + 1, v + 1); /* mov  r, v */
     }
   }
 }
@@ -454,32 +482,42 @@ ST_FUNC void store(int r, SValue *v) {
       o(0x66);
     if (bt == VT_BYTE || bt == VT_BOOL)
       o(0x88);
-    else { // VT_INT
-      assert(bt == VT_INT);
+    else if (bt == VT_INT) { // VT_INT
       inst = 0b011101;
+    } else if (bt == VT_PTR) {
+      inst = 0b011101;
+    } else {
+      tcc_error("%s Why did we get here, basice type bt = %x", __func__, bt);
     }
   }
   if (fr == VT_CONST) {
     // mov(r + 1, swap_endianness32(fc));
-		// TODO:  check the endiannes of this, does it need changing?
+    // TODO:  check the endiannes of this, does it need changing?
     mov(r + 1, (fc));
 
   } else if (fr == VT_LOCAL) {
+    // tcc_error("VT_LOCAL poxim not hanlded %s", __func__);
     /* currently, we use only ebp as base */
     // v->r
-    // TODO: listen, all these store and load of 32 bit has a Flaw
+    // DONE: listen, all these store and load of 32 bit has a Flaw
     // this flaw is being shift by two, because idk, 32 bit idk
-    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | (fc >> 2 & 0xFFFF));
+    gen_be32(inst << 26 | ((r + 1) & 0b11111) << 21 | bp2 << 16 |
+             (fc >> 2 & 0xFFFF));
 
   } else if (v->r & VT_LVAL) {
-    tcc_error("poxim not hanlded %s", __func__);
-    gen_modrm(r, v->r, v->sym, fc);
+    s32(r+1, fr+1, 0);
+    // gen_be32(inst << 26 | ((r + 1) & 0b11111) << 21 | (fr+1) |
+    //          (fc >> 2 & 0xFFFF));
+    // gen_poxim_addr(v->r, v->sym, fc);
+    // gen_modrm(r, v->r, v->sym, fc);
+    // TODO:@symbolcheck
   } else if (fr != r) {
+    tcc_error("fr != r poxim not hanlded %s", __func__);
     o(0xc0 + fr + r * 8); /* mov r, fr */
   }
 }
 
-static void gadd_sp(int val) { addi(sp, r0, val); }
+static void gadd_sp(int val) { addi(sp, sp, val); }
 
 #if defined CONFIG_TCC_BCHECK || defined TCC_TARGET_PE
 static void gen_static_call(int v) {
@@ -566,6 +604,7 @@ ST_FUNC void gfunc_call(int nb_args) {
   args_size = 0;
   for (i = 0; i < nb_args; i++) {
     if ((vtop->type.t & VT_BTYPE) == VT_STRUCT) {
+      tcc_error("%s, struct not supported in poxim-gen for now",__func__);
       size = type_size(&vtop->type, &align);
       /* align to stack align size */
       size = (size + 3) & ~3;
@@ -613,19 +652,19 @@ ST_FUNC void gfunc_call(int nb_args) {
       /* XXX: implicit cast ? */
       r = gv(RC_INT);
       if ((vtop->type.t & VT_BTYPE) == VT_LLONG) {
-				tcc_error(" poxim can't deal with long long data size");
+        tcc_error(" poxim can't deal with long long data size");
         size = 8;
         o(0x50 + vtop->r2); /* push r */
       } else {
         size = 4;
       }
-			/*
-				we do a + 1 below because of the same reason as always,
-				r0 is reserved for the zero register 
-				push r ;
-			*/
-			push(r + 1);
-      // o(0x50 + r); 
+      /*
+              we do a + 1 below because of the same reason as always,
+              r0 is reserved for the zero register
+              push r ;
+      */
+      push(r + 1);
+      // o(0x50 + r);
       args_size += size;
     }
     vtop--;
@@ -634,10 +673,11 @@ ST_FUNC void gfunc_call(int nb_args) {
   func_sym = vtop->type.ref;
   func_call = func_sym->f.func_call;
   /* fast call case */
-  if ((func_call >= FUNC_FASTCALL1 && func_call <= FUNC_FASTCALL3) ||
-      func_call == FUNC_FASTCALLW) {
+  if ((func_call   >= FUNC_FASTCALL1 && func_call <= FUNC_FASTCALL3) 
+      || func_call == FUNC_FASTCALLW) {
     int fastcall_nb_regs;
     const uint8_t *fastcall_regs_ptr;
+    tcc_error("FUNC_FASTCALL not supported in poxim-gen for now");
     if (func_call == FUNC_FASTCALLW) {
       fastcall_regs_ptr = fastcallw_regs;
       fastcall_nb_regs = 2;
@@ -722,13 +762,14 @@ ST_FUNC void gfunc_prolog(Sym *func_sym) {
     }
 #endif
     if (param_index < fastcall_nb_regs) {
+      assert(0);
       /* save FASTCALL register */
       loc -= 4;
       o(0x89); /* movl */
       gen_modrm(fastcall_regs_ptr[param_index], VT_LOCAL, NULL, loc);
       param_addr = loc;
     } else {
-      param_addr = addr;
+      param_addr = addr + PARAMETER_OFFSET;
       addr += size;
     }
     sym_push(sym->v & ~SYM_FIELD, type, VT_LOCAL | VT_LVAL, param_addr);
@@ -736,11 +777,14 @@ ST_FUNC void gfunc_prolog(Sym *func_sym) {
   }
   func_ret_sub = 0;
   /* pascal type call or fastcall ? */
-  if (func_call == FUNC_STDCALL || func_call == FUNC_FASTCALLW)
+  if (func_call == FUNC_STDCALL || func_call == FUNC_FASTCALLW) {
+    assert(0 && "(func_call == FUNC_STDCALL || func_call == FUNC_FASTCALLW)");
     func_ret_sub = addr - 8;
+  } 
 #if !defined(TCC_TARGET_PE) && !TARGETOS_FreeBSD || TARGETOS_OpenBSD
-  else if (func_vc)
+  else if (func_vc){
     func_ret_sub = 4;
+  }
 #endif
 
 #ifdef CONFIG_TCC_BCHECK
@@ -768,9 +812,12 @@ ST_FUNC void gfunc_epilog(void) {
   gen_modrm(r3, VT_LOCAL, NULL, -(v + 4));
 #endif
 
-  movr(sp, bp);
-  pop(bp2);
-  pop(bp);
+  {
+    const u8 offset_for_func_addr = 4;
+    movr(sp, bp);
+    pop(bp2);
+    pop(bp);
+  }
   if (func_ret_sub == 0) {
     gen_le32(0x7c); /* ret */
   } else {
@@ -792,14 +839,13 @@ ST_FUNC void gfunc_epilog(void) {
   {
     /* push %ebp; mov %esp, %ebp */
     push(bp);
-		push(bp2);
+    push(bp2);
     movr(bp, sp);
-		movr(bp2, bp);
+    movr(bp2, bp);
     sra(r0, bp2, bp2, 2);
     // gen_be32(0x10E03F01);
-
     /* sub esp, stacksize */
-    subi(sp, sp, v + 4);
+    subi(sp, sp, v);
 #ifdef TCC_TARGET_PE
     o(0x000000); /* adjust to FUNC_PROLOG_SIZE  with nop*/
 #endif
@@ -854,64 +900,71 @@ ST_FUNC int gjmp_cond(int op, int t) {
 }
 
 ST_FUNC void gen_opi(int op) {
-  int r, fr, opc, c;
+  int r, fr, opcode, c;
 
   switch (op) {
   case '+':
   case TOK_ADDC1: /* add with carry generation */
-    opc = 0;
+    opcode = 0;
   gen_op8:
     if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
       /* constant case */
       vswap();
-      r = gv(RC_INT) + 1;
+      r = gv(RC_INT);
       vswap();
       c = vtop->c.i;
       if (op == '+') {
-				addi(r, r, c);
+        addi(r + 1, r + 1, c);
       } else {
-				subi(r, r, c);
+        subi(r + 1, r + 1, c);
         // o(0x81);
         // oad(0xc0 | (opc << 3) | r, c);
       }
     } else {
       gv2(RC_INT, RC_INT);
-      r = vtop[-1].r + 1;
-      fr = vtop[0].r + 1;
+      r = vtop[-1].r;
+      fr = vtop[0].r;
       // TODO: Wadde need to know what opc means in this context
-			// NOTE:  Do believe opc is the '+' or '-'
+      // NOTE:  Do believe opc is the '+' or '-'
       if (op == '+') {
-				add(r, r, fr);
-			} else {
-				sub(r, r, fr);
-			}
+        add(r + 1, r + 1, fr + 1);
+      } else {
+        sub(r + 1, r + 1, fr + 1);
+      }
       // o((opc << 3) | 0x01);
       // o(0xc0 + r + fr * 8);
     }
     vtop--;
-    if (op >= TOK_ULT && op <= TOK_GT)
+    if (op >= TOK_ULT && op <= TOK_GT) {
       vset_VT_CMP(op);
+    }
     break;
   case '-':
   case TOK_SUBC1: /* sub with carry generation */
-    opc = 5;
+    opcode = 5;
     goto gen_op8;
   case TOK_ADDC2: /* add with carry use */
-    opc = 2;
+    tcc_error("%s poxim-gen not handled add with carry use", __func__);
+    opcode = 2;
     goto gen_op8;
   case TOK_SUBC2: /* sub with carry use */
-    opc = 3;
+    tcc_error("%s poxim-gen not handled sub with carry use", __func__);
+    opcode = 3;
     goto gen_op8;
   case '&':
-    opc = 4;
+    tcc_error("%s poxim-gen not handled &", __func__);
+    opcode = 4;
     goto gen_op8;
   case '^':
-    opc = 6;
+    tcc_error("%s poxim-gen not handled ^", __func__);
+    opcode = 6;
     goto gen_op8;
   case '|':
-    opc = 1;
+    tcc_error("%s poxim-gen not handled | ", __func__);
+    opcode = 1;
     goto gen_op8;
   case '*':
+    tcc_error("%s poxim-gen not handled mul", __func__);
     gv2(RC_INT, RC_INT);
     r = vtop[-1].r;
     fr = vtop[0].r;
@@ -920,30 +973,34 @@ ST_FUNC void gen_opi(int op) {
     o(0xc0 + fr + r * 8);
     break;
   case TOK_SHL:
-    opc = 4;
+    opcode = 0b011;
     goto gen_shift;
   case TOK_SHR:
-    opc = 5;
+    tcc_error("%s poxim-gen not handled TOK_SHR", __func__);
+    opcode = 5;
     goto gen_shift;
   case TOK_SAR:
-    opc = 7;
+    opcode = 0b111;
   gen_shift:
-    opc = 0xc0 | (opc << 3);
     if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
       /* constant case */
       vswap();
       r = gv(RC_INT);
       vswap();
-      c = vtop->c.i & 0x1f;
-      o(0xc1); /* shl/shr/sar $xxx, r */
-      o(opc | r);
-      g(c);
+      c = vtop->c.i & 0b11111; /* we only has 5 bit for shifts*/
+      if (c != vtop->c.i) {
+        tcc_warning("Unprecise shift, beware that in poxim we only has "
+                    "4 bits (0x1f) for constant shift");
+      }
+      /* shl/shr/sar $xxx, r */
+      shift(opcode, r0, r + 1, r + 1, c);
     } else {
+      tcc_error("%s poxim-gen not handled TOK_SAR not constant case", __func__);
       /* we generate the shift in ecx */
       gv2(RC_INT, r3);
       r = vtop[-1].r;
       o(0xd3); /* shl/shr/sar %cl, r */
-      o(opc | r);
+      o(opcode | r);
     }
     vtop--;
     break;
@@ -953,6 +1010,9 @@ ST_FUNC void gen_opi(int op) {
   case '%':
   case TOK_UMOD:
   case TOK_UMULL:
+    tcc_error("%s poxim-gen not handled TOK_UDIV: TOK_PDIV MOD TOK_UMOD: "
+              "TOK_UMULL:",
+              __func__);
     /* first operand must be in eax */
     /* XXX: need better constraint for second operand */
     gv2(r1, r3);
@@ -982,8 +1042,41 @@ ST_FUNC void gen_opi(int op) {
     }
     vtop->r = r;
     break;
+  case TOK_GT: {
+  gen_cmp:
+    tcc_warning("op in gen_cmp is '%c' idk if thats relevant", op);
+    if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
+      tcc_error("constant case cmp not handled");
+      /* constant case */
+      vswap();
+      r = gv(RC_INT);
+      vswap();
+      c = vtop->c.i;
+      if (op == '+') {
+        addi(r + 1, r + 1, c);
+      } else {
+        subi(r + 1, r + 1, c);
+        // o(0x81);
+        // oad(0xc0 | (opc << 3) | r, c);
+      }
+    } else {
+      gv2(RC_INT, RC_INT);
+      r = vtop[-1].r;
+      fr = vtop[0].r;
+      cmp(r + 1, fr + 1);
+      // o((opc << 3) | 0x01);
+      // o(0xc0 + r + fr * 8);
+    }
+    vtop--;
+    /* I believe this is check if is a compare of some kinda*/
+    if (op >= TOK_ULT && op <= TOK_GT) {
+      vset_VT_CMP(op);
+    }
+    break;
+  }
   default:
-    opc = 7;
+    // tcc_error("%s poxim-gen does not support default", __func__);
+    opcode = 7;
     goto gen_op8;
   }
 }

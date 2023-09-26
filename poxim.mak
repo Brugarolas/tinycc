@@ -11,13 +11,13 @@ debug: run
 	gdb --args 	./tcc -nostdlib -static examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary 
 
 debug-i386: 
-	gdb --args -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./ -Wl,--oformat=binary
+	gdb --args ./tcc-i386 -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./ -Wl,--oformat=binary
 
 poxim-interp: poxim-interp.cpp
-	g++ -Wall -O3 ./poxim-interp.cpp -o poxim-interp
+	g++ -Wall -ggdb ./poxim-interp.cpp -o poxim-interp
 
 poxim-dump: ./poxim-dump.c
-	gcc ./poxim-dump.c -ggdb -o poxim-dump
+	gcc ./poxim-dump.c -ggdb -o poxim-dump -lm
 
 utils: poxim-dump bin2strhex.c
 	gcc bin2strhex.c -o bin2strhex

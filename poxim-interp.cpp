@@ -2522,7 +2522,7 @@ void PushPopStr(char dest[500], const char *instruction_name,
     snprintf(dest, 500,
              "%-24s\t"
              "{%s}=MEM[0x%08X]{%s}\n",
-             assembly_text, UpperStr(upper_registers_string), SP_before,
+             assembly_text, UpperStr(upper_registers_string), SP_before + 4,
              registers_values.c_str());
   } else {
     snprintf(dest, 500,

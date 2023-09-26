@@ -200,8 +200,7 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t 
             add32le(ptr, val);
             return;
             if (s1->output_type == TCC_OUTPUT_DLL) {
-        case R_386_PC32: /* PC relative 32 bit */
-                /* DLL relocation */
+        case R_386_PC32: /* PC relative 32 bit */ /* DLL relocation */
                 esym_index = get_sym_attr(s1, sym_index, 0)->dyn_index;
                 if (esym_index) {
                     qrel->r_offset = rel->r_offset;

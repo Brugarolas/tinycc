@@ -1,26 +1,14 @@
-asm (                                                                                
-"_init:\n"
-		/* mov sp, 0x7FFC */
-		".long 0xFC7FC003;\n"
-		".long 0x010000DC;\n"
-);
-void int0(void); asm (                                                                                
-"int0:\n"
-		/* int 0 */
-		".long 0x000000FC;"
-);
-int main(void);
-void _start(void) {
-   main(); int0();
-} 
+#include "_start.h"
 
 
-
-int oi(int a, int b, int c, int d, int e) { return (a+b+c+d+e);}
+/* Parameter passing is working */
+int oi2(int a, int b) { return (a-b);}
+int oi(int a, int b, int c, int d, int e) { return (a+b+c+d-e);}
 
 int main(void) {
 	int a = 2;
 	int b = oi(1,2,3,4,5) - 69;
+  oi2(a, b);
 	return a + b;
 
 }
