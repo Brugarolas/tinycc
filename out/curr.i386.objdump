@@ -56,26 +56,31 @@ Disassembly of section .data:
       70:	81 ec 08 00 00 00    	sub    esp,0x8
       76:	b8 02 00 00 00       	mov    eax,0x2
       7b:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
-      7e:	b8 05 00 00 00       	mov    eax,0x5
-      83:	50                   	push   eax
-      84:	b8 10 00 00 00       	mov    eax,0x10
-      89:	50                   	push   eax
-      8a:	b8 08 00 00 00       	mov    eax,0x8
-      8f:	50                   	push   eax
-      90:	b8 02 00 00 00       	mov    eax,0x2
-      95:	50                   	push   eax
-      96:	b8 01 00 00 00       	mov    eax,0x1
-      9b:	50                   	push   eax
-      9c:	e8 aa ff ff ff       	call   0x4b
-      a1:	83 c4 14             	add    esp,0x14
-      a4:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
-      a7:	8d 45 f8             	lea    eax,[ebp-0x8]
-      aa:	50                   	push   eax
-      ab:	e8 71 ff ff ff       	call   0x21
-      b0:	83 c4 04             	add    esp,0x4
-      b3:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
-      b6:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]
-      b9:	01 c8                	add    eax,ecx
-      bb:	c9                   	leave
-      bc:	c3                   	ret
+      7e:	b8 12 00 00 00       	mov    eax,0x12
+      83:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
+      86:	b8 05 00 00 00       	mov    eax,0x5
+      8b:	50                   	push   eax
+      8c:	b8 10 00 00 00       	mov    eax,0x10
+      91:	50                   	push   eax
+      92:	b8 08 00 00 00       	mov    eax,0x8
+      97:	50                   	push   eax
+      98:	b8 02 00 00 00       	mov    eax,0x2
+      9d:	50                   	push   eax
+      9e:	b8 01 00 00 00       	mov    eax,0x1
+      a3:	50                   	push   eax
+      a4:	e8 a2 ff ff ff       	call   0x4b
+      a9:	83 c4 14             	add    esp,0x14
+      ac:	8b 45 f8             	mov    eax,DWORD PTR [ebp-0x8]
+      af:	50                   	push   eax
+      b0:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+      b3:	50                   	push   eax
+      b4:	e8 7f ff ff ff       	call   0x38
+      b9:	83 c4 08             	add    esp,0x8
+      bc:	8d 45 fc             	lea    eax,[ebp-0x4]
+      bf:	50                   	push   eax
+      c0:	e8 5c ff ff ff       	call   0x21
+      c5:	83 c4 04             	add    esp,0x4
+      c8:	8b 45 f8             	mov    eax,DWORD PTR [ebp-0x8]
+      cb:	c9                   	leave
+      cc:	c3                   	ret
 	...

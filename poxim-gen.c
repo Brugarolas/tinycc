@@ -20,9 +20,10 @@
 
 #include <poxim.h>
 #define POXIM_MAX_REGISTERS 32
-#define PARAMETER_OFFSET (8)
+#define PARAMETER_OFFSET (1*4)
+
 #define N_INSTRUCTIONS_FOR_FUNC_PROLOG (6)
-#define BP_OFFSET (0) 
+#define LOCAL_OFFSET (4) 
 #define FUNC_PROLOG_SIZE (4 * (N_INSTRUCTIONS_FOR_FUNC_PROLOG))
 #if defined(TARGET_DEFS_ONLY)
 
@@ -404,8 +405,8 @@ ST_FUNC void load(int r, SValue *sv) {
 
     }
     // THIS IS wrong when getting argumentts from the stack
-    // we need a BP_OFFSET to make it right, but then it gets the store wrong
-    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | ((fc + BP_OFFSET) >> 2 & 0xFFFF));
+    // we need a LOCAL_OFFSET to make it right, but then it gets the store wrong
+    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
 
     // TODO:@symbolcheck This realloct by using   gen_addr32(r, sym, c); this might turn
     // out to be a problem
@@ -421,7 +422,7 @@ ST_FUNC void load(int r, SValue *sv) {
         int rt = get_reg(RC_INT);
         printf("r = %d, rt = %d fc = 0x%x | %d <<<<<<<<<<\n", r, rt, fc, fc);
         /* mov r, fc */
-        addi(r + 1, bp2, fc >> 2);
+        addi(r + 1, bp2, (fc + LOCAL_OFFSET) >> 2);
         // TODO:  check if we can do someething like this addi(r+1, bp2, fc >> 2);
         //  o(0x8d); /* lea xxx(%ebp), r */
         // TODO:@symbolcheck
@@ -502,7 +503,7 @@ ST_FUNC void store(int r, SValue *v) {
     // DONE: listen, all these store and load of 32 bit has a Flaw
     // this flaw is being shift by two, because idk, 32 bit idk
     gen_be32(inst << 26 | ((r + 1) & 0b11111) << 21 | bp2 << 16 |
-             (fc >> 2 & 0xFFFF));
+             ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
 
   } else if (v->r & VT_LVAL) {
     s32(r+1, fr+1, 0);
