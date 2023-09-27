@@ -1,0 +1,951 @@
+   0:    dc 00 00 66       bun    102
+   4:    dc 00 00 0f       bun    15
+   8:    dc 00 00 15       bun    21
+   c:    dc 00 00 1b       bun    27
+  10:    dc 00 00 2c       bun    44
+  14:    dc 00 00 35       bun    53
+  18:    dc 00 00 3a       bun    58
+  1c:    dc 00 00 3f       bun    63
+  20:    28 03 f8 42       push   r1r2r3sr
+  24:    60 62 00 00       l8     r3, [r2+0]
+  28:    5c 03 00 00       cmpi   r0, r3, 0
+  2c:    b8 00 00 03       beq    3
+  30:    6c 61 00 00       s8     [r1+0], r3
+  34:    48 42 00 01       addi   r2, r2, 1
+  38:    df ff ff fa       bun    -6
+  3c:    2c 02 0f c3       pop    srr3r2r1
+  40:    7c 00 00 00       ret   
+  44:    87 e2 00 00       cbr    sr[2]
+  48:    28 1f 00 42       push   r1r2sr
+  4c:    68 20 00 8b       l32    r1, [r0+139]<<2
+  50:    00 40 02 30       mov    r2, 560
+  54:    e7 ff ff f2       call   -14<<2        # 0x20
+  58:    2c 01 07 c2       pop    srr2r1
+  5c:    80 00 00 00       reti  
+  60:    87 e5 00 00       cbr    sr[5]
+  64:    28 1f 00 42       push   r1r2sr
+  68:    68 20 00 8b       l32    r1, [r0+139]<<2
+  6c:    00 40 02 48       mov    r2, 584
+  70:    e7 ff ff eb       call   -21<<2        # 0x20
+  74:    2c 01 07 c2       pop    srr2r1
+  78:    80 00 00 00       reti  
+  7c:    28 1f 00 42       push   r1r2sr
+  80:    00 20 02 68       mov    r1, 616
+  84:    48 21 00 01       addi   r1, r1, 1
+  88:    60 41 00 00       l8     r2, [r1+0]
+  8c:    5c 02 00 0a       cmpi   r0, r2, 10
+  90:    d3 ff ff fc       bne    -4
+  94:    4c 21 00 01       subi   r1, r1, 1
+  98:    58 5a 00 0a       modi   r2, cr, 10
+  9c:    48 42 00 30       addi   r2, r2, 48
+  a0:    6c 41 00 00       s8     [r1+0], r2
+  a4:    57 5a 00 0a       divi   cr, cr, 10
+  a8:    14 1a 00 00       cmp    cr, r0
+  ac:    d3 ff ff f9       bne    -7
+  b0:    68 20 00 8b       l32    r1, [r0+139]<<2
+  b4:    00 40 02 68       mov    r2, 616
+  b8:    e7 ff ff d9       call   -39<<2        # 0x20
+  bc:    2c 01 07 c2       pop    srr2r1
+  c0:    80 00 00 00       reti  
+  c4:    28 1f 00 42       push   r1r2sr
+  c8:    68 20 00 8b       l32    r1, [r0+139]<<2
+  cc:    00 40 02 d8       mov    r2, 728
+  d0:    e7 ff ff d3       call   -45<<2        # 0x20
+  d4:    68 20 00 86       l32    r1, [r0+134]<<2
+  d8:    00 40 02 2b       mov    r2, 555
+  dc:    84 5f 00 01       sbr    r2[31]
+  e0:    74 41 00 00       s32    [r1+0]<<2, r2
+  e4:    2c 01 07 c2       pop    srr2r1
+  e8:    80 00 00 00       reti  
+  ec:    28 1f 00 42       push   r1r2sr
+  f0:    68 20 00 8b       l32    r1, [r0+139]<<2
+  f4:    00 40 02 80       mov    r2, 640
+  f8:    e7 ff ff c9       call   -55<<2        # 0x20
+  fc:    2c 01 07 c2       pop    srr2r1
+ 100:    80 00 00 00       reti  
+ 104:    28 1f 00 42       push   r1r2sr
+ 108:    68 20 00 8b       l32    r1, [r0+139]<<2
+ 10c:    00 40 02 8c       mov    r2, 652
+ 110:    e7 ff ff c3       call   -61<<2        # 0x20
+ 114:    2c 01 07 c2       pop    srr2r1
+ 118:    80 00 00 00       reti  
+ 11c:    28 1f 00 42       push   r1r2sr
+ 120:    68 20 00 8b       l32    r1, [r0+139]<<2
+ 124:    00 40 02 b4       mov    r2, 692
+ 128:    e7 ff ff bd       call   -67<<2        # 0x20
+ 12c:    2c 01 07 c2       pop    srr2r1
+ 130:    80 00 00 00       reti  
+ 134:    87 e1 00 01       sbr    sr[1]
+ 138:    2b e3 20 42       push   r1r2r3r4sr
+ 13c:    68 20 00 8a       l32    r1, [r0+138]<<2
+ 140:    00 40 00 04       mov    r2, 4
+ 144:    74 41 00 00       s32    [r1+0]<<2, r2
+ 148:    68 41 00 00       l32    r2, [r1+0]<<2
+ 14c:    84 45 00 00       cbr    r2[5]
+ 150:    5c 02 00 00       cmpi   r0, r2, 0
+ 154:    d3 ff ff fc       bne    -4
+ 158:    00 80 00 00       mov    r4, 0
+ 15c:    48 84 00 01       addi   r4, r4, 1
+ 160:    68 40 00 87       l32    r2, [r0+135]<<2
+ 164:    00 60 00 05       mov    r3, 5
+ 168:    74 62 00 00       s32    [r2+0]<<2, r3
+ 16c:    68 40 00 88       l32    r2, [r0+136]<<2
+ 170:    00 60 00 08       mov    r3, 8
+ 174:    74 62 00 00       s32    [r2+0]<<2, r3
+ 178:    74 81 00 00       s32    [r1+0]<<2, r4
+ 17c:    68 41 00 00       l32    r2, [r1+0]<<2
+ 180:    84 45 00 00       cbr    r2[5]
+ 184:    5c 02 00 00       cmpi   r0, r2, 0
+ 188:    d3 ff ff fc       bne    -4
+ 18c:    5c 04 00 0a       cmpi   r0, r4, 10
+ 190:    cf ff ff f2       blt    -14
+ 194:    2c 23 17 c4       pop    srr4r3r2r1
+ 198:    7c 00 00 00       ret   
+ 19c:    03 c0 7f fc       mov    sp, 32764
+ 1a0:    87 e1 00 01       sbr    sr[1]
+ 1a4:    f0 f0 f0 f0       unkown
+ 1a8:    87 e1 00 00       cbr    sr[1]
+ 1ac:    10 00 04 00       div    r0, r0, r0, r0
+ 1b0:    87 e1 00 01       sbr    sr[1]
+ 1b4:    54 01 00 00       divi   r0, r1, 0
+ 1b8:    fc 00 00 01       int    1
+ 1bc:    fc 00 00 01       int    1
+ 1c0:    fc 00 00 02       int    2
+ 1c4:    fc 00 00 03       int    3
+ 1c8:    fc 00 00 05       int    5
+ 1cc:    fc 00 00 08       int    8
+ 1d0:    fc 00 00 0d       int    13
+ 1d4:    68 20 00 86       l32    r1, [r0+134]<<2
+ 1d8:    00 40 00 0d       mov    r2, 13
+ 1dc:    84 5f 00 01       sbr    r2[31]
+ 1e0:    74 41 00 00       s32    [r1+0]<<2, r2
+ 1e4:    87 e1 00 00       cbr    sr[1]
+ 1e8:    00 20 00 14       mov    r1, 20
+ 1ec:    5c 01 00 00       cmpi   r0, r1, 0
+ 1f0:    4c 21 00 01       subi   r1, r1, 1
+ 1f4:    d3 ff ff fd       bne    -3
+ 1f8:    e7 ff ff ce       call   -50<<2        # 0x134
+ 1fc:    87 e1 00 00       cbr    sr[1]
+ 200:    68 20 00 8b       l32    r1, [r0+139]<<2
+ 204:    00 40 03 5c       mov    r2, 860
+ 208:    e7 ff ff 85       call   -123<<2        # 0x20
+ 20c:    00 40 0d 88       mov    r2, 3464
+ 210:    e7 ff ff 83       call   -125<<2        # 0x20
+ 214:    fc 00 00 00       int    0
+ 218:    20 20 20 20       not    r1, r0
+ 21c:    20 20 22 20       not    r1, r0
+ 220:    20 20 22 21       not    r1, r0
+ 224:    20 20 22 12       not    r1, r0
+ 228:    20 20 22 23       not    r1, r0
+ 22c:    88 88 88 8b       unkown
+ 230:    49 4e 56 41       addi   r10, r14, 22081
+ 234:    4c 49 44 20       subi   r2, r9, 17440
+ 238:    49 4e 53 54       addi   r10, r14, 21332
+ 23c:    52 55 43 54       muli   r18, r21, 17236
+ 240:    49 4f 4e 21       addi   r10, r15, 20001
+ 244:    0a 00 00 00       mov    r16, r0
+ 248:    54 48 4f 55       divi   r2, r8, 20309
+ 24c:    20 53 48 41       not    r2, r19
+ 250:    4c 54 20 4e       subi   r2, r20, 8270
+ 254:    4f 54 20 44       subi   cr, r20, 8260
+ 258:    49 56 49 44       addi   r10, r22, 18756
+ 25c:    45 20 42 59       unkown
+ 260:    20 5a 45 52       not    r2, cr
+ 264:    4f 21 0a 00       subi   r25, r1, 2560
+ 268:    53 4f 46 54       muli   cr, r15, 18004
+ 26c:    57 41 52 45       divi   cr, r1, 21061
+ 270:    20 52 45 51       not    r2, r18
+ 274:    55 45 53 54       divi   r10, r5, 21332
+ 278:    20 23 30 30       not    r1, r3
+ 27c:    0a 00 00 00       mov    r16, r0
+ 280:    46 50 55 20       unkown
+ 284:    45 52 52 4f       unkown
+ 288:    52 21 0a 00       muli   r17, r1, 2560
+ 28c:    46 50 55 20       unkown
+ 290:    56 41 52 49       divi   r18, r1, 21065
+ 294:    41 42 4c 45       unkown
+ 298:    20 54 49 4d       not    r2, r20
+ 29c:    45 20 4f 50       unkown
+ 2a0:    45 52 41 54       unkown
+ 2a4:    49 4f 4e 20       addi   r10, r15, 20000
+ 2a8:    43 4f 4d 50       unkown
+ 2ac:    4c 45 54 45       subi   r2, r5, 21573
+ 2b0:    44 21 0a 00       unkown
+ 2b4:    46 50 55 20       unkown
+ 2b8:    31 20 43 59       unkown
+ 2bc:    43 4c 45 20       unkown
+ 2c0:    4f 50 45 52       subi   cr, r16, 17746
+ 2c4:    41 54 49 4f       unkown
+ 2c8:    4e 20 43 4f       subi   r17, r0, 17231
+ 2cc:    4d 50 4c 45       subi   r10, r16, 19525
+ 2d0:    54 45 44 21       divi   r2, r5, 17441
+ 2d4:    0a 00 00 00       mov    r16, r0
+ 2d8:    0a 20 20 20       add    r17, r0, r4
+ 2dc:    20 5f 5f 5f       not    r2, sr
+ 2e0:    5f 5f 5e 5f       cmpi   cr, sr, 24159
+ 2e4:    5f 5f 20 0a       cmpi   cr, sr, 8202
+ 2e8:    20 20 20 7c       not    r1, r0
+ 2ec:    20 20 20 20       not    r1, r0
+ 2f0:    7c 20 20 20       ret   
+ 2f4:    20 5c 20 0a       not    r2, ir
+ 2f8:    20 20 20 20       not    r1, r0
+ 2fc:    5c 20 20 20       cmpi   r1, r0, 8224
+ 300:    2f 20 20 5e       pop    r1sp
+ 304:    20 7c 20 0a       not    r3, ir
+ 308:    20 20 20 2f       not    r1, r0
+ 30c:    20 5c 5f 2f       not    r2, ir
+ 310:    20 20 20 4f       not    r1, r0
+ 314:    20 20 5c 20       not    r1, r0
+ 318:    0a 20 20 2f       add    r17, r0, r4
+ 31c:    20 20 20 20       not    r1, r0
+ 320:    20 20 20 20       not    r1, r0
+ 324:    20 20 20 20       not    r1, r0
+ 328:    5c 20 0a 20       cmpi   r1, r0, 2592
+ 32c:    2f 20 20 20       pop    
+ 330:    20 5f 5f 5f       not    r2, sr
+ 334:    5f 20 20 20       cmpi   r25, r0, 8224
+ 338:    20 20 20 30       not    r1, r0
+ 33c:    20 0a 2f 20       not    r0, r10
+ 340:    20 20 20 20       not    r1, r0
+ 344:    20 2f 20 20       not    r1, r15
+ 348:    5c 5f 5f 5f       cmpi   r2, sr, 24415
+ 34c:    20 5f 2f 20       not    r2, sr
+ 350:    57 4f 4f 4f       divi   cr, r15, 20303
+ 354:    46 21 0a 0a       unkown
+  ...
+ 35c:    0a 20 20 20       add    r17, r0, r4
+ 360:    20 20 20 20       not    r1, r0
+ 364:    20 20 20 20       not    r1, r0
+ 368:    20 20 20 20       not    r1, r0
+ 36c:    20 20 20 20       not    r1, r0
+ 370:    20 20 20 20       not    r1, r0
+ 374:    20 20 20 20       not    r1, r0
+ 378:    20 20 20 20       not    r1, r0
+ 37c:    20 20 20 20       not    r1, r0
+ 380:    20 20 20 20       not    r1, r0
+ 384:    20 20 2e 0a       not    r1, r0
+ 388:    20 20 20 20       not    r1, r0
+ 38c:    20 20 20 20       not    r1, r0
+ 390:    20 20 20 20       not    r1, r0
+ 394:    20 20 20 20       not    r1, r0
+ 398:    20 20 20 20       not    r1, r0
+ 39c:    20 20 20 20       not    r1, r0
+ 3a0:    20 20 20 20       not    r1, r0
+ 3a4:    20 20 20 20       not    r1, r0
+ 3a8:    20 20 20 20       not    r1, r0
+ 3ac:    20 20 20 20       not    r1, r0
+ 3b0:    20 5c 60 2d       not    r2, ir
+ 3b4:    5f 0a 20 20       cmpi   r24, r10, 8224
+ 3b8:    20 20 20 20       not    r1, r0
+ 3bc:    20 20 20 20       not    r1, r0
+ 3c0:    20 20 20 20       not    r1, r0
+ 3c4:    20 20 20 20       not    r1, r0
+ 3c8:    20 20 20 20       not    r1, r0
+ 3cc:    20 20 20 20       not    r1, r0
+ 3d0:    20 20 20 20       not    r1, r0
+ 3d4:    20 20 20 20       not    r1, r0
+ 3d8:    20 20 20 20       not    r1, r0
+ 3dc:    20 20 20 20       not    r1, r0
+ 3e0:    5c 20 20 5c       cmpi   r1, r0, 8284
+ 3e4:    20 0a 20 20       not    r0, r10
+ 3e8:    20 20 20 20       not    r1, r0
+ 3ec:    20 20 20 20       not    r1, r0
+ 3f0:    20 20 20 20       not    r1, r0
+ 3f4:    20 20 20 20       not    r1, r0
+ 3f8:    20 20 20 20       not    r1, r0
+ 3fc:    20 20 20 20       not    r1, r0
+ 400:    20 20 20 20       not    r1, r0
+ 404:    20 20 20 20       not    r1, r0
+ 408:    20 20 20 20       not    r1, r0
+ 40c:    20 20 20 20       not    r1, r0
+ 410:    20 5c 20 20       not    r2, ir
+ 414:    5c 20 0a 20       cmpi   r1, r0, 2592
+ 418:    20 20 20 20       not    r1, r0
+ 41c:    20 20 20 20       not    r1, r0
+ 420:    20 20 20 20       not    r1, r0
+ 424:    20 20 20 20       not    r1, r0
+ 428:    20 20 20 20       not    r1, r0
+ 42c:    20 20 20 20       not    r1, r0
+ 430:    20 20 20 20       not    r1, r0
+ 434:    20 20 20 20       not    r1, r0
+ 438:    20 5f 5f 2d       not    r2, sr
+ 43c:    2d 5f 20 20       pop    
+ 440:    20 20 7c 20       not    r1, r0
+ 444:    20 20 5c 20       not    r1, r0
+ 448:    0a 20 20 20       add    r17, r0, r4
+ 44c:    20 20 20 20       not    r1, r0
+ 450:    20 20 20 20       not    r1, r0
+ 454:    20 20 20 20       not    r1, r0
+ 458:    20 20 20 20       not    r1, r0
+ 45c:    20 20 20 20       not    r1, r0
+ 460:    20 20 20 20       not    r1, r0
+ 464:    5f 5f 2d 2d       cmpi   cr, sr, 11565
+ 468:    2d 2d 27 20       pop    ir
+ 46c:    20 20 20 20       not    r1, r0
+ 470:    60 60 5f 20       l8     r3, [r0+24352]
+ 474:    7c 20 20 20       ret   
+ 478:    20 5c 20 0a       not    r2, ir
+ 47c:    20 20 20 20       not    r1, r0
+ 480:    20 20 20 20       not    r1, r0
+ 484:    20 20 20 20       not    r1, r0
+ 488:    20 20 20 20       not    r1, r0
+ 48c:    20 20 20 20       not    r1, r0
+ 490:    20 20 20 20       not    r1, r0
+ 494:    20 20 20 20       not    r1, r0
+ 498:    20 60 2d 5f       not    r3, r0
+ 49c:    20 20 20 20       not    r1, r0
+ 4a0:    20 20 20 20       not    r1, r0
+ 4a4:    20 20 60 7c       not    r1, r0
+ 4a8:    20 20 20 20       not    r1, r0
+ 4ac:    7c 0a 20 20       ret   
+ 4b0:    20 20 20 20       not    r1, r0
+ 4b4:    20 20 20 20       not    r1, r0
+ 4b8:    20 20 20 20       not    r1, r0
+ 4bc:    20 20 20 20       not    r1, r0
+ 4c0:    20 20 20 20       not    r1, r0
+ 4c4:    20 20 20 20       not    r1, r0
+ 4c8:    20 20 20 20       not    r1, r0
+ 4cc:    20 20 60 5f       not    r1, r0
+ 4d0:    20 20 20 20       not    r1, r0
+ 4d4:    20 20 20 20       not    r1, r0
+ 4d8:    20 20 20 20       not    r1, r0
+ 4dc:    20 20 20 60       not    r1, r0
+ 4e0:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 4e4:    5f 0a 20 20       cmpi   r24, r10, 8224
+ 4e8:    20 20 20 20       not    r1, r0
+ 4ec:    20 20 20 20       not    r1, r0
+ 4f0:    20 20 20 20       not    r1, r0
+ 4f4:    20 20 20 20       not    r1, r0
+ 4f8:    20 20 20 20       not    r1, r0
+ 4fc:    20 20 20 20       not    r1, r0
+ 500:    20 20 20 20       not    r1, r0
+ 504:    20 20 20 20       not    r1, r0
+ 508:    5c 20 20 20       cmpi   r1, r0, 8224
+ 50c:    20 20 20 20       not    r1, r0
+ 510:    20 20 20 20       not    r1, r0
+ 514:    20 20 20 20       not    r1, r0
+ 518:    20 20 20 20       not    r1, r0
+ 51c:    20 60 5c 20       not    r3, r0
+ 520:    0a 20 20 20       add    r17, r0, r4
+ 524:    20 20 20 20       not    r1, r0
+ 528:    20 20 20 20       not    r1, r0
+ 52c:    20 20 20 20       not    r1, r0
+ 530:    20 20 20 20       not    r1, r0
+ 534:    20 20 20 20       not    r1, r0
+ 538:    20 20 20 20       not    r1, r0
+ 53c:    20 20 20 20       not    r1, r0
+ 540:    20 20 20 20       not    r1, r0
+ 544:    5c 20 20 20       cmpi   r1, r0, 8224
+ 548:    20 20 20 20       not    r1, r0
+ 54c:    20 20 20 20       not    r1, r0
+ 550:    20 20 20 20       not    r1, r0
+ 554:    20 20 20 20       not    r1, r0
+ 558:    20 20 5c 5f       not    r1, r0
+ 55c:    5f 5f 5f 5f       cmpi   cr, sr, 24415
+ 560:    5f 2d 2d 2d       cmpi   r25, r13, 11565
+ 564:    2d 5f 5f 0a       pop    irr10srr11r10
+ 568:    20 20 20 20       not    r1, r0
+ 56c:    20 20 20 20       not    r1, r0
+ 570:    20 20 20 20       not    r1, r0
+ 574:    20 20 20 20       not    r1, r0
+ 578:    20 20 20 20       not    r1, r0
+ 57c:    20 20 20 20       not    r1, r0
+ 580:    20 20 20 20       not    r1, r0
+ 584:    20 2e 2d 2d       not    r1, r14
+ 588:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 58c:    20 20 20 20       not    r1, r0
+ 590:    20 2e 5f 5f       not    r1, r14
+ 594:    5f 5f 5f 5f       cmpi   cr, sr, 24415
+ 598:    5f 5f 5f 2e       cmpi   cr, sr, 24366
+ 59c:    20 20 20 20       not    r1, r0
+ 5a0:    20 20 20 20       not    r1, r0
+ 5a4:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 5a8:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 5ac:    2d 5f 60 5f       pop    r1srsrr12r10
+ 5b0:    5f 5f 0a 20       cmpi   cr, sr, 2592
+ 5b4:    20 20 20 20       not    r1, r0
+ 5b8:    20 20 20 20       not    r1, r0
+ 5bc:    20 20 20 20       not    r1, r0
+ 5c0:    20 20 20 20       not    r1, r0
+ 5c4:    20 20 20 20       not    r1, r0
+ 5c8:    20 20 20 20       not    r1, r0
+ 5cc:    20 20 20 2f       not    r1, r0
+ 5d0:    5f 5f 5f 20       cmpi   cr, sr, 24352
+ 5d4:    20 20 20 20       not    r1, r0
+ 5d8:    20 20 20 2f       not    r1, r0
+ 5dc:    20 20 20 20       not    r1, r0
+ 5e0:    20 20 20 20       not    r1, r0
+ 5e4:    20 20 20 5c       not    r1, r0
+ 5e8:    20 20 20 20       not    r1, r0
+ 5ec:    20 20 20 20       not    r1, r0
+ 5f0:    20 5f 5f 2d       not    r2, sr
+ 5f4:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 5f8:    2d 60 0a 20       pop    r8
+ 5fc:    20 20 20 20       not    r1, r0
+ 600:    20 20 20 20       not    r1, r0
+ 604:    20 20 20 20       not    r1, r0
+ 608:    20 20 20 20       not    r1, r0
+ 60c:    20 20 20 20       not    r1, r0
+ 610:    20 20 20 20       not    r1, r0
+ 614:    20 20 20 20       not    r1, r0
+ 618:    20 20 20 60       not    r1, r0
+ 61c:    2d 2e 20 20       pop    
+ 620:    20 20 2f 20       not    r1, r0
+ 624:    5f 5c 5f 20       cmpi   cr, ir, 24352
+ 628:    20 20 5f 2f       not    r1, r0
+ 62c:    5f 20 20 20       cmpi   r25, r0, 8224
+ 630:    5c 5f 2e 20       cmpi   r2, sr, 11808
+ 634:    20 20 20 2d       not    r1, r0
+ 638:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 63c:    2d 2d 2d 5f       pop    r21srr13r5r9
+ 640:    5f 0a 20 20       cmpi   r24, r10, 8224
+ 644:    20 20 20 20       not    r1, r0
+ 648:    20 20 20 20       not    r1, r0
+ 64c:    20 20 20 20       not    r1, r0
+ 650:    20 20 20 20       not    r1, r0
+ 654:    20 20 20 20       not    r1, r0
+ 658:    20 20 20 20       not    r1, r0
+ 65c:    20 20 20 20       not    r1, r0
+ 660:    20 5f 5f 5f       not    r2, sr
+ 664:    5f 3e 2d 20       cmpi   r25, sp, 11552
+ 668:    7c 20 2f 20       ret   
+ 66c:    30 20 2f 5f       unkown
+ 670:    2f 20 30 20       pop    
+ 674:    5c 20 20 20       cmpi   r1, r0, 8224
+ 678:    40 29 20 20       unkown
+ 67c:    20 20 5f 5f       not    r1, r0
+ 680:    5f 5f 5f 5f       cmpi   cr, sr, 24415
+ 684:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 688:    60 0a 20 20       l8     r0, [r10+8224]
+ 68c:    20 20 20 20       not    r1, r0
+ 690:    20 20 20 20       not    r1, r0
+ 694:    20 20 20 20       not    r1, r0
+ 698:    20 20 20 20       not    r1, r0
+ 69c:    20 20 20 20       not    r1, r0
+ 6a0:    20 20 20 20       not    r1, r0
+ 6a4:    20 20 20 20       not    r1, r0
+ 6a8:    20 20 60 2d       not    r1, r0
+ 6ac:    2d 2d 2e 5f       pop    r25srr13r5r9
+ 6b0:    5c 20 60 2d       cmpi   r1, r0, 24621
+ 6b4:    2d 27 2f 20       pop    ir
+ 6b8:    60 2d 2d 2d       l8     r1, [r13+11565]
+ 6bc:    27 20 20 20       xor    r25, r0, r4
+ 6c0:    2f 20 20 20       pop    
+ 6c4:    5f 5f 5f 2d       cmpi   cr, sr, 24365
+ 6c8:    2d 2d 2d 27       pop    r20r7r13r5r9
+ 6cc:    0a 20 20 20       add    r17, r0, r4
+ 6d0:    20 20 20 20       not    r1, r0
+ 6d4:    20 20 20 20       not    r1, r0
+ 6d8:    20 20 20 20       not    r1, r0
+ 6dc:    20 20 20 20       not    r1, r0
+ 6e0:    20 20 20 20       not    r1, r0
+ 6e4:    20 20 20 20       not    r1, r0
+ 6e8:    20 20 20 20       not    r1, r0
+ 6ec:    20 20 20 20       not    r1, r0
+ 6f0:    20 20 20 60       not    r1, r0
+ 6f4:    5c 20 20 20       cmpi   r1, r0, 8224
+ 6f8:    2f 5f 20 20       pop    
+ 6fc:    20 20 20 20       not    r1, r0
+ 700:    20 20 2f 60       not    r1, r0
+ 704:    2d 2e 2d 2d       pop    r20r13r14r5r9
+ 708:    2d 0a 20 20       pop    
+ 70c:    20 20 20 20       not    r1, r0
+ 710:    20 20 20 20       not    r1, r0
+ 714:    20 20 20 20       not    r1, r0
+ 718:    20 20 20 20       not    r1, r0
+ 71c:    20 20 20 20       not    r1, r0
+ 720:    20 20 20 20       not    r1, r0
+ 724:    20 20 20 20       not    r1, r0
+ 728:    20 20 20 20       not    r1, r0
+ 72c:    20 20 20 20       not    r1, r0
+ 730:    20 20 60 2e       not    r1, r0
+ 734:    20 20 2d 2d       not    r1, r0
+ 738:    2d 20 20 20       pop    
+ 73c:    20 2e 27 20       not    r1, r14
+ 740:    20 20 5c 5f       not    r1, r0
+ 744:    0a 20 20 20       add    r17, r0, r4
+ 748:    20 20 20 20       not    r1, r0
+ 74c:    20 20 20 20       not    r1, r0
+ 750:    20 20 20 20       not    r1, r0
+ 754:    20 20 20 20       not    r1, r0
+ 758:    20 20 20 20       not    r1, r0
+ 75c:    20 20 20 20       not    r1, r0
+ 760:    20 20 20 20       not    r1, r0
+ 764:    20 20 20 20       not    r1, r0
+ 768:    20 20 20 20       not    r1, r0
+ 76c:    20 20 20 60       not    r1, r0
+ 770:    2e 5f 5f 5f       pop    pcsrsrr11r18
+ 774:    5f 2e 2d 27       cmpi   r25, r14, 11559
+ 778:    20 20 20 20       not    r1, r0
+ 77c:    20 7c 20 2d       not    r3, ir
+ 780:    2d 2e 2c 2d       pop    r16r13r14r5r9
+ 784:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 788:    2d 2d 2e 5f       pop    r25srr13r5r9
+ 78c:    0a 20 20 20       add    r17, r0, r4
+ 790:    20 20 20 20       not    r1, r0
+ 794:    20 20 20 20       not    r1, r0
+ 798:    20 20 20 20       not    r1, r0
+ 79c:    20 20 20 20       not    r1, r0
+ 7a0:    20 20 20 20       not    r1, r0
+ 7a4:    20 20 20 20       not    r1, r0
+ 7a8:    20 20 20 20       not    r1, r0
+ 7ac:    20 20 20 20       not    r1, r0
+ 7b0:    20 20 20 20       not    r1, r0
+ 7b4:    20 5f 5f 5f       not    r2, sr
+ 7b8:    5f 2f 2d 2d       cmpi   r25, r15, 11565
+ 7bc:    20 20 20 2e       not    r1, r0
+ 7c0:    2f 20 20 20       pop    
+ 7c4:    20 20 20 20       not    r1, r0
+ 7c8:    2e 2d 27 20       pop    ir
+ 7cc:    20 20 20 2e       not    r1, r0
+ 7d0:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 7d4:    2d 2e 0a 20       pop    r8
+ 7d8:    20 20 20 20       not    r1, r0
+ 7dc:    20 20 20 20       not    r1, r0
+ 7e0:    20 20 20 20       not    r1, r0
+ 7e4:    20 20 20 20       not    r1, r0
+ 7e8:    20 20 20 20       not    r1, r0
+ 7ec:    20 20 20 20       not    r1, r0
+ 7f0:    20 20 20 20       not    r1, r0
+ 7f4:    20 20 20 2e       not    r1, r0
+ 7f8:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 7fc:    2d 20 2f 60       pop    pc
+ 800:    5f 5f 5f 5c       cmpi   cr, sr, 24412
+ 804:    60 20 5f 2e       l8     r1, [r0+24366]
+ 808:    2f 2e 2d 2d       pop    r20r13r14r5r25
+ 80c:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 810:    2e 27 2f 20       pop    ir
+ 814:    20 20 20 2f       not    r1, r0
+ 818:    27 20 20 20       xor    r25, r0, r4
+ 81c:    20 20 20 20       not    r1, r0
+ 820:    60 2d 0a 20       l8     r1, [r13+2592]
+ 824:    20 20 20 20       not    r1, r0
+ 828:    20 20 20 20       not    r1, r0
+ 82c:    20 20 20 20       not    r1, r0
+ 830:    20 20 20 20       not    r1, r0
+ 834:    20 20 20 20       not    r1, r0
+ 838:    20 20 20 20       not    r1, r0
+ 83c:    20 20 20 5f       not    r1, r0
+ 840:    2e 2d 28 20       pop    
+ 844:    20 20 20 20       not    r1, r0
+ 848:    20 7c 5c 20       not    r3, ir
+ 84c:    20 20 20 60       not    r1, r0
+ 850:    2f 2d 20 5f       pop    r1srr13r4r25
+ 854:    5f 5f 5f 5f       cmpi   cr, sr, 24415
+ 858:    2e 2e 2d 27       pop    r20r7r14r5r17
+ 85c:    20 2f 20 20       not    r1, r15
+ 860:    20 20 2f 20       not    r1, r0
+ 864:    20 20 20 20       not    r1, r0
+ 868:    20 5f 2e 2d       not    r2, sr
+ 86c:    2d 2d 60 2e       pop    
+ 870:    0a 20 20 20       add    r17, r0, r4
+ 874:    20 20 20 20       not    r1, r0
+ 878:    20 20 20 20       not    r1, r0
+ 87c:    20 20 20 20       not    r1, r0
+ 880:    20 20 20 20       not    r1, r0
+ 884:    20 20 20 20       not    r1, r0
+ 888:    20 20 20 20       not    r1, r0
+ 88c:    2f 20 20 20       pop    
+ 890:    7c 20 20 20       ret   
+ 894:    20 20 2f 2e       not    r1, r0
+ 898:    20 60 2d 2d       not    r3, r0
+ 89c:    2d 2d 2d 2d       pop    r20r13r13r5r9
+ 8a0:    2d 20 20 20       pop    
+ 8a4:    20 20 20 20       not    r1, r0
+ 8a8:    27 20 2f 20       xor    r25, r0, r5
+ 8ac:    20 20 20 2f       not    r1, r0
+ 8b0:    20 20 20 20       not    r1, r0
+ 8b4:    20 2e 27 20       not    r1, r14
+ 8b8:    20 2d 2e 20       not    r1, r13
+ 8bc:    20 20 5c 20       not    r1, r0
+ 8c0:    0a 20 20 20       add    r17, r0, r4
+ 8c4:    20 20 20 20       not    r1, r0
+ 8c8:    20 20 20 20       not    r1, r0
+ 8cc:    20 20 20 20       not    r1, r0
+ 8d0:    20 20 20 20       not    r1, r0
+ 8d4:    20 20 20 20       not    r1, r0
+ 8d8:    20 20 20 28       not    r1, r0
+ 8dc:    20 20 20 20       not    r1, r0
+ 8e0:    2f 20 20 20       pop    
+ 8e4:    20 28 20 20       not    r1, r8
+ 8e8:    2e 20 20 20       pop    
+ 8ec:    20 20 20 20       not    r1, r0
+ 8f0:    20 20 20 20       not    r1, r0
+ 8f4:    5f 20 27 20       cmpi   r25, r0, 10016
+ 8f8:    2f 27 20 20       pop    
+ 8fc:    20 20 2f 20       not    r1, r0
+ 900:    20 20 20 2e       not    r1, r0
+ 904:    2f 20 20 20       pop    
+ 908:    20 20 20 5c       not    r1, r0
+ 90c:    20 20 20 5c       not    r1, r0
+ 910:    20 0a 20 20       not    r0, r10
+ 914:    20 20 20 20       not    r1, r0
+ 918:    20 20 20 20       not    r1, r0
+ 91c:    20 20 20 20       not    r1, r0
+ 920:    20 20 20 20       not    r1, r0
+ 924:    20 20 20 20       not    r1, r0
+ 928:    20 20 20 20       not    r1, r0
+ 92c:    28 60 2e 20       push   r24
+ 930:    7c 20 20 20       ret   
+ 934:    20 20 60 5c       not    r1, r0
+ 938:    20 20 20 2d       not    r1, r0
+ 93c:    20 2d 20 2d       not    r1, r13
+ 940:    20 2d 20 2d       not    r1, r13
+ 944:    20 20 20 2f       not    r1, r0
+ 948:    27 20 20 20       xor    r25, r0, r4
+ 94c:    20 20 20 7c       not    r1, r0
+ 950:    20 20 20 2f       not    r1, r0
+ 954:    20 20 20 20       not    r1, r0
+ 958:    20 20 20 20       not    r1, r0
+ 95c:    20 2e 20 20       not    r1, r14
+ 960:    20 7c 0a 20       not    r3, ir
+ 964:    20 20 20 20       not    r1, r0
+ 968:    20 20 20 20       not    r1, r0
+ 96c:    20 20 20 20       not    r1, r0
+ 970:    20 20 20 20       not    r1, r0
+ 974:    20 20 20 20       not    r1, r0
+ 978:    20 20 20 20       not    r1, r0
+ 97c:    20 20 5c 2e       not    r1, r0
+ 980:    5c 7c 20 20       cmpi   r3, ir, 8224
+ 984:    20 20 20 20       not    r1, r0
+ 988:    20 5c 20 20       not    r2, ir
+ 98c:    20 20 20 20       not    r1, r0
+ 990:    20 20 20 20       not    r1, r0
+ 994:    20 20 2f 27       not    r1, r0
+ 998:    20 20 20 20       not    r1, r0
+ 99c:    20 20 20 20       not    r1, r0
+ 9a0:    5c 20 20 7c       cmpi   r1, r0, 8316
+ 9a4:    60 2e 20 20       l8     r1, [r14+8224]
+ 9a8:    20 20 20 20       not    r1, r0
+ 9ac:    20 20 20 20       not    r1, r0
+ 9b0:    20 2f 0a 20       not    r1, r15
+ 9b4:    20 20 20 20       not    r1, r0
+ 9b8:    20 20 20 20       not    r1, r0
+ 9bc:    20 20 20 20       not    r1, r0
+ 9c0:    20 20 20 20       not    r1, r0
+ 9c4:    20 20 20 20       not    r1, r0
+ 9c8:    20 20 20 20       not    r1, r0
+ 9cc:    20 20 2f 2e       not    r1, r0
+ 9d0:    2f 5c 20 20       pop    
+ 9d4:    20 20 20 20       not    r1, r0
+ 9d8:    20 60 5c 20       not    r3, r0
+ 9dc:    20 20 20 20       not    r1, r0
+ 9e0:    20 20 20 20       not    r1, r0
+ 9e4:    2f 27 20 20       pop    
+ 9e8:    20 20 20 20       not    r1, r0
+ 9ec:    20 20 20 20       not    r1, r0
+ 9f0:    20 60 2d 5c       not    r3, r0
+ 9f4:    20 20 20 20       not    r1, r0
+ 9f8:    20 20 20 20       not    r1, r0
+ 9fc:    20 5f 20 20       not    r2, sr
+ a00:    2f 5c 20 0a       pop    
+ a04:    20 20 20 20       not    r1, r0
+ a08:    20 20 20 20       not    r1, r0
+ a0c:    20 20 20 20       not    r1, r0
+ a10:    20 20 20 20       not    r1, r0
+ a14:    20 20 20 20       not    r1, r0
+ a18:    20 20 20 20       not    r1, r0
+ a1c:    20 20 2f 60       not    r1, r0
+ a20:    20 20 20 7c       not    r1, r0
+ a24:    20 20 20 20       not    r1, r0
+ a28:    20 20 20 20       not    r1, r0
+ a2c:    60 5c 20 20       l8     r2, [ir+8224]
+ a30:    20 20 20 2f       not    r1, r0
+ a34:    27 20 20 20       xor    r25, r0, r4
+ a38:    20 20 20 20       not    r1, r0
+ a3c:    20 20 20 20       not    r1, r0
+ a40:    20 20 20 20       not    r1, r0
+ a44:    20 60 2e 5f       not    r3, r0
+ a48:    5f 5f 2e 2e       cmpi   cr, sr, 11822
+ a4c:    2d 20 20 20       pop    
+ a50:    20 20 20 5c       not    r1, r0
+ a54:    20 0a 20 20       not    r0, r10
+ a58:    20 20 20 20       not    r1, r0
+ a5c:    20 20 20 20       not    r1, r0
+ a60:    20 20 20 20       not    r1, r0
+ a64:    20 20 20 20       not    r1, r0
+ a68:    20 20 20 20       not    r1, r0
+ a6c:    20 20 20 7c       not    r1, r0
+ a70:    20 7c 20 20       not    r3, ir
+ a74:    20 20 5c 20       not    r1, r0
+ a78:    20 20 20 20       not    r1, r0
+ a7c:    20 20 20 20       not    r1, r0
+ a80:    60 5c 5f 2f       l8     r2, [ir+24367]
+ a84:    27 20 20 20       xor    r25, r0, r4
+ a88:    20 20 20 20       not    r1, r0
+ a8c:    20 20 20 20       not    r1, r0
+ a90:    20 20 20 20       not    r1, r0
+ a94:    20 20 20 2f       not    r1, r0
+ a98:    2f 20 20 20       pop    
+ a9c:    20 20 20 5c       not    r1, r0
+ aa0:    20 20 20 20       not    r1, r0
+ aa4:    20 20 7c 0a       not    r1, r0
+ aa8:    20 20 20 20       not    r1, r0
+ aac:    20 20 20 20       not    r1, r0
+ ab0:    20 20 20 20       not    r1, r0
+ ab4:    20 20 20 20       not    r1, r0
+ ab8:    20 20 20 20       not    r1, r0
+ abc:    20 20 20 20       not    r1, r0
+ ac0:    20 7c 20 7c       not    r3, ir
+ ac4:    20 20 20 20       not    r1, r0
+ ac8:    20 7c 20 20       not    r3, ir
+ acc:    20 20 20 20       not    r1, r0
+ ad0:    20 20 20 20       not    r1, r0
+ ad4:    20 20 20 20       not    r1, r0
+ ad8:    20 20 20 20       not    r1, r0
+ adc:    20 20 20 20       not    r1, r0
+ ae0:    20 20 20 20       not    r1, r0
+ ae4:    20 20 20 20       not    r1, r0
+ ae8:    2f 20 7c 20       pop    r16
+ aec:    20 20 20 20       not    r1, r0
+ af0:    20 20 7c 20       not    r1, r0
+ af4:    20 20 20 20       not    r1, r0
+ af8:    7c 0a 0a 0a       ret   
+ afc:    20 5f 5f 5f       not    r2, sr
+ b00:    20 20 20 20       not    r1, r0
+ b04:    20 20 5f 5f       not    r1, r0
+ b08:    5f 20 2d 2d       cmpi   r25, r0, 11565
+ b0c:    20 20 20 5f       not    r1, r0
+ b10:    5f 20 20 20       cmpi   r25, r0, 8224
+ b14:    20 20 20 5f       not    r1, r0
+ b18:    5f 5f 20 20       cmpi   cr, sr, 8224
+ b1c:    5f 5f 20 20       cmpi   cr, sr, 8224
+ b20:    5f 5f 5f 20       cmpi   cr, sr, 24352
+ b24:    20 5f 5f 5f       not    r2, sr
+ b28:    20 20 20 20       not    r1, r0
+ b2c:    5f 2f 5f 20       cmpi   r25, r15, 24352
+ b30:    20 20 20 5f       not    r1, r0
+ b34:    5f 20 20 20       cmpi   r25, r0, 8224
+ b38:    20 20 20 20       not    r1, r0
+ b3c:    20 20 20 5f       not    r1, r0
+ b40:    5f 5f 20 20       cmpi   cr, sr, 8224
+ b44:    5f 5f 20 20       cmpi   cr, sr, 8224
+ b48:    20 5f 5f 20       not    r2, sr
+ b4c:    20 20 20 20       not    r1, r0
+ b50:    20 20 20 5f       not    r1, r0
+ b54:    5f 20 20 20       cmpi   r25, r0, 8224
+ b58:    5f 5f 5f 20       cmpi   cr, sr, 24352
+ b5c:    20 20 20 5f       not    r1, r0
+ b60:    5f 20 20 20       cmpi   r25, r0, 8224
+ b64:    5f 5f 0a 7c       cmpi   cr, sr, 2684
+ b68:    5f 5f 20 20       cmpi   cr, sr, 8224
+ b6c:    7c 5c 20 7c       ret   
+ b70:    20 20 7c 20       not    r1, r0
+ b74:    20 2f 5c 20       not    r1, r15
+ b78:    20 2f 20 20       not    r1, r15
+ b7c:    5c 20 20 20       cmpi   r1, r0, 8224
+ b80:    20 7c 5f 5f       not    r3, ir
+ b84:    20 20 2f 5f       not    r1, r0
+ b88:    5f 60 20 20       cmpi   ipc, r0, 8224
+ b8c:    7c 20 20 7c       ret   
+ b90:    5f 5f 20 20       cmpi   cr, sr, 8224
+ b94:    20 20 7c 5f       not    r1, r0
+ b98:    5f 5f 20 20       cmpi   cr, sr, 8224
+ b9c:    20 2f 20 20       not    r1, r15
+ ba0:    5c 20 20 20       cmpi   r1, r0, 8224
+ ba4:    5c 20 20 2f       cmpi   r1, r0, 8239
+ ba8:    20 7c 5f 5f       not    r3, ir
+ bac:    20 20 7c 5f       not    r1, r0
+ bb0:    5f 29 20 7c       cmpi   r25, r9, 8316
+ bb4:    20 20 5c 20       not    r1, r0
+ bb8:    20 2f 5c 20       not    r1, r15
+ bbc:    20 7c 20 20       not    r3, ir
+ bc0:    5c 20 7c 5f       cmpi   r1, r0, 31839
+ bc4:    5f 20 20 7c       cmpi   r25, r0, 8316
+ bc8:    20 7c 5f 5f       not    r3, ir
+ bcc:    29 20 2f 20       push   ir
+ bd0:    20 5c 20 0a       not    r2, ir
+ bd4:    7c 5f 5f 5f       ret   
+ bd8:    20 7c 20 5c       not    r3, ir
+ bdc:    7c 20 20 7c       ret   
+ be0:    20 2f 2d 2d       not    r1, r15
+ be4:    5c 20 5c 5f       cmpi   r1, r0, 23647
+ be8:    5f 2f 20 20       cmpi   r25, r15, 8224
+ bec:    20 20 7c 5f       not    r1, r0
+ bf0:    5f 5f 20 2e       cmpi   cr, sr, 8238
+ bf4:    5f 5f 2f 20       cmpi   cr, sr, 12064
+ bf8:    20 7c 20 20       not    r3, ir
+ bfc:    7c 5f 5f 5f       ret   
+ c00:    20 20 20 7c       not    r1, r0
+ c04:    5f 5f 5f 20       cmpi   cr, sr, 24352
+ c08:    20 20 5c 5f       not    r1, r0
+ c0c:    5f 2f 20 20       cmpi   r25, r15, 8224
+ c10:    20 20 5c 2f       not    r1, r0
+ c14:    20 20 7c 5f       not    r1, r0
+ c18:    5f 5f 20 7c       cmpi   cr, sr, 8316
+ c1c:    20 20 5c 20       not    r1, r0
+ c20:    7c 5f 5f 2f       ret   
+ c24:    20 2f 2d 2d       not    r1, r15
+ c28:    5c 20 7c 5f       cmpi   r1, r0, 31839
+ c2c:    5f 2f 20 7c       cmpi   r25, r15, 8316
+ c30:    5f 5f 5f 20       cmpi   cr, sr, 24352
+ c34:    7c 20 7c 20       ret   
+ c38:    20 5c 20 5c       not    r2, ir
+ c3c:    5f 5f 2f 0a       cmpi   cr, sr, 12042
+ c40:    0a 20 5f 5f       add    r17, r0, r11
+ c44:    20 20 20 5f       not    r1, r0
+ c48:    5f 20 20 20       cmpi   r25, r0, 8224
+ c4c:    5f 5f 20 20       cmpi   cr, sr, 8224
+ c50:    20 5f 5f 5f       not    r2, sr
+ c54:    20 20 5f 5f       not    r1, r0
+ c58:    20 20 20 20       not    r1, r0
+ c5c:    20 20 5f 5f       not    r1, r0
+ c60:    20 20 20 5f       not    r1, r0
+ c64:    5f 20 20 20       cmpi   r25, r0, 8224
+ c68:    20 20 20 5f       not    r1, r0
+ c6c:    5f 5f 20 20       cmpi   cr, sr, 8224
+ c70:    20 20 20 20       not    r1, r0
+ c74:    20 5f 5f 20       not    r2, sr
+ c78:    20 20 20 20       not    r1, r0
+ c7c:    20 20 20 20       not    r1, r0
+ c80:    20 5f 5f 20       not    r2, sr
+ c84:    20 20 20 20       not    r1, r0
+ c88:    20 5f 5f 20       not    r2, sr
+ c8c:    20 20 20 20       not    r1, r0
+ c90:    20 20 20 5f       not    r1, r0
+ c94:    5f 20 20 20       cmpi   r25, r0, 8224
+ c98:    5f 5f 5f 20       cmpi   cr, sr, 24352
+ c9c:    20 5f 5f 20       not    r2, sr
+ ca0:    20 20 20 20       not    r1, r0
+ ca4:    5f 5f 20 20       cmpi   cr, sr, 8224
+ ca8:    20 5f 5f 0a       not    r2, sr
+ cac:    7c 5f 5f 29       ret   
+ cb0:    20 2f 20 20       not    r1, r15
+ cb4:    5c 20 7c 20       cmpi   r1, r0, 31776
+ cb8:    20 5c 20 7c       not    r2, ir
+ cbc:    5f 5f 20 20       cmpi   cr, sr, 8224
+ cc0:    7c 5f 5f 29       ret   
+ cc4:    20 20 20 20       not    r1, r0
+ cc8:    7c 20 20 5c       ret   
+ ccc:    20 2f 20 20       not    r1, r15
+ cd0:    5c 20 20 20       cmpi   r1, r0, 8224
+ cd4:    20 7c 5f 5f       not    r3, ir
+ cd8:    20 20 7c 5c       not    r1, r0
+ cdc:    20 7c 20 2f       not    r3, ir
+ ce0:    5f 5f 60 20       cmpi   cr, sr, 24608
+ ce4:    7c 20 7c 5c       ret   
+ ce8:    20 7c 20 2f       not    r3, ir
+ cec:    20 20 5c 20       not    r1, r0
+ cf0:    20 20 20 2f       not    r1, r0
+ cf4:    5f 5f 60 20       cmpi   cr, sr, 24608
+ cf8:    7c 20 20 7c       ret   
+ cfc:    20 7c 5f 5f       not    r3, ir
+ d00:    29 20 7c 5f       push   r17sr
+ d04:    5f 20 20 7c       cmpi   r25, r0, 8316
+ d08:    5f 5f 29 20       cmpi   cr, sr, 10528
+ d0c:    7c 20 2f 20       ret   
+ d10:    20 5c 20 7c       not    r2, ir
+ d14:    5f 5f 29 0a       cmpi   cr, sr, 10506
+ d18:    7c 20 20 20       ret   
+ d1c:    20 5c 5f 5f       not    r2, ir
+ d20:    2f 20 7c 5f       pop    r17sr
+ d24:    5f 2f 20 7c       cmpi   r25, r15, 8316
+ d28:    5f 5f 5f 20       cmpi   cr, sr, 24352
+ d2c:    7c 20 20 5c       ret   
+ d30:    20 20 20 20       not    r1, r0
+ d34:    7c 5f 5f 2f       ret   
+ d38:    20 5c 5f 5f       not    r2, ir
+ d3c:    2f 20 20 20       pop    
+ d40:    20 7c 5f 5f       not    r3, ir
+ d44:    5f 20 7c 20       cmpi   r25, r0, 31776
+ d48:    5c 7c 20 2e       cmpi   r3, ir, 8238
+ d4c:    5f 5f 2f 20       cmpi   cr, sr, 12064
+ d50:    7c 20 7c 20       ret   
+ d54:    5c 7c 20 5c       cmpi   r3, ir, 8284
+ d58:    5f 5f 2f 20       cmpi   cr, sr, 12064
+ d5c:    20 20 20 2e       not    r1, r0
+ d60:    5f 5f 2f 20       cmpi   cr, sr, 12064
+ d64:    5c 5f 5f 2f       cmpi   r2, sr, 24367
+ d68:    20 7c 20 20       not    r3, ir
+ d6c:    20 20 7c 5f       not    r1, r0
+ d70:    5f 5f 20 7c       cmpi   cr, sr, 8316
+ d74:    20 20 5c 20       not    r1, r0
+ d78:    7c 20 5c 5f       ret   
+ d7c:    5f 2f 20 7c       cmpi   r25, r15, 8316
+ d80:    20 20 5c 20       not    r1, r0
+ d84:    0a 0a 0a 00       add    r16, r10, r1
+ d88:    0a 30 31 30       add    r17, r16, r6
+ d8c:    31 30 31 31       unkown
+ d90:    30 20 30 31       unkown
+ d94:    31 30 31 30       unkown
+ d98:    30 31 20 30       unkown
+ d9c:    31 31 30 31       unkown
+ da0:    31 30 31 20       unkown
+ da4:    30 30 31 30       unkown
+ da8:    30 30 30 30       unkown
+ dac:    20 30 31 31       not    r1, r16
+ db0:    30 30 30 31       unkown
+ db4:    30 20 30 31       unkown
+ db8:    31 31 30 31       unkown
+ dbc:    30 31 20 30       unkown
+ dc0:    31 31 31 30       unkown
+ dc4:    30 31 31 20       unkown
+ dc8:    30 31 31 30       unkown
+ dcc:    30 30 31 31       unkown
+ dd0:    20 30 31 31       not    r1, r16
+ dd4:    30 30 30 30       unkown
+ dd8:    31 20 30 31       unkown
+ ddc:    31 31 30 30       unkown
+ de0:    31 30 20 30       unkown
+ de4:    30 31 30 30       unkown
+ de8:    30 30 30 20       unkown
+ dec:    30 31 31 30       unkown
+ df0:    30 30 31 31       unkown
+ df4:    20 30 31 31       not    r1, r16
+ df8:    30 31 31 31       unkown
+ dfc:    31 20 30 31       unkown
+ e00:    31 30 30 30       unkown
+ e04:    31 30 20 30       unkown
+ e08:    31 31 31 30       unkown
+ e0c:    30 31 30 20       unkown
+ e10:    30 31 31 30       unkown
+ e14:    30 31 30 31       unkown
+ e18:    20 30 30 31       not    r1, r16
+ e1c:    30 30 30 30       unkown
+ e20:    30 20 30 31       unkown
+ e24:    31 30 30 31       unkown
+ e28:    30 31 20 30       unkown
+ e2c:    30 31 30 30       unkown
+ e30:    30 30 30 20       unkown
+ e34:    30 31 31 30       unkown
+ e38:    30 31 30 31       unkown
+ e3c:    20 30 31 31       not    r1, r16
+ e40:    30 31 31 31       unkown
+ e44:    30 20 30 31       unkown
+ e48:    31 30 30 30       unkown
+ e4c:    31 31 20 30       unkown
+ e50:    31 31 30 31       unkown
+ e54:    31 31 31 20       unkown
+ e58:    30 31 31 30       unkown
+ e5c:    31 31 31 30       unkown
+ e60:    20 30 31 31       not    r1, r16
+ e64:    31 30 31 30       unkown
+ e68:    30 20 30 31       unkown
+ e6c:    31 31 30 30       unkown
+ e70:    31 30 20 30       unkown
+ e74:    31 31 30 30       unkown
+ e78:    31 30 31 20       unkown
+ e7c:    30 31 31 30       unkown
+ e80:    31 30 30 31       unkown
+ e84:    20 30 30 31       not    r1, r16
+ e88:    30 30 30 30       unkown
+ e8c:    30 20 30 31       unkown
+ e90:    31 30 30 31       unkown
+ e94:    31 30 20 30       unkown
+ e98:    31 31 30 31       unkown
+ e9c:    31 31 31 20       unkown
+ ea0:    30 31 31 30       unkown
+ ea4:    31 30 30 31       unkown
+ ea8:    20 30 30 31       not    r1, r16
+ eac:    30 30 30 30       unkown
+ eb0:    30 20 30 31       unkown
+ eb4:    31 30 31 31       unkown
+ eb8:    31 31 20 30       unkown
+ ebc:    31 31 31 30       unkown
+ ec0:    31 30 31 20       unkown
+ ec4:    30 31 31 31       unkown
+ ec8:    30 30 31 30       unkown
+ ecc:    20 30 31 31       not    r1, r16
+ ed0:    30 31 31 31       unkown
+ ed4:    31 0a 00 00       unkown
+  ...
