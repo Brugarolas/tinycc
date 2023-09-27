@@ -52,8 +52,6 @@
 #define RC_IRE2 RC_2 /* function return: second integer register */
 #define RC_FRET RC_F /* function return: float register */
 
-/* pretty names for the registers */
-enum { r0 = 0, r1, r2, r3, r4, rf, bp, bp2, rt, sp = 30 };
 
 /* return registers for function */
 #define REG_IRET r1 /* single word int return register */
@@ -307,12 +305,35 @@ ST_FUNC void gen_addrpc32(int r, Sym *sym, int c) {
   gen_le32(c - 4);
 }
 
-static void gen_poxim_addr(int r, Sym *sym, int c) {
+static void gen_poxim_direct_addr(int r, Sym *sym, int c) {
   if ((r & VT_VALMASK) == VT_CONST) {
     if (r & VT_SYM) {
       greloc(cur_text_section, sym, ind, R_386_32);
     }
-    gen_le32(c);
+    //TODO: Might need to check the endiannes of this
+    /*
+       We reserve two 4*1 byte instructions for moving the DIRECT 32 bit addr
+       then we patch the instruction on the linker such as 
+        mv reg_addr, addr
+        l32 [reg_addr] / call reg_addr 
+    */
+    gen_le32(c); //TODO: Might need to check the endiannes of this
+  }
+}
+
+static void gen_poxim_addr(int r, Sym *sym, int c) {
+  if ((r & VT_VALMASK) == VT_CONST) {
+    if (r & VT_SYM) {
+      greloc(cur_text_section, sym, ind, R_386_PC32);
+    }
+    //TODO: Might need to check the endiannes of this
+    /*
+       We reserve two 4*1 byte instructions for moving the DIRECT 32 bit addr
+       then we patch the instruction on the linker such as 
+        mv reg_addr, addr
+        l32 [reg_addr] / call reg_addr 
+    */
+    // gen_le32(c); //TODO: Might need to check the endiannes of this
   }
 }
 /* generate a modrm reference. 'op_reg' contains the additional 3
@@ -407,7 +428,7 @@ ST_FUNC void load(int r, SValue *sv) {
     // THIS IS wrong when getting argumentts from the stack
     // we need a LOCAL_OFFSET to make it right, but then it gets the store wrong
     gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
-
+    gen_poxim_direct_addr(fr, sv->sym, (fc));
     // TODO:@symbolcheck This realloct by using   gen_addr32(r, sym, c); this might turn
     // out to be a problem
     //  gen_modrm(r, fr, sv->sym, fc);
@@ -426,7 +447,7 @@ ST_FUNC void load(int r, SValue *sv) {
         // TODO:  check if we can do someething like this addi(r+1, bp2, fc >> 2);
         //  o(0x8d); /* lea xxx(%ebp), r */
         // TODO:@symbolcheck
-        gen_poxim_addr(r, sv->sym, fc);
+        gen_poxim_direct_addr(VT_LOCAL, sv->sym, fc);
         // gen_modrm(r, VT_LOCAL, sv->sym, fc);
       } else {
         tcc_error("%s poxim-gen does not support fc == 0 ? ", __func__);
@@ -469,21 +490,27 @@ ST_FUNC void store(int r, SValue *v) {
   bt = ft & VT_BTYPE;
   /* XXX: incorrect if float reg to reg */
   if (bt == VT_FLOAT) {
+    tcc_error("VT_FLOAT poxim not hanlded %s", __func__);
     o(0xd9); /* fsts */
     r = 2;
   } else if (bt == VT_DOUBLE) {
+    tcc_error("VT_DOUBLE poxim not hanlded %s", __func__);
     o(0xdd); /* fstpl */
     r = 2;
   } else if (bt == VT_LDOUBLE) {
+    tcc_error("VT_LDOUBLE poxim not hanlded %s", __func__);
     o(0xc0d9); /* fld %st(0) */
     o(0xdb);   /* fstpt */
     r = 7;
   } else {
-    if (bt == VT_SHORT)
+    if (bt == VT_SHORT){
+      tcc_error("VT_SHORT poxim not hanlded %s", __func__);
       o(0x66);
-    if (bt == VT_BYTE || bt == VT_BOOL)
+    }
+    if (bt == VT_BYTE || bt == VT_BOOL){
+      tcc_error("(bt == VT_BYTE || bt == VT_BOOL poxim not hanlded %s", __func__);
       o(0x88);
-    else if (bt == VT_INT) { // VT_INT
+    } else if (bt == VT_INT) { // VT_INT
       inst = 0b011101;
     } else if (bt == VT_PTR) {
       inst = 0b011101;
@@ -504,6 +531,7 @@ ST_FUNC void store(int r, SValue *v) {
     // this flaw is being shift by two, because idk, 32 bit idk
     gen_be32(inst << 26 | ((r + 1) & 0b11111) << 21 | bp2 << 16 |
              ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
+
 
   } else if (v->r & VT_LVAL) {
     s32(r+1, fr+1, 0);
