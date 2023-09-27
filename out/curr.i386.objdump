@@ -22,31 +22,14 @@ Disassembly of section .data:
       20:	c3                   	ret
       21:	55                   	push   ebp
       22:	89 e5                	mov    ebp,esp
-      24:	81 ec 00 00 00 00    	sub    esp,0x0
-      2a:	8b 05 00 a0 04 08    	mov    eax,DWORD PTR ds:0x804a000
-      30:	b9 00 90 04 08       	mov    ecx,0x8049000
-      35:	89 08                	mov    DWORD PTR [eax],ecx
-      37:	b8 00 00 00 00       	mov    eax,0x0
-      3c:	c9                   	leave
-      3d:	c3                   	ret
+      24:	81 ec 04 00 00 00    	sub    esp,0x4
+      2a:	8b 05 00 90 04 08    	mov    eax,DWORD PTR ds:0x8049000
+      30:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
+      33:	b8 00 00 00 00       	mov    eax,0x0
+      38:	c9                   	leave
+      39:	c3                   	ret
 	...
      ffe:	00 00                	add    BYTE PTR [eax],al
-    1000:	64 61                	fs popa
-    1002:	73 64                	jae    0x1068
-    1004:	73 61                	jae    0x1067
-    1006:	64 61                	fs popa
-    1008:	73 64                	jae    0x106e
-    100a:	61                   	popa
-    100b:	73 64                	jae    0x1071
-    100d:	61                   	popa
-    100e:	73 64                	jae    0x1074
-    1010:	73 61                	jae    0x1073
-    1012:	64 61                	fs popa
-    1014:	73 64                	jae    0x107a
-    1016:	61                   	popa
-    1017:	73 64                	jae    0x107d
+    1000:	be ba fe ca ef       	mov    esi,0xefcafeba
+    1005:	cd ab                	int    0xab
 	...
-    1ffd:	00 00                	add    BYTE PTR [eax],al
-    1fff:	00 22                	add    BYTE PTR [edx],ah
-    2001:	22 22                	and    ah,BYTE PTR [edx]
-    2003:	22                   	.byte 0x22

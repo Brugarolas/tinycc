@@ -45,6 +45,9 @@
 # ifndef CONFIG_TCC_STATIC
 #  include <dlfcn.h>
 # endif
+#if defined(TCC_TARGET_POXIM)
+#include "poxim.h"
+#endif 
 /* XXX: need to define this to use them in non ISOC99 context */
 extern float strtof (const char *__nptr, char **__endptr);
 extern long double strtold (const char *__nptr, char **__endptr);
@@ -1641,6 +1644,7 @@ ST_FUNC void gen_vla_sp_save(int addr);
 ST_FUNC void gen_vla_sp_restore(int addr);
 ST_FUNC void gen_vla_alloc(CType *type, int align);
 
+#if ! defined TCC_TARGET_POXIM
 static inline uint16_t read16le(unsigned char *p) {
     return p[0] | (uint16_t)p[1] << 8;
 }
@@ -1648,6 +1652,7 @@ static inline void write16le(unsigned char *p, uint16_t x) {
     p[0] = x & 255;  p[1] = x >> 8 & 255;
 }
 static inline uint32_t read32le(unsigned char *p) {
+  assert(0 && "havent check where do we read");
   return read16le(p) | (uint32_t)read16le(p + 2) << 16;
 }
 static inline void write32le(unsigned char *p, uint32_t x) {
@@ -1665,6 +1670,7 @@ static inline void write64le(unsigned char *p, uint64_t x) {
 static inline void add64le(unsigned char *p, int64_t x) {
     write64le(p, read64le(p) + x);
 }
+#endif
 
 /* ------------ poxim-gen.c ------------ */
 #if defined TCC_TARGET_POXIM
@@ -1677,6 +1683,16 @@ ST_FUNC void gen_addr32(int r, Sym *sym, int c);
 ST_FUNC void gen_addrpc32(int r, Sym *sym, int c);
 ST_FUNC void gen_cvt_csti(int t);
 ST_FUNC void gen_increment_tcov (SValue *sv);
+
+
+ST_INLN uint16_t read16le(unsigned char *p);
+ST_INLN void     write16le(unsigned char *p, uint16_t x);
+ST_INLN uint32_t read32le(unsigned char *p);
+ST_INLN void     write32le(unsigned char *p, uint32_t x);
+ST_INLN void     add32le(unsigned char *p, int32_t x);
+ST_INLN uint64_t read64le(unsigned char *p) ;
+ST_INLN void     write64le(unsigned char *p, uint64_t x);
+ST_INLN void     add64le(unsigned char *p, int64_t x);
 #endif
 
 

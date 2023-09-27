@@ -7414,6 +7414,7 @@ static int decl_designator(init_params *p, CType *type, unsigned long c,
 }
 
 /* store a value or an expression directly in global data or in local array */
+/* NOTE(Everton): This is where we write things to the data section at compile time it was hard to find */
 static void init_putv(init_params *p, CType *type, unsigned long c) {
   int bt;
   void *ptr;

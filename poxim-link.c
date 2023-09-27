@@ -180,6 +180,8 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr,
 
   sym_index = ELFW(R_SYM)(rel->r_info);
 
+  assert( type == R_386_32 || type == R_386_PC32);
+
   switch (type) {
   case R_386_32:
     if (s1->output_type & TCC_OUTPUT_DYN) {
@@ -251,6 +253,7 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr,
       // add32le(ptr, val - addr);
     }
     return;
+
   case R_386_PLT32:
     add32le(ptr, val - addr);
     return;

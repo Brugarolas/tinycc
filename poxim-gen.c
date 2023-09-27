@@ -20,17 +20,14 @@
 
 #include <poxim.h>
 #define POXIM_MAX_REGISTERS 32
-#define PARAMETER_OFFSET (1*4)
+#define PARAMETER_OFFSET (1 * 4)
 
 #define N_INSTRUCTIONS_FOR_FUNC_PROLOG (6)
-#define LOCAL_OFFSET (4) 
+#define LOCAL_OFFSET (4)
 #define FUNC_PROLOG_SIZE (4 * (N_INSTRUCTIONS_FOR_FUNC_PROLOG))
 #if defined(TARGET_DEFS_ONLY)
-
 /* number of available registers */
-#define NB_REGS                                                                \
-  5 /* will only support r1, r2, r3, r4, r5 for now, all 32                    \
-       bit*/
+#define NB_REGS  (5)
 #define NB_ASM_REGS 20
 #define CONFIG_TCC_ASM
 
@@ -51,7 +48,6 @@
 #define RC_IRET RC_1 /* function return: integer register */
 #define RC_IRE2 RC_2 /* function return: second integer register */
 #define RC_FRET RC_F /* function return: float register */
-
 
 /* return registers for function */
 #define REG_IRET r1 /* single word int return register */
@@ -110,6 +106,46 @@ static void gen_bounds_epilog(void);
 static void gen_be32(unsigned int c); /* gen reversed 32 bit*/
 
 #endif
+
+ST_INLN uint16_t read16le(unsigned char *p) {
+  assert(0 && "havent check where read16");
+  return p[0] | (uint16_t)p[1] << 8;
+}
+
+ST_INLN uint32_t read32le(unsigned char *p) {
+  uint32_t val = *(uint32_t *)p;
+  assert(0 && "havent check where do we read");
+  return val;
+}
+
+ST_INLN void write32le(unsigned char *p, uint32_t x) {
+  *(uint32_t *)p = swap_endianness32(x);
+}
+
+ST_INLN void write16le(unsigned char *p, uint16_t x) {
+  *(uint16_t *)p = swap_endianness16(x);
+}
+
+ST_INLN void add32le(unsigned char *p, int32_t x) {
+  assert(0 && "havent checked add");
+  write32le(p, read32le(p) + x);
+}
+
+ST_INLN uint64_t read64le(unsigned char *p) {
+  assert(0 && "havent checked read64");
+  return read32le(p) | (uint64_t)read32le(p + 4) << 32;
+}
+
+ST_INLN void write64le(unsigned char *p, uint64_t x) {
+  assert(0 && "havent checked write64");
+  write32le(p, x);
+  write32le(p + 4, x >> 32);
+}
+
+ST_INLN void add64le(unsigned char *p, int64_t x) {
+  assert(0 && "havent checked add64");
+  write64le(p, read64le(p) + x);
+}
 
 /* DONE: don't make it faster */
 ST_FUNC void g(int c) {
@@ -260,20 +296,21 @@ static void mov(int r, int i) {
 
 static void s32(int rz, int rx, int i) {
   u32 inst = 0b011101;
-  gen_be32(inst << 26 | (rz & 0b11111) << 21 | (rx & 0b11111) << 16 | (i & 0xFFFF));
-
+  gen_be32(inst << 26 | (rz & 0b11111) << 21 | (rx & 0b11111) << 16 |
+           (i & 0xFFFF));
 }
 
 static void l32(int r1, int r2, int i) {
   u32 inst = 0b011010;
-  gen_be32(inst << 26 | (r1 & 0b11111) << 21 | (r2 & 0b11111) << 16 | (i & 0xFFFF));
+  gen_be32(inst << 26 | (r1 & 0b11111) << 21 | (r2 & 0b11111) << 16 |
+           (i & 0xFFFF));
 }
 
 static void shift(u8 sub_inst, int rz, int rx, int ry, unsigned int i) {
   u32 inst = 0b00100;
   gen_be32(inst << 26 | (rz & 0b11111) << 21 | (rx & 0b11111) << 16 |
            (ry & 0b11111) << 11 | (sub_inst & 0b111) << 8 |
-           ((unsigned int)(i - 1) & 0b1111));
+           ((unsigned int)(i - 1) & 0b11111));
   // | ((unsigned int)log2((f64)i) & 0b1111));
 }
 
@@ -310,14 +347,13 @@ static void gen_poxim_direct_addr(int r, Sym *sym, int c) {
     if (r & VT_SYM) {
       greloc(cur_text_section, sym, ind, R_386_32);
     }
-    //TODO: Might need to check the endiannes of this
+    // TODO: Might need to check the endiannes of this
     /*
-       We reserve two 4*1 byte instructions for moving the DIRECT 32 bit addr
-       then we patch the instruction on the linker such as 
-        mv reg_addr, addr
-        l32 [reg_addr] / call reg_addr 
+       We reserve two 4*1 byte instructions for moving the DIRECT 32 bit
+       addr then we patch the instruction on the linker such as mv reg_addr,
+       addr l32 [reg_addr] / call reg_addr
     */
-    gen_le32(c); //TODO: Might need to check the endiannes of this
+    gen_le32(c); // TODO: Might need to check the endiannes of this
   }
 }
 
@@ -326,12 +362,11 @@ static void gen_poxim_addr(int r, Sym *sym, int c) {
     if (r & VT_SYM) {
       greloc(cur_text_section, sym, ind, R_386_PC32);
     }
-    //TODO: Might need to check the endiannes of this
+    // TODO: Might need to check the endiannes of this
     /*
-       We reserve two 4*1 byte instructions for moving the DIRECT 32 bit addr
-       then we patch the instruction on the linker such as 
-        mv reg_addr, addr
-        l32 [reg_addr] / call reg_addr 
+       We reserve two 4*1 byte instructions for moving the DIRECT 32 bit
+       addr then we patch the instruction on the linker such as mv reg_addr,
+       addr l32 [reg_addr] / call reg_addr
     */
     // gen_le32(c); //TODO: Might need to check the endiannes of this
   }
@@ -422,15 +457,16 @@ ST_FUNC void load(int r, SValue *sv) {
       /* l32 */
       inst = 0b011010;
     } else {
-      assert( 0 && "waht VT_Type is ft?");
-
+      assert(0 && "waht VT_Type is ft?");
     }
     // THIS IS wrong when getting argumentts from the stack
-    // we need a LOCAL_OFFSET to make it right, but then it gets the store wrong
-    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 | ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
+    // we need a LOCAL_OFFSET to make it right, but then it gets the store
+    // wrong
+    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 |
+             ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
     gen_poxim_direct_addr(fr, sv->sym, (fc));
-    // TODO:@symbolcheck This realloct by using   gen_addr32(r, sym, c); this might turn
-    // out to be a problem
+    // TODO:@symbolcheck This realloct by using   gen_addr32(r, sym, c);
+    // this might turn out to be a problem
     //  gen_modrm(r, fr, sv->sym, fc);
 
   } else {
@@ -444,7 +480,8 @@ ST_FUNC void load(int r, SValue *sv) {
         printf("r = %d, rt = %d fc = 0x%x | %d <<<<<<<<<<\n", r, rt, fc, fc);
         /* mov r, fc */
         addi(r + 1, bp2, (fc + LOCAL_OFFSET) >> 2);
-        // TODO:  check if we can do someething like this addi(r+1, bp2, fc >> 2);
+        // TODO:  check if we can do someething like this addi(r+1, bp2,
+        // fc >> 2);
         //  o(0x8d); /* lea xxx(%ebp), r */
         // TODO:@symbolcheck
         gen_poxim_direct_addr(VT_LOCAL, sv->sym, fc);
@@ -503,12 +540,13 @@ ST_FUNC void store(int r, SValue *v) {
     o(0xdb);   /* fstpt */
     r = 7;
   } else {
-    if (bt == VT_SHORT){
+    if (bt == VT_SHORT) {
       tcc_error("VT_SHORT poxim not hanlded %s", __func__);
       o(0x66);
     }
-    if (bt == VT_BYTE || bt == VT_BOOL){
-      tcc_error("(bt == VT_BYTE || bt == VT_BOOL poxim not hanlded %s", __func__);
+    if (bt == VT_BYTE || bt == VT_BOOL) {
+      tcc_error("(bt == VT_BYTE || bt == VT_BOOL poxim not hanlded %s",
+                __func__);
       o(0x88);
     } else if (bt == VT_INT) { // VT_INT
       inst = 0b011101;
@@ -532,9 +570,8 @@ ST_FUNC void store(int r, SValue *v) {
     gen_be32(inst << 26 | ((r + 1) & 0b11111) << 21 | bp2 << 16 |
              ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
 
-
   } else if (v->r & VT_LVAL) {
-    s32(r+1, fr+1, 0);
+    s32(r + 1, fr + 1, 0);
     // gen_be32(inst << 26 | ((r + 1) & 0b11111) << 21 | (fr+1) |
     //          (fc >> 2 & 0xFFFF));
     // gen_poxim_addr(v->r, v->sym, fc);
@@ -633,7 +670,7 @@ ST_FUNC void gfunc_call(int nb_args) {
   args_size = 0;
   for (i = 0; i < nb_args; i++) {
     if ((vtop->type.t & VT_BTYPE) == VT_STRUCT) {
-      tcc_error("%s, struct not supported in poxim-gen for now",__func__);
+      tcc_error("%s, struct not supported in poxim-gen for now", __func__);
       size = type_size(&vtop->type, &align);
       /* align to stack align size */
       size = (size + 3) & ~3;
@@ -702,8 +739,8 @@ ST_FUNC void gfunc_call(int nb_args) {
   func_sym = vtop->type.ref;
   func_call = func_sym->f.func_call;
   /* fast call case */
-  if ((func_call   >= FUNC_FASTCALL1 && func_call <= FUNC_FASTCALL3) 
-      || func_call == FUNC_FASTCALLW) {
+  if ((func_call >= FUNC_FASTCALL1 && func_call <= FUNC_FASTCALL3) ||
+      func_call == FUNC_FASTCALLW) {
     int fastcall_nb_regs;
     const uint8_t *fastcall_regs_ptr;
     tcc_error("FUNC_FASTCALL not supported in poxim-gen for now");
@@ -809,9 +846,9 @@ ST_FUNC void gfunc_prolog(Sym *func_sym) {
   if (func_call == FUNC_STDCALL || func_call == FUNC_FASTCALLW) {
     assert(0 && "(func_call == FUNC_STDCALL || func_call == FUNC_FASTCALLW)");
     func_ret_sub = addr - 8;
-  } 
+  }
 #if !defined(TCC_TARGET_PE) && !TARGETOS_FreeBSD || TARGETOS_OpenBSD
-  else if (func_vc){
+  else if (func_vc) {
     func_ret_sub = 4;
   }
 #endif
