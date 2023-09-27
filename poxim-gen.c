@@ -27,7 +27,7 @@
 #define FUNC_PROLOG_SIZE (4 * (N_INSTRUCTIONS_FOR_FUNC_PROLOG))
 #if defined(TARGET_DEFS_ONLY)
 /* number of available registers */
-#define NB_REGS  (5)
+#define NB_REGS (5)
 #define NB_ASM_REGS 20
 #define CONFIG_TCC_ASM
 
@@ -114,7 +114,7 @@ ST_INLN uint16_t read16le(unsigned char *p) {
 
 ST_INLN uint32_t read32le(unsigned char *p) {
   uint32_t val = *(uint32_t *)p;
-  assert(0 && "havent check where do we read");
+  // XXX: Still aint sure, we might need to offset this
   return val;
 }
 
@@ -198,20 +198,27 @@ static void gen_be32(unsigned int c) {
 ST_FUNC void gsym_addr(int t, int a) {
   while (t) {
     unsigned char *ptr = cur_text_section->data + t;
+    int i = a - t - 4;          /* offset jmp */
     uint32_t n = read32le(ptr); /* next value */
-    write32le(ptr, a - t - 4);
+    u32 *inst_ptr = (u32 *)(ptr);
+    u32 inst = swap_endianness32(*inst_ptr);
+    // write32le(ptr, a - t - 4);
+    *inst_ptr =
+        swap_endianness32(((inst >> 26) << 26) | ((i & 0xc3ffffff) >> 2));
+    printf("n=%x %x %x a-t=%d\n", n, a, t, a - t);
     t = n;
+    // t = 0;
   }
 }
 
-/* instruction + 4 bytes data. Return the address of the data */
+/* instruction of 6 bits + 26 bit of data. Return the address of the data */
 static int oad(int c, int s) {
   int t;
   if (nocode_wanted)
     return s;
-  o(c);
+  // o(c);
   t = ind;
-  gen_le32(s);
+  gen_be32((c & 0b111111) << 26 | (s & 0x3ffffff));
   return t;
 }
 
@@ -241,6 +248,16 @@ static void addi(int rz, int rx, int i) {
 static void cmp(int rx, int ry) {
   assert(rx <= POXIM_MAX_REGISTERS && ry <= POXIM_MAX_REGISTERS);
   gen_be32(0b000101 << 26 | (rx & 0xff) << 16 | (ry & 0xff) << 11);
+}
+
+static void bgt(int i) {
+  assert((i <= 0x3ffffff));
+  gen_be32(0b110000 << 26 | (i & 0x3ffffff));
+}
+
+static void blt(int i) {
+  assert((i <= 0x3ffffff));
+  gen_be32(0b110010 << 26 | (i & 0x3ffffff));
 }
 
 static void push_or_pop(b8 is_pop, int r1, int r2, int r3, int r4, int r5) {
@@ -920,10 +937,14 @@ ST_FUNC void gfunc_epilog(void) {
 }
 
 /* generate a jump to a label */
-ST_FUNC int gjmp(int t) { return gjmp2(0xe9, t); }
+ST_FUNC int gjmp(int t) {
+  tcc_error("we don't generate jmp to label for now");
+  return gjmp2(0xe9, t);
+}
 
 /* generate a jump to a fixed address */
 ST_FUNC void gjmp_addr(int a) {
+  tcc_error("we don't generate jmp to to fixed address for now");
   int r;
   r = a - ind - 2;
   if (r == (char)r) {
@@ -960,8 +981,62 @@ ST_FUNC int gjmp_append(int n, int t) {
 }
 
 ST_FUNC int gjmp_cond(int op, int t) {
-  g(0x0f);
-  t = gjmp2(op - 16, t);
+
+  u32 opcode = (u32)-1;
+
+  switch (op) {
+
+    if (op == TOK_ULT) /* 0x92 */
+    case TOK_UGE: {
+      assert(0&&"jmp cond not handled ");
+      break;
+    } /* 0x93 */
+    case TOK_EQ: {
+
+      assert(0&&"jmp cond not handled TOK_EQ");
+      break;
+    } /* 0x94 */
+    case TOK_NE: {
+      assert(0&&"jmp cond not handled TOK_NE");
+      break;
+    } /* 0x95 */
+    case TOK_ULE: {
+      assert(0&&"jmp cond not handled TOK_ULE");
+      break;
+    } /* 0x96 */
+    case TOK_UGT: {
+      assert(0&&"jmp cond not handled TOK_UGT");
+      break;
+    } /* 0x97 */
+    case TOK_Nset: {
+      assert(0&&"jmp cond not handled TOK_Nset");
+      break;
+    } /* 0x98 */
+    case TOK_Nclear: {
+      assert(0&&"jmp cond not handled TOK_Nclear");
+      break;
+    } /* 0x99 */
+    case TOK_LT: {
+      assert(0&&"jmp cond not handled TOK_LT");
+      break;
+    } /* 0x9c */
+    case TOK_GE: {
+      assert(0&&"jmp cond not handled TOK_GE");
+      break;
+    } /* 0x9d */
+    case TOK_LE: {
+      opcode = 0b110010;
+      break;
+    } /* 0x9e */
+    case TOK_GT: {
+      assert(0&&"jmp cond not handled TOK_GT");
+      break;
+    } /* 0x9f */
+    default:{ 
+      assert( 0 && " Unknown token for a jump instruction");
+    }
+  }
+  t = oad(opcode, t);
   return t;
 }
 
@@ -1141,7 +1216,7 @@ ST_FUNC void gen_opi(int op) {
     break;
   }
   default:
-    // tcc_error("%s poxim-gen does not support default", __func__);
+    tcc_error("%s poxim-gen does not support default", __func__);
     opcode = 7;
     goto gen_op8;
   }

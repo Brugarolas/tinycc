@@ -1,10 +1,9 @@
-#include "_start.h"
-
-// endianess is fucked
-static int terminal32 = (int)(0xcafebabe);
-int lol = (int)              (0xabcdef);
-
-
 int main(void) {
-  int a = terminal32;
+  int a = 7;
+  int b = 3;
+  if (a > b) {
+    b = 0x69;
+    a = 420;
+  }
+  return b;
 }
