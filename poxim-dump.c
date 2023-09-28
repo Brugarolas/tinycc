@@ -611,9 +611,8 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     // cmpi r20, r19, 2           	CMPI = R19 - 0x00000001 = 0x00000001, SR
     // = 0x00000000
     inst.I = extend_bit_at(inst.I, 15);
-    reg2str(rz, inst.Z);
     reg2str(rx, inst.X);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %s, %s, %d","cmpi ", rz, rx,
+    snprintf(assembly_text, count_of(assembly_text), "%-6s %s, %d","cmpi ", rx,
              (i32)inst.I);
     break;
   }

@@ -104,16 +104,47 @@ ST_DATA int func_bound_is_naked = 0;
 static void gen_bounds_prolog(void);
 static void gen_bounds_epilog(void);
 static void gen_be32(unsigned int c); /* gen reversed 32 bit*/
-
 #endif
+
+
+#if 0 //Little endinannes writing, reading, adding
+ST_INLN uint16_t read16le(unsigned char *p) {
+    return p[0] | (uint16_t)p[1] << 8;
+}
+ST_INLN void write16le(unsigned char *p, uint16_t x) {
+    p[0] = x & 255;  p[1] = x >> 8 & 255;
+}
+ST_INLN uint32_t read32le(unsigned char *p) {
+  return read16le(p) | (uint32_t)read16le(p + 2) << 16;
+}
+ST_INLN void write32le(unsigned char *p, uint32_t x) {
+    write16le(p, x);  write16le(p + 2, x >> 16);
+}
+ST_INLN void add32le(unsigned char *p, int32_t x) {
+    write32le(p, read32le(p) + x);
+}
+ST_INLN uint64_t read64le(unsigned char *p) {
+  return read32le(p) | (uint64_t)read32le(p + 4) << 32;
+}
+ST_INLN void write64le(unsigned char *p, uint64_t x) {
+    write32le(p, x);  write32le(p + 4, x >> 32);
+}
+ST_INLN void add64le(unsigned char *p, int64_t x) {
+    write64le(p, read64le(p) + x);
+}
+
+#else 
 
 ST_INLN uint16_t read16le(unsigned char *p) {
   assert(0 && "havent check where read16");
   return p[0] | (uint16_t)p[1] << 8;
 }
+ST_INLN void write16le(unsigned char *p, uint16_t x) {
+  *(uint16_t *)p = swap_endianness16(x);
+}
 
 ST_INLN uint32_t read32le(unsigned char *p) {
-  uint32_t val = (*(uint32_t *)p);
+  uint32_t val = swap_endianness32(*(uint32_t *)p);
   // XXX: Still aint sure, we might need to offset this
   return val;
 }
@@ -122,9 +153,13 @@ ST_INLN void write32le(unsigned char *p, uint32_t x) {
   *(uint32_t *)p = swap_endianness32(x);
 }
 
-ST_INLN void write16le(unsigned char *p, uint16_t x) {
-  *(uint16_t *)p = swap_endianness16(x);
-}
+// ST_INLN uint32_t read32le(unsigned char *p) {
+//   return read16le(p) | (uint32_t)read16le(p + 2) << 16;
+// }
+//
+// ST_INLN void write32le(unsigned char *p, uint32_t x) {
+//     write16le(p, x);  write16le(p + 2, x >> 16);
+// }
 
 ST_INLN void add32le(unsigned char *p, int32_t x) {
   assert(0 && "havent checked add");
@@ -146,6 +181,7 @@ ST_INLN void add64le(unsigned char *p, int64_t x) {
   assert(0 && "havent checked add64");
   write64le(p, read64le(p) + x);
 }
+#endif
 
 /* DONE: don't make it faster */
 ST_FUNC void g(int c) {
@@ -199,13 +235,13 @@ ST_FUNC void gsym_addr(int t, int a) {
   while (t) {
     unsigned char *ptr = cur_text_section->data + t;
     int i = a - t - 4;          /* offset jmp */
-    uint32_t n = read32le(ptr); /* next value */
     u32 *inst_ptr = (u32 *)(ptr);
     u32 inst = swap_endianness32(*inst_ptr);
+    u32 n = (inst & 0x3ffffff);
     // write32le(ptr, a - t - 4);
     *inst_ptr =
-        swap_endianness32(((inst >> 26) << 26) | ((i & 0xc3ffffff) >> 2));
-    printf("n=%x %x %x a-t=%d\n", n, a, t, a - t);
+        swap_endianness32(((inst >> 26) << 26) | ((i & 0x3ffffff) >> 2));
+    printf("%s -> n=0x%x a=0x%x t=0x%x (int)a-t=%d\n",__func__, n, a, t, a - t);
     t = n;
     // t = 0;
   }
@@ -501,7 +537,7 @@ ST_FUNC void load(int r, SValue *sv) {
       // o(0xb8 + r);     /* mov $xx, r */
       mov(r + 1, fc); /* mov r, fc */
       // gen_addr32(fr, sv->sym, fc);
-      gen_poxim_direct_addr(fr, sv->sym, fc);
+      // gen_poxim_direct_addr(fr, sv->sym, fc);
     } else if (v == VT_LOCAL) {
       if (fc) {
         int rt = get_reg(RC_INT);
@@ -529,9 +565,9 @@ ST_FUNC void load(int r, SValue *sv) {
       t = v & 1;
       mov(r+1, t); /* mov r, 0 */
       bun(1);      /* bun to next instruction */
-      //XXX: if generate, it'll crash for you now what reasons from
+      //XXX: if gsym is generated, it'll crash for you now what reasons from
       // days 25,26,27 :)
-      //gsym(fc);
+      gsym((fc));
       mov(r+1, t ^ 1); /* mov r, 1 */
     } else if (v == VT_JMPI) {
       tcc_error("%s poxim-gen does not support load jmp", __func__);
@@ -957,14 +993,16 @@ ST_FUNC void gfunc_epilog(void) {
 
 /* generate a jump to a label */
 ST_FUNC int gjmp(int t) {
-  tcc_error("we don't generate jmp to label for now");
-  return gjmp2(0xe9, t);
+
+  u8 opcode = opcode_bun;
+  t = oad(opcode, t);
+  return t;
 }
 
 /* generate a jump to a fixed address */
 ST_FUNC void gjmp_addr(int a) {
-  int r;
   tcc_error("we don't generate jmp to to fixed address for now");
+  int r;
   r = a - ind - 2;
   if (r == (char)r) {
     g(0xeb);
@@ -987,6 +1025,21 @@ ST_FUNC void gjmp_cond_addr(int a, int op)
 #endif
 
 ST_FUNC int gjmp_append(int n, int t) {
+  // tcc_error("gjmp_append");
+  // while (t) {
+  //   unsigned char *ptr = cur_text_section->data + t;
+  //   int i = a - t - 4;          /* offset jmp */
+  //   u32 *inst_ptr = (u32 *)(ptr);
+  //   u32 inst = swap_endianness32(*inst_ptr);
+  //   u32 n = (inst & 0x3ffffff);
+  //   // write32le(ptr, a - t - 4);
+  //   *inst_ptr =
+  //       swap_endianness32(((inst >> 26) << 26) | ((i & 0x3ffffff) >> 2));
+  //   printf("%s -> n=0x%x a=0x%x t=0x%x (int)a-t=%d\n",__func__, n, a, t, a - t);
+  //   t = n;
+  //   // t = 0;
+  // }
+  printf("We balling ");
   void *p;
   /* insert vtop->c jump list in t */
   if (n) { //XXX: This aint workign
@@ -1040,7 +1093,7 @@ ST_FUNC int gjmp_cond(int op, int t) {
       break;
     } /* 0x9c */
     case TOK_GE: {
-      assert(0 && "jmp cond not handled TOK_GE");
+      opcode = opcode_bge;
       break;
     } /* 0x9d */
     case TOK_LE: {
@@ -1203,6 +1256,8 @@ ST_FUNC void gen_opi(int op) {
     vtop->r = r;
     break;
   case TOK_NE:
+  case TOK_EQ:
+  case TOK_LT:
   case TOK_GT: {
   gen_cmp:
     if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
@@ -1229,7 +1284,7 @@ ST_FUNC void gen_opi(int op) {
     break;
   }
   default:
-    tcc_error("%s poxim-gen does not support default", __func__);
+    tcc_error("%s poxim-gen does not support defaul op=0x%x", __func__, op);
     opcode = 7;
     goto gen_op8;
   }

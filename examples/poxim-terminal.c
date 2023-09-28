@@ -14,5 +14,5 @@ int main(void) {
   *terminal32 = 'm';
   *terminal32 = 'o';
   *terminal32 = '!';
-
 }
+

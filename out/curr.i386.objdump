@@ -5,24 +5,61 @@
 Disassembly of section .data:
 
 00000000 <.data>:
-       0:	55                   	push   ebp
-       1:	89 e5                	mov    ebp,esp
-       3:	81 ec 0c 00 00 00    	sub    esp,0xc
-       9:	b8 01 00 00 00       	mov    eax,0x1
-       e:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
-      11:	b8 00 00 00 00       	mov    eax,0x0
-      16:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
-      19:	8b 45 f8             	mov    eax,DWORD PTR [ebp-0x8]
-      1c:	83 f8 00             	cmp    eax,0x0
-      1f:	0f 85 13 00 00 00    	jne    0x38
-      25:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
-      28:	83 f8 00             	cmp    eax,0x0
-      2b:	0f 85 07 00 00 00    	jne    0x38
-      31:	b8 00 00 00 00       	mov    eax,0x0
-      36:	eb 05                	jmp    0x3d
-      38:	b8 01 00 00 00       	mov    eax,0x1
-      3d:	89 45 f4             	mov    DWORD PTR [ebp-0xc],eax
-      40:	b8 69 00 00 00       	mov    eax,0x69
-      45:	c9                   	leave
-      46:	c3                   	ret
+       0:	03 c0                	add    eax,eax
+       2:	7f fc                	jg     0x0
+       4:	dc 00                	fadd   QWORD PTR [eax]
+       6:	00 01                	add    BYTE PTR [ecx],al
+       8:	fc                   	cld
+       9:	00 00                	add    BYTE PTR [eax],al
+       b:	00 55 89             	add    BYTE PTR [ebp-0x77],dl
+       e:	e5 81                	in     eax,0x81
+      10:	ec                   	in     al,dx
+      11:	00 00                	add    BYTE PTR [eax],al
+      13:	00 00                	add    BYTE PTR [eax],al
+      15:	e8 4c 00 00 00       	call   0x66
+      1a:	e8 e9 ff ff ff       	call   0x8
+      1f:	c9                   	leave
+      20:	c3                   	ret
+      21:	55                   	push   ebp
+      22:	89 e5                	mov    ebp,esp
+      24:	81 ec 04 00 00 00    	sub    esp,0x4
+      2a:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+      2d:	83 f8 02             	cmp    eax,0x2
+      30:	0f 8d 08 00 00 00    	jge    0x3e
+      36:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+      39:	e9 26 00 00 00       	jmp    0x64
+      3e:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+      41:	48                   	dec    eax
+      42:	50                   	push   eax
+      43:	e8 d9 ff ff ff       	call   0x21
+      48:	83 c4 04             	add    esp,0x4
+      4b:	8b 4d 08             	mov    ecx,DWORD PTR [ebp+0x8]
+      4e:	83 e9 02             	sub    ecx,0x2
+      51:	51                   	push   ecx
+      52:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
+      55:	e8 c7 ff ff ff       	call   0x21
+      5a:	83 c4 04             	add    esp,0x4
+      5d:	8b 4d fc             	mov    ecx,DWORD PTR [ebp-0x4]
+      60:	01 c1                	add    ecx,eax
+      62:	89 c8                	mov    eax,ecx
+      64:	c9                   	leave
+      65:	c3                   	ret
+      66:	55                   	push   ebp
+      67:	89 e5                	mov    ebp,esp
+      69:	81 ec 08 00 00 00    	sub    esp,0x8
+      6f:	b8 06 00 00 00       	mov    eax,0x6
+      74:	50                   	push   eax
+      75:	e8 a7 ff ff ff       	call   0x21
+      7a:	83 c4 04             	add    esp,0x4
+      7d:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
+      80:	b8 05 00 00 00       	mov    eax,0x5
+      85:	50                   	push   eax
+      86:	e8 96 ff ff ff       	call   0x21
+      8b:	83 c4 04             	add    esp,0x4
+      8e:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
+      91:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+      94:	8b 4d f8             	mov    ecx,DWORD PTR [ebp-0x8]
+      97:	01 c8                	add    eax,ecx
+      99:	c9                   	leave
+      9a:	c3                   	ret
 	...

@@ -12,3 +12,4 @@ int main(void) {
   int b = fibonnacci(5); // = 5
   return a+b; // r2 should have 13, 0xd
 }
+
