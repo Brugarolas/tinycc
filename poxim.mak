@@ -35,15 +35,14 @@ interp: poxim-interp
 # ./tcc -nostdlib -static examples/ex1.c -o./out/ex1.bin -I./ -I./include -L./ -Wl,--oformat=binary
 # DONE: necessary flags to compile directly to binary as we need: -nostdlib -static -Wl,--oformat=binary 
 run: poxim-dump all examples/ex1.c run-i386 utils
-	./tcc -nostdlib -static examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary
+	./tcc -fpic -nostdlib -static examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary
 	./poxim-dump --bin $(out_dir)/$(test_cfile).bin > $(out_dir)/$(test_cfile).poximdump
-	./poxim-interp --bin $(out_dir)/$(test_cfile).bin  $(out_dir)/$(test_cfile).interp
+	# ./poxim-interp --bin $(out_dir)/$(test_cfile).bin  $(out_dir)/$(test_cfile).interp
 	# objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).bin > ./$(out_dir)/$(test_cfile).objcopy
 	# objdump -M intel -m i386 -d ./$(out_dir)/$(test_cfile).objcopy > ./$(out_dir)/$(test_cfile).objdump
 
 run-i386: examples/ex1.c
-	# ./tcc-i386 -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./
-	./tcc-i386 -fpic -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./ -Wl,--oformat=binary
+	./tcc-i386 -static -nostdlib examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).i386.bin -I./ -I./include -L./ -Wl,--oformat=binary
 	objdump -b binary --adjust-vma=0x0 -Mintel,i386 -m i386 -D ./$(out_dir)/$(test_cfile).i386.bin > ./$(out_dir)/$(test_cfile).i386.objdump
 	# objdump	-b binary -Mintel,i386  -D ./x64code.bin -m i386 > x64code.s
 	# objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).i386.bin ./$(out_dir)/$(test_cfile).text.i386.dump

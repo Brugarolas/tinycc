@@ -113,7 +113,7 @@ ST_INLN uint16_t read16le(unsigned char *p) {
 }
 
 ST_INLN uint32_t read32le(unsigned char *p) {
-  uint32_t val = *(uint32_t *)p;
+  uint32_t val = (*(uint32_t *)p);
   // XXX: Still aint sure, we might need to offset this
   return val;
 }
@@ -250,9 +250,19 @@ static void cmp(int rx, int ry) {
   gen_be32(0b000101 << 26 | (rx & 0xff) << 16 | (ry & 0xff) << 11);
 }
 
+static void cmpi(int rx, int i) {
+  assert(rx <= POXIM_MAX_REGISTERS && i <= 0xffff);
+  gen_be32(0b010111 << 26 | (rx & 0xff) << 16 | (i & 0xffff));
+}
+
 static void bgt(int i) {
   assert((i <= 0x3ffffff));
   gen_be32(0b110000 << 26 | (i & 0x3ffffff));
+}
+
+static void bun(int i) {
+  assert((i <= 0x3ffffff));
+  gen_be32(0b110111 << 26 | (i & 0x3ffffff));
 }
 
 static void blt(int i) {
@@ -416,7 +426,7 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
 */
 ST_FUNC void load(int r, SValue *sv) {
   int v, t, ft, fc, fr, bt;
-  u8 inst;
+  u8 inst = -1;
   SValue v1;
 
 #ifdef TCC_TARGET_PE
@@ -490,7 +500,8 @@ ST_FUNC void load(int r, SValue *sv) {
     if (v == VT_CONST) {
       // o(0xb8 + r);     /* mov $xx, r */
       mov(r + 1, fc); /* mov r, fc */
-                      // gen_addr32(fr, sv->sym, fc);
+      // gen_addr32(fr, sv->sym, fc);
+      gen_poxim_direct_addr(fr, sv->sym, fc);
     } else if (v == VT_LOCAL) {
       if (fc) {
         int rt = get_reg(RC_INT);
@@ -514,7 +525,15 @@ ST_FUNC void load(int r, SValue *sv) {
       o(fc);
       o(0xc0 + r);
       o(0xc0b60f + r * 0x90000); /* movzbl %al, %eax */
-    } else if (v == VT_JMP || v == VT_JMPI) {
+    } else if (v == VT_JMP) {
+      t = v & 1;
+      mov(r+1, t); /* mov r, 0 */
+      bun(1);      /* bun to next instruction */
+      //XXX: if generate, it'll crash for you now what reasons from
+      // days 25,26,27 :)
+      //gsym(fc);
+      mov(r+1, t ^ 1); /* mov r, 1 */
+    } else if (v == VT_JMPI) {
       tcc_error("%s poxim-gen does not support load jmp", __func__);
       t = v & 1;
       oad(0xb8 + r, t); /* mov $1, r */
@@ -530,7 +549,7 @@ ST_FUNC void load(int r, SValue *sv) {
 /* store register 'r' in lvalue 'v' */
 ST_FUNC void store(int r, SValue *v) {
   int fr, bt, ft, fc;
-  u32 inst = 0;
+  u32 inst = -1;
 
 #ifdef TCC_TARGET_PE
   SValue v2;
@@ -591,7 +610,7 @@ ST_FUNC void store(int r, SValue *v) {
     s32(r + 1, fr + 1, 0);
     // gen_be32(inst << 26 | ((r + 1) & 0b11111) << 21 | (fr+1) |
     //          (fc >> 2 & 0xFFFF));
-    // gen_poxim_addr(v->r, v->sym, fc);
+    gen_poxim_addr(v->r, v->sym, fc);
     // gen_modrm(r, v->r, v->sym, fc);
     // TODO:@symbolcheck
   } else if (fr != r) {
@@ -944,8 +963,8 @@ ST_FUNC int gjmp(int t) {
 
 /* generate a jump to a fixed address */
 ST_FUNC void gjmp_addr(int a) {
-  tcc_error("we don't generate jmp to to fixed address for now");
   int r;
+  tcc_error("we don't generate jmp to to fixed address for now");
   r = a - ind - 2;
   if (r == (char)r) {
     g(0xeb);
@@ -970,7 +989,7 @@ ST_FUNC void gjmp_cond_addr(int a, int op)
 ST_FUNC int gjmp_append(int n, int t) {
   void *p;
   /* insert vtop->c jump list in t */
-  if (n) {
+  if (n) { //XXX: This aint workign
     uint32_t n1 = n, n2;
     while ((n2 = read32le(p = cur_text_section->data + n1)))
       n1 = n2;
@@ -988,40 +1007,40 @@ ST_FUNC int gjmp_cond(int op, int t) {
 
     if (op == TOK_ULT) /* 0x92 */
     case TOK_UGE: {
-      assert(0&&"jmp cond not handled ");
+      assert(0 && "jmp cond not handled ");
       break;
     } /* 0x93 */
     case TOK_EQ: {
 
-      assert(0&&"jmp cond not handled TOK_EQ");
+      assert(0 && "jmp cond not handled TOK_EQ");
       break;
     } /* 0x94 */
     case TOK_NE: {
-      assert(0&&"jmp cond not handled TOK_NE");
+      opcode = opcode_bne;
       break;
     } /* 0x95 */
     case TOK_ULE: {
-      assert(0&&"jmp cond not handled TOK_ULE");
+      assert(0 && "jmp cond not handled TOK_ULE");
       break;
     } /* 0x96 */
     case TOK_UGT: {
-      assert(0&&"jmp cond not handled TOK_UGT");
+      assert(0 && "jmp cond not handled TOK_UGT");
       break;
     } /* 0x97 */
     case TOK_Nset: {
-      assert(0&&"jmp cond not handled TOK_Nset");
+      assert(0 && "jmp cond not handled TOK_Nset");
       break;
     } /* 0x98 */
     case TOK_Nclear: {
-      assert(0&&"jmp cond not handled TOK_Nclear");
+      assert(0 && "jmp cond not handled TOK_Nclear");
       break;
     } /* 0x99 */
     case TOK_LT: {
-      assert(0&&"jmp cond not handled TOK_LT");
+      assert(0 && "jmp cond not handled TOK_LT");
       break;
     } /* 0x9c */
     case TOK_GE: {
-      assert(0&&"jmp cond not handled TOK_GE");
+      assert(0 && "jmp cond not handled TOK_GE");
       break;
     } /* 0x9d */
     case TOK_LE: {
@@ -1029,11 +1048,11 @@ ST_FUNC int gjmp_cond(int op, int t) {
       break;
     } /* 0x9e */
     case TOK_GT: {
-      assert(0&&"jmp cond not handled TOK_GT");
+      assert(0 && "jmp cond not handled TOK_GT");
       break;
     } /* 0x9f */
-    default:{ 
-      assert( 0 && " Unknown token for a jump instruction");
+    default: {
+      assert(0 && " Unknown token for a jump instruction");
     }
   }
   t = oad(opcode, t);
@@ -1183,23 +1202,17 @@ ST_FUNC void gen_opi(int op) {
     }
     vtop->r = r;
     break;
+  case TOK_NE:
   case TOK_GT: {
   gen_cmp:
-    tcc_warning("op in gen_cmp is '%c' idk if thats relevant", op);
     if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {
-      tcc_error("constant case cmp not handled");
       /* constant case */
       vswap();
       r = gv(RC_INT);
       vswap();
       c = vtop->c.i;
-      if (op == '+') {
-        addi(r + 1, r + 1, c);
-      } else {
-        subi(r + 1, r + 1, c);
-        // o(0x81);
-        // oad(0xc0 | (opc << 3) | r, c);
-      }
+      cmpi(r + 1, c);
+
     } else {
       gv2(RC_INT, RC_INT);
       r = vtop[-1].r;
