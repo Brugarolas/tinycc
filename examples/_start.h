@@ -9,8 +9,11 @@ asm (
 );
 
 void int0(void);
+
 int  main(void);
+
 void _start(void) {
-   main(); int0();
+    main();
+    int0();
 
 } 

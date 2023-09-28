@@ -1,14 +1,19 @@
 #include "_start.h"
 
-int fibonnacci(int n) {
-  if (n < 2) {
-    return n;
+int* terminal32 = (int*)(0x88888888 >> 2);
+
+int loop(int n) {
+  int i = 0;
+  while ( i < n ) {
+    int c = i + 'a';
+    *terminal32 = c;
+    i += 1;
   }
-  return fibonnacci(n - 1) +  fibonnacci(n - 2);
+  return i;
 }
 
 int main(void) {
-  int a = fibonnacci(6);// = 8 
-  int b = fibonnacci(5); // = 5
-  return a+b; // r2 should have 13, 0xd
+  int alphabet = 100;
+  return loop(alphabet); // r2 should have 0x69
 }
+

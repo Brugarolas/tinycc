@@ -417,6 +417,8 @@ static void gen_poxim_direct_addr(int r, Sym *sym, int c) {
        addr l32 [reg_addr] / call reg_addr
     */
     gen_le32(c); // TODO: Might need to check the endiannes of this
+    // ind += 8;
+
   }
 }
 
@@ -993,7 +995,6 @@ ST_FUNC void gfunc_epilog(void) {
 
 /* generate a jump to a label */
 ST_FUNC int gjmp(int t) {
-
   u8 opcode = opcode_bun;
   t = oad(opcode, t);
   return t;
@@ -1001,15 +1002,16 @@ ST_FUNC int gjmp(int t) {
 
 /* generate a jump to a fixed address */
 ST_FUNC void gjmp_addr(int a) {
-  tcc_error("we don't generate jmp to to fixed address for now");
+  // tcc_error("we don't generate jmp to to fixed address for now");
   int r;
-  r = a - ind - 2;
-  if (r == (char)r) {
-    g(0xeb);
-    g(r);
-  } else {
-    oad(0xe9, a - ind - 5);
-  }
+  r = (a - ind -2) >> 2;
+  bun(r);
+  // if (r == (char)r) {
+  //   g(0xeb);
+  //   g(r);
+  // } else {
+  //   oad(0xe9, a - ind - 5);
+  // }
 }
 
 #if 0
@@ -1039,10 +1041,10 @@ ST_FUNC int gjmp_append(int n, int t) {
   //   t = n;
   //   // t = 0;
   // }
-  printf("We balling ");
   void *p;
   /* insert vtop->c jump list in t */
   if (n) { //XXX: This aint workign
+    assert(0 && "well n != on gjmp_append, now you gotta really understand this function and its side effects ->  ;-; ");
     uint32_t n1 = n, n2;
     while ((n2 = read32le(p = cur_text_section->data + n1)))
       n1 = n2;
