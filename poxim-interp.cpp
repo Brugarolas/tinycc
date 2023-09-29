@@ -1376,8 +1376,10 @@ void div(const Operands op) {
   // u64 partial = (u64)registers[op.X] / (u64)registers[op.Y];
   //  The first 32 bits goes to R[Z]
   //  The bits 64:32 goes to R[L4:0]
-  registers[r_index_Z] = registers[op.X] / registers[op.Y];
-  registers[r_index_L] = registers[op.X] % registers[op.Y];
+  u32 rx  = registers[op.X];
+  u32 ry  = registers[op.Y];
+  registers[r_index_Z] =  rx / ry;
+  registers[r_index_L] = rx % ry;
 
   // AFFECTED CAMPS
   R0 = 0;
@@ -1409,8 +1411,13 @@ void divs(const Operands op) {
   // i64 partial = (i64)((i32)registers[op.X]) / (i64)((i32)registers[op.Y]);
   //  The first 32 bits goes to R[Z]
   //  The bits 64:32 goes to R[L4:0]
-  registers[r_index_Z] = (i32)registers[op.X] / (i32)registers[op.Y];
-  registers[r_index_L] = (i32)registers[op.X] % (i32)registers[op.Y];
+
+  //  The bits 64:32 goes to R[L4:0]
+  u32 rx  = registers[op.X];
+  u32 ry  = registers[op.Y];
+  registers[r_index_Z] =  (i32)rx / (i32)ry;
+  registers[r_index_L] = (i32)rx % (i32)ry;
+
   // AFFECTED CAMPS
   R0 = 0;
   if (registers[op.Z] == 0ul) { // set zero flag
@@ -2374,14 +2381,16 @@ void ReadWriteStr(char result[256], const char *instruction, u8 bits_count,
   }
 
   // l32 r24,[r0+8]           	R24=MEM[0x00000020]=0x00323456
+
+  const char* c = (i32)op.I >= 0 ? "+" : "" ;
   if (instruction[0] == 'l') // Then its a read
   {
     snprintf(assembly_text, sizeof(assembly_text),
              "l%d "
              "%s"
              ","
-             "[%s+%d]",
-             bits_count, rz, rx, op.I);
+             "[%s%s%d]",
+             bits_count, rz, rx,c,op.I);
     snprintf(result, 256,
              "%-24s\t"
              "%s=MEM[0x%08X]="
@@ -2393,10 +2402,10 @@ void ReadWriteStr(char result[256], const char *instruction, u8 bits_count,
   {
     snprintf(assembly_text, sizeof(assembly_text),
              "s%d "
-             "[%s+%d]"
+             "[%s%s%d]"
              ","
              "%s",
-             bits_count, rx, op.I, rz);
+             bits_count, rx,c, op.I, rz);
     snprintf(result, 256,
              "%-24s\t"
              "MEM[0x%08X]=%s="

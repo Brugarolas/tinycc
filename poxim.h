@@ -84,7 +84,7 @@ void set_bit(u32 *number, u8 nth_bit, u8 choice);
 void fill_bits(u32 *number, u8 start, u8 end, u8 bit_choice);
 
 /* pretty names for the registers */
-enum { r0 = 0, r1, r2, r3, r4, rf, bp, bp2, rt, sp = 30 };
+enum { r0 = 0, r1, r2, r3, r4, rf, bp, bp2, rt, rdiv, rmod, rmul, sp = 30 };
 
 typedef enum : u8 {
   //:> Format Type 'U'
@@ -117,6 +117,7 @@ typedef enum : u8 {
   opcode_muli = 0b010100,
   opcode_divi = 0b010101,
   opcode_modi = 0b010110,
+  opcode_remi = 0b010110,
   opcode_cmpi = 0b010111,
   /*Memory*/
   opcode_l8 = 0b011000,
@@ -129,25 +130,25 @@ typedef enum : u8 {
   opcode_call = 0b011110,
   opcode_ret = 0b011111,
 //:> Format Type 'S'
-  opcode_bae = 0b101010,
-  opcode_bat = 0b101011,
-  opcode_bbe = 0b101100,
-  opcode_bbt = 0b101101,
-  opcode_beq = 0b101110,
-  opcode_bge = 0b101111,
-  opcode_bgt = 0b110000,
-  opcode_biv = 0b110001,
-  opcode_ble = 0b110010,
-  opcode_blt = 0b110011,
-  opcode_bne = 0b110100,
-  opcode_bni = 0b110101,
-  opcode_bnz = 0b110110,
-  opcode_bun = 0b110111,
-  opcode_bzd = 0b111000,
-  opcode_int_ = 0b111111,
-  opcode_calli = 0b111001,
-  opcode_reti = 0b100000,
-  opcode_cbr = 0b100001, // equals last bit (0th bit) == 0
-  opcode_sbr = 0b100001  // equals last bit (0th bit) == 1
+  opcode_bae    = 0b101010,
+  opcode_bat    = 0b101011,
+  opcode_bbe    = 0b101100,
+  opcode_bbt    = 0b101101,
+  opcode_beq    = 0b101110,
+  opcode_bge    = 0b101111,
+  opcode_bgt    = 0b110000,
+  opcode_biv    = 0b110001,
+  opcode_ble    = 0b110010,
+  opcode_blt    = 0b110011,
+  opcode_bne    = 0b110100,
+  opcode_bni    = 0b110101,
+  opcode_bnz    = 0b110110,
+  opcode_bun    = 0b110111,
+  opcode_bzd    = 0b111000,
+  opcode_int_   = 0b111111,
+  opcode_calli  = 0b111001,
+  opcode_reti   = 0b100000,
+  opcode_cbr    = 0b100001, // equals last bit (0th bit) == 0
+  opcode_sbr    = 0b100001  // equals last bit (0th bit) == 1
 } PoximOperation;
 

@@ -1,3 +1,4 @@
+#define __poxim__
 asm (                                                                                
 "_init:\n"
 		/* mov sp, 0x7FFC */

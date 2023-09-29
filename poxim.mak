@@ -34,7 +34,7 @@ interp: poxim-interp
 
 # ./tcc -nostdlib -static examples/ex1.c -o./out/ex1.bin -I./ -I./include -L./ -Wl,--oformat=binary
 # DONE: necessary flags to compile directly to binary as we need: -nostdlib -static -Wl,--oformat=binary 
-run: poxim-dump all examples/ex1.c run-i386 utils
+run: poxim-dump all examples/ex1.c run-i386 utils interp
 	./tcc -nostdlib -static examples/$(test_cfile).c -o./$(out_dir)/$(test_cfile).bin -I./ -I./include -L./ -Wl,--oformat=binary
 	./poxim-dump --bin $(out_dir)/$(test_cfile).bin > $(out_dir)/$(test_cfile).poximdump
 	./poxim-interp --bin $(out_dir)/$(test_cfile).bin  $(out_dir)/$(test_cfile).interp
