@@ -96,7 +96,7 @@ ST_FUNC unsigned create_plt_entry(TCCState *s1, unsigned got_offset,
   uint8_t *p;
   int modrm;
   unsigned plt_offset, relofs;
-  assert(0 && "poxim plt entry not implemented");
+  // assert(0 && "poxim plt entry not implemented");
 
   /* on i386 if we build a DLL, we add a %ebx offset */
   if (s1->output_type & TCC_OUTPUT_DYN)

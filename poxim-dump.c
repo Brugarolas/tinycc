@@ -16,6 +16,7 @@
 #define bf_clear_bit(bitfield, pos) ((bitfield) &= ~(1 << (pos)))
 #define bf_toggle_bit(bitfield, pos) ((bitfield) ^= (1 << (pos)))
 #define bf_read_bit(bitfield, pos) (((bitfield) >> (pos)) & 0x01)
+#define branch(b) snprintf(assembly_text, count_of(assembly_text), "%-6s %d        # 0x%x",b, (i32)inst.I, (inst.I<<2)+(i32)(PC + 4));
 
 // Force inline and no-inline macros
 #if defined(__GNUC__) || defined(__GNUG__)
@@ -674,82 +675,82 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
   }
   case bae: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bae ", (i32)inst.I);
+    branch("bae");
     break;
   }
   case bat: {
 
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bat ", (i32)inst.I);
-
+    branch("bat");
     break;
   }
   case bbe: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bbe ", (i32)inst.I);
+    branch("bbe");
     break;
   }
   case bbt: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bbt ", (i32)inst.I);
+    branch("bbt");
     break;
   }
   case beq: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","beq ", (i32)inst.I);
+    branch("beq");
     break;
   }
   case bge: {
 
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bge ", (i32)inst.I);
+    branch("bge");
     break;
   }
   case bgt: {
 
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bgt ", (i32)inst.I);
+    branch("bgt");
     break;
   }
   case biv: {
 
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","biv ", (i32)inst.I);
+    branch("biv");
     break;
   }
   case ble: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","ble ", (i32)inst.I);
+    branch("ble");
     break;
   }
   case blt: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","blt ", (i32)inst.I);
+    branch("blt");
     break;
   }
   case bne: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bne ", (i32)inst.I);
+    branch("bne");
     break;
   }
   case bni: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bni ", (i32)inst.I);
+    branch("bni");
     break;
   }
   case bnz: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bnz ", (i32)inst.I);
+    branch("bnz");
     break;
   }
   case bun: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bun ", (i32)inst.I);
+    branch("bun");
+    // snprintf(assembly_text, count_of(assembly_text), "%-6s %d    # 0x%x","bun", (i32)inst.I, (inst.I<<2)+(i32)(PC + 4));
     break;
   }
   case bzd: {
     inst.I = extend_bit_at(inst.I, 25);
-    snprintf(assembly_text, count_of(assembly_text), "%-6s %d","bdz ", (i32)inst.I);
+    branch("bzd");
     break;
   }
   case int_: {

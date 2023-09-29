@@ -806,7 +806,7 @@ ST_FUNC void gfunc_call(int nb_args) {
   args_size = 0;
   for (i = 0; i < nb_args; i++) {
     if ((vtop->type.t & VT_BTYPE) == VT_STRUCT) {
-      tcc_error("%s, struct not supported in poxim-gen for now", __func__);
+      // tcc_error("%s, struct not supported in poxim-gen for now", __func__);
       size = type_size(&vtop->type, &align);
       /* align to stack align size */
       size = (size + 3) & ~3;
@@ -821,10 +821,11 @@ ST_FUNC void gfunc_call(int nb_args) {
       } else
 #endif
       {
-        oad(0xec81, size); /* sub $xxx, %esp */
+        // oad(0xec81, size); /* sub $xxx, %esp */
+        sub(sp, sp, size); /* sub sp, sp, xxx */
         /* generate structure store */
         r = get_reg(RC_INT);
-        o(0xe089 + (r << 8)); /* mov %esp, r */
+        movr(r, bp); /* mov %esp, r */
       }
       vset(&vtop->type, r | VT_LVAL, 0);
       vswap();
@@ -1129,8 +1130,7 @@ ST_FUNC int gjmp_cond(int op, int t) {
       break;
     } /* 0x93 */
     case TOK_EQ: {
-
-      assert(0 && "jmp cond not handled TOK_EQ");
+      opcode = opcode_beq;
       break;
     } /* 0x94 */
     case TOK_NE: {

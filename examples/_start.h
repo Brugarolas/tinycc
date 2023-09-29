@@ -13,6 +13,8 @@ void int0(void);
 
 int  main(void);
 
+void memset(void* ptr, char c, unsigned int size){
+}
 void _start(void) {
     main();
     int0();
