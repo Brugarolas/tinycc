@@ -408,7 +408,7 @@ static void remi(int rz, int rx, int i) {
 static void movr(int r1, int r2) { add(r1, r2, 0); };
 
 static void mov(int r, int i) {
-  if (!(r <= POXIM_MAX_REGISTERS && i <= 0xFFFFF)) {
+  if (!(r <= POXIM_MAX_REGISTERS && i <= 0x1fffff)) {
     tcc_error("It's possible i have made a mistake, int is actually 20 "
               "bits on a const mov, i'm sorry");
   }
@@ -416,15 +416,15 @@ static void mov(int r, int i) {
   // g(0x92fa);
   // g((u32)i);
   // g((u32)i);
-  gen_be32(opcode_mov << 26 | (r & 0b11111) << 21 | (i & 0xFFFFFFFF));
+  gen_be32(opcode_mov << 26 | (r & 0b11111) << 21 | (i & 0x1fffff));
 }
 
 static void movs(int r, int i) {
-  if (!(r <= POXIM_MAX_REGISTERS && i <= 0xFFFFF)) {
+  if (!(r <= POXIM_MAX_REGISTERS && i <= 0x1fffff)) {
     tcc_error("It's possible i have made a mistake, int is actually 20 "
               "bits on a const mov, i'm sorry");
   }
-  gen_be32(opcode_movs << 26 | (r & 0b11111) << 21 | (i & 0xFFFFFFFF));
+  gen_be32(opcode_movs << 26 | (r & 0b11111) << 21 | (i & 0x1fffff));
 }
 
 static void s32(int rz, int rx, int i) {
@@ -621,7 +621,7 @@ ST_FUNC void load(int r, SValue *sv) {
   } else {
     if (v == VT_CONST) {
       // o(0xb8 + r);     /* mov $xx, r */
-      mov(r + 1, fc); /* mov r, fc */
+      movs(r + 1, fc); /* mov r, fc */
       // in x86 gen_addr32(fr, sv->sym, fc);
       // TODO: Check is this break examples
       if ((fr & VT_VALMASK) == VT_CONST) {
@@ -718,13 +718,13 @@ ST_FUNC void store(int r, SValue *v) {
     if (bt == VT_BYTE || bt == VT_BOOL) {
       // tcc_error("(bt == VT_BYTE || bt == VT_BOOL poxim not hanlded %s",
       //           __func__);
-      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      imm = ((fc + LOCAL_OFFSET) >> 2) & 0xFFFF;
       opcode = opcode_s8;
     } else if (bt == VT_INT) { // VT_INT
-      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      imm = ((fc + LOCAL_OFFSET) >> 2) & 0xFFFF;
       opcode = 0b011101;
     } else if (bt == VT_PTR) {
-      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      imm = ((fc + LOCAL_OFFSET) >> 2) & 0xFFFF;
       opcode = 0b011101;
     } else {
       tcc_error("%s Why did we get here, basice type bt = %x", __func__, bt);

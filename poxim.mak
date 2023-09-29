@@ -47,12 +47,12 @@ run-i386: examples/ex1.c
 	# objdump	-b binary -Mintel,i386  -D ./x64code.bin -m i386 > x64code.s
 	# objcopy -O binary --only-section=.text ./$(out_dir)/$(test_cfile).i386.bin ./$(out_dir)/$(test_cfile).text.i386.dump
 
-EXAMPLES := poxim-ex1 poxim-ex2 poxim-ex3 poxim-fib-recursion poxim-print-alphabet poxim-print-num poxim-simple-if poxim-terminal poxim-while
+EXAMPLES := poxim-ex1 poxim-ex2 poxim-ex3 poxim-fib-recursion poxim-print-alphabet poxim-print-num poxim-simple-if poxim-terminal poxim-while poxim-sort
 examples: run
 	for var in $(EXAMPLES) ; do \
-		./tcc -nostdlib -static examples/$$var.c -o./examples/out/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary ; \
-		./poxim-dump --bin examples/out/$$var.bin > examples/out/$$var.poximdump ; \
-		./poxim-interp --bin examples/out/$$var.bin  examples/out/$$var.interp ; \
+		./tcc -nostdlib -static examples/$$var.c -o./examples/out/bin/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
+		./poxim-dump --bin examples/out/bin/$$var.bin > examples/out/dump/$$var.poximdump && \
+		./poxim-interp --bin examples/out/bin/$$var.bin  examples/out/intep/$$var.interp ; \
 	done
 
 
