@@ -9,19 +9,20 @@ asm (
 		".long 0x000000FC;"
 );
 
+typedef  unsigned int size_t;
 void int0(void);
 
 int  main(void);
-void *memset(void *ptr, int value, int size);
+void *memset(void *ptr, int value, size_t size);
 void _start(void) {
     main();
     int0();
-
 } 
 
-void *memset(void *ptr, int value, int size) {
-  unsigned char *p = (unsigned char *)ptr;
-  while (size--) {
+
+void *memset(void *ptr, int value, size_t size) {
+  int *p = (int*)ptr;
+  for (size_t i = 0; i < size / sizeof(int); i++) {
     *p++ = value;
   }
   return ptr;
