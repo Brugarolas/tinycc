@@ -1,12 +1,10 @@
-#include "_start.h"
-#if defined(__poxim__)
+#define DEBUG 0
 
+#if !defined(DEBUG) || DEBUG == 0
+
+#include "_start.h"
 int *terminal32 = (int *)(0x88888888 >> 2);
 void putchar(int c) { *terminal32 = c; }
-#else
-#include <stdio.h>
-#include <stdlib.h>
-#endif
 
 // // // typedef struct {
 // // //   int x, y;
@@ -29,44 +27,44 @@ void putchar(int c) { *terminal32 = c; }
 // // //   return dot(v, r);
 // // // }
 // //
-// // void bubble_sort(int arr[], int n) {
-// //     int temp;
-// //     int swapped;
-// //
-// //     for (int i = 0; i < n - 1; i++) {
-// //         swapped = 0;
-// //
-// //         for (int j = 0; j < n - 1 - i; j++) {
-// //             // Compare adjacent elements
-// //             if (arr[j] > arr[j + 1]) {
-// //                 // Swap them if they are in the wrong order
-// //                 temp = arr[j];
-// //                 arr[j] = arr[j + 1];
-// //                 arr[j + 1] = temp;
-// //                 swapped = 1; // Set the swapped flag
-// //             }
-// //         }
-// //
-// //         // If no two elements were swapped in this pass, the array is sorted
-// //         if (swapped == 0) {
-// //             break;
-// //         }
-// //     }
-// // }
-// //
-// // // int div10(int n) {
-// // //     int q, r;
-// // //     q = (n >> 1) + (n >> 2);
-// // //     q = q + (q >> 4);
-// // //     q = q + (q >> 8);
-// // //     q = q + (q >> 16);
-// // //     q = q >> 3;
-// // //     r = n - (((q << 2) + q) << 1);
-// // //     q = q + (r > 9);
-// // //     return q;
-// // // }
-// // //
-// //
+void bubble_sort(int arr[], int n) {
+    int temp;
+    int swapped;
+
+    for (int i = 0; i < n - 1; i++) {
+        swapped = 0;
+
+        for (int j = 0; j < n - 1 - i; j++) {
+            // Compare adjacent elements
+            if (arr[j] > arr[j + 1]) {
+                // Swap them if they are in the wrong order
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+                swapped = 1; // Set the swapped flag
+            }
+        }
+
+        // If no two elements were swapped in this pass, the array is sorted
+        if (swapped == 0) {
+            break;
+        }
+    }
+}
+
+// int div10(int n) {
+//     int q, r;
+//     q = (n >> 1) + (n >> 2);
+//     q = q + (q >> 4);
+//     q = q + (q >> 8);
+//     q = q + (q >> 16);
+//     q = q >> 3;
+//     r = n - (((q << 2) + q) << 1);
+//     q = q + (r > 9);
+//     return q;
+// }
+//
+
 void printi(int num) {
   int divisor = 1;
   int isNegative = 0;
@@ -98,14 +96,34 @@ void printi(int num) {
 
 
 int main() {
-  int arr[] = {0xf1, 0xf2, 0xf3, 0xf4, 0xf5};
+  int arr[] = {0x1, 0x2, 0x3, 0x4, 0x5};
   int n = sizeof(arr) / sizeof(arr[0]);
 
   // bubble_sort(arr, n);
-  int i;
+  int i, a;
   for (i = 0; i < n; i++) {
-    int a = arr[n];
+    a = arr[i];
     printi(a);
   }
   return i;
 }
+
+#else
+
+
+// void memset();
+
+int main(void) {
+  int arr[] = {0xf1, 0xf2, 0xf3, 0xf4, 0xf5};
+  int n = sizeof(arr) / sizeof(arr[0]);
+
+  int i, a;
+  for (i = 0; i < n; i++) {
+    a = arr[i];
+  }
+  return a;
+}
+
+void memset(void* ptr, int val, int size) {}
+
+#endif

@@ -2947,14 +2947,26 @@ redo:
         t = t1, t1 = t2, t2 = t;
       }
 #if PTR_SIZE == 4
-      if ((vtop[0].type.t & VT_BTYPE) == VT_LLONG)
+      if ((vtop[0].type.t & VT_BTYPE) == VT_LLONG) 
         /* XXX: truncate here because gen_opl can't handle ptr + long
          * long */
         gen_cast_s(VT_INT);
 #endif
-      type1 = vtop[-1].type;
-      vpush_type_size(pointed_type(&vtop[-1].type), &align);
-      gen_op('*');
+			#if defined(TCC_TARGET_POXIM)
+			/*XXX:  REMBEMER, HUGE HACK
+				The ideia here is that TCC_POXIM back end will
+				deal with type shenanigans itself. It assumes
+				everything is added a flat number to pointer,
+				So we do'nt scale the type size @hack
+			*/
+				// vtop[-1].type.ref->type.t = (vtop[-1].type.ref->type.t & ~(0xf)) | VT_BYTE;
+				type1 = vtop[-1].type;
+				// vtop[-1].c.i = 0;
+			#else
+			type1 = vtop[-1].type;
+			vpush_type_size(pointed_type(&vtop[-1].type), &align);
+			gen_op('*');
+			#endif
 #ifdef CONFIG_TCC_BCHECK
       if (tcc_state->do_bounds_check && !CONST_WANTED) {
         /* if bounded pointers, we generate a special code to
@@ -2976,8 +2988,14 @@ redo:
     }
   } else {
     /* floats can only be used for a few operations */
-    if (is_float(combtype.t) && op != '+' && op != '-' && op != '*' &&
-        op != '/' && !TOK_ISCOND(op))
+    if (
+			is_float(combtype.t) 
+			&& op != '+' 
+			&& op != '-' 
+			&& op != '*' 
+			&& op != '/' 
+			&& !TOK_ISCOND(op)
+		)
       tcc_error("invalid operands for binary operation");
     else if (op == TOK_SHR || op == TOK_SAR || op == TOK_SHL) {
       t = bt1 == VT_LLONG ? VT_LLONG : VT_INT;
@@ -7414,7 +7432,8 @@ static int decl_designator(init_params *p, CType *type, unsigned long c,
 }
 
 /* store a value or an expression directly in global data or in local array */
-/* NOTE(Everton): This is where we write things to the data section at compile time it was hard to find */
+/* NOTE(Everton): This is where we write things to the data section at compile
+ * time it was hard to find*/
 static void init_putv(init_params *p, CType *type, unsigned long c) {
   int bt;
   void *ptr;
