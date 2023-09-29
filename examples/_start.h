@@ -12,11 +12,17 @@ asm (
 void int0(void);
 
 int  main(void);
-
-void memset(void* ptr, char c, unsigned int size){
-}
+void *memset(void *ptr, int value, int size);
 void _start(void) {
     main();
     int0();
 
 } 
+
+void *memset(void *ptr, int value, int size) {
+  unsigned char *p = (unsigned char *)ptr;
+  while (size--) {
+    *p++ = value;
+  }
+  return ptr;
+}

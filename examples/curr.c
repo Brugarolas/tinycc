@@ -30,30 +30,30 @@ void putchar(int c) { *terminal32 = c; }
 //   return dot(v, r);
 // }
 
-// void bubble_sort(int arr[], int n) {
-//     int temp;
-//     int swapped;
-//
-//     for (int i = 0; i < n - 1; i++) {
-//         swapped = 0;
-//
-//         for (int j = 0; j < n - 1 - i; j++) {
-//             // Compare adjacent elements
-//             if (arr[j] > arr[j + 1]) {
-//                 // Swap them if they are in the wrong order
-//                 temp = arr[j];
-//                 arr[j] = arr[j + 1];
-//                 arr[j + 1] = temp;
-//                 swapped = 1; // Set the swapped flag
-//             }
-//         }
-//
-//         // If no two elements were swapped in this pass, the array is sorted
-//         if (swapped == 0) {
-//             break;
-//         }
-//     }
-// }
+void bubble_sort(int arr[], int n) {
+    int temp;
+    int swapped;
+
+    for (int i = 0; i < n - 1; i++) {
+        swapped = 0;
+
+        for (int j = 0; j < n - 1 - i; j++) {
+            // Compare adjacent elements
+            if (arr[j] > arr[j + 1]) {
+                // Swap them if they are in the wrong order
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+                swapped = 1; // Set the swapped flag
+            }
+        }
+
+        // If no two elements were swapped in this pass, the array is sorted
+        if (swapped == 0) {
+            break;
+        }
+    }
+}
 
 // int div10(int n) {
 //     int q, r;
@@ -101,18 +101,19 @@ void print_num(int num) {
 
 
 int main() {
-    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    int arr[] = {0xca01, 0xca02, 0xca03, 0xca04,0xca05};
     int n = sizeof(arr) / sizeof(arr[0]);
     
-    print_num(3440);
+    bubble_sort(arr, n);
+    // print_num(3440);
+    int p = 0;
     while(n--){
-      // n -= 1;
-      print_num(arr[n]);
+      p = arr[n];
+      print_num(p);
     }
     
 
-    // bubble_sort(arr, n);
 
 
-    return 0;
+    return p;
 }

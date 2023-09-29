@@ -523,7 +523,8 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
 */
 ST_FUNC void load(int r, SValue *sv) {
   int v, t, ft, fc, fr, bt;
-  u8 inst = -1;
+  u8 opcode = -1;
+  u32 imm = -1;
   SValue v1;
 
 #ifdef TCC_TARGET_PE
@@ -563,31 +564,37 @@ ST_FUNC void load(int r, SValue *sv) {
       o(0xdb); /* fldt */
       r = 5;
     } else if ((ft & VT_TYPE) == VT_BYTE || (ft & VT_TYPE) == VT_BOOL) {
-      tcc_error("We aint supporting byte for now or bool");
-      o(0xbe0f); /* movsbl */
+      imm = (fc + LOCAL_OFFSET) >> 0 & 0xFFFF;
+      opcode = opcode_l8;
+      // tcc_error("We aint supporting byte for now or bool");
+      // o(0xbe0f); /* movsbl */
     } else if ((ft & VT_TYPE) == (VT_BYTE | VT_UNSIGNED)) {
+
       tcc_error("We aint supporting unsigned byte for now or bool");
       o(0xb60f); /* movzbl */
     } else if ((ft & VT_TYPE) == VT_SHORT) {
       tcc_error("We aint supporting short for now or bool");
       o(0xbf0f); /* movswl */
     } else if ((ft & VT_TYPE) == (VT_SHORT | VT_UNSIGNED)) {
-      tcc_error("We aint supporting unsigned short for now or bool");
-      o(0xb70f); /* movzwl */
+      tcc_error("We aint supporting (VT_SHORT | VT_UNSIGNED)");
+      imm = (fc + LOCAL_OFFSET) >> 0 & 0xFFFF;
+      opcode = opcode_l8;
+      // o(0xb70f); /* movzwl */
     } else if ((ft & VT_TYPE) == (VT_INT)) {
       /* l32 */
-      inst = 0b011010;
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      opcode = 0b011010;
     } else if ((ft & VT_TYPE) == (VT_PTR)) {
       /* l32 */
-      inst = 0b011010;
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      opcode = 0b011010;
     } else {
       assert(0 && "waht VT_Type is ft?");
     }
     // THIS IS wrong when getting argumentts from the stack
     // we need a LOCAL_OFFSET to make it right, but then it gets the store
     // wrong
-    gen_be32(inst << 26 | (r + 1) << 21 | bp2 << 16 |
-             ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
+    gen_be32(opcode << 26 | (r + 1) << 21 | bp2 << 16 | (imm));
     gen_poxim_direct_addr(fr, sv->sym, (fc));
     // TODO:@symbolcheck This realloct by using   gen_addr32(r, sym, c);
     // this might turn out to be a problem
@@ -647,7 +654,8 @@ ST_FUNC void load(int r, SValue *sv) {
 /* store register 'r' in lvalue 'v' */
 ST_FUNC void store(int r, SValue *v) {
   int fr, bt, ft, fc;
-  u32 inst = -1;
+  u32 opcode = -1;
+  u32 imm = -1;
 
 #ifdef TCC_TARGET_PE
   SValue v2;
@@ -679,13 +687,16 @@ ST_FUNC void store(int r, SValue *v) {
       o(0x66);
     }
     if (bt == VT_BYTE || bt == VT_BOOL) {
-      tcc_error("(bt == VT_BYTE || bt == VT_BOOL poxim not hanlded %s",
-                __func__);
-      o(0x88);
+      // tcc_error("(bt == VT_BYTE || bt == VT_BOOL poxim not hanlded %s",
+      //           __func__);
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      opcode = opcode_s8;
     } else if (bt == VT_INT) { // VT_INT
-      inst = 0b011101;
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      opcode = 0b011101;
     } else if (bt == VT_PTR) {
-      inst = 0b011101;
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      opcode = 0b011101;
     } else {
       tcc_error("%s Why did we get here, basice type bt = %x", __func__, bt);
     }
@@ -701,8 +712,7 @@ ST_FUNC void store(int r, SValue *v) {
     // v->r
     // DONE: listen, all these store and load of 32 bit has a Flaw
     // this flaw is being shift by two, because idk, 32 bit idk
-    gen_be32(inst << 26 | ((r + 1) & 0b11111) << 21 | bp2 << 16 |
-             ((fc + LOCAL_OFFSET) >> 2 & 0xFFFF));
+    gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | bp2 << 16 | (imm));
 
   } else if (v->r & VT_LVAL) {
     s32(r + 1, fr + 1, 0);
