@@ -25,6 +25,7 @@
 #define N_INSTRUCTIONS_FOR_FUNC_PROLOG (6)
 #define LOCAL_OFFSET (4)
 #define FUNC_PROLOG_SIZE (4 * (N_INSTRUCTIONS_FOR_FUNC_PROLOG))
+// #define FUNC_STRUCT_PARAM_AS_PTR
 
 #if defined(TARGET_DEFS_ONLY)
 /* number of available registers */
@@ -906,10 +907,14 @@ ST_FUNC void gfunc_call(int nb_args) {
   args_size = 0;
   for (i = 0; i < nb_args; i++) {
     if ((vtop->type.t & VT_BTYPE) == VT_STRUCT) {
-      // tcc_error("%s, struct not supported in poxim-gen for now",
-      // __func__);
+      // tcc_error("%s, struct not supported in poxim-gen for now", __func__);
       size = type_size(&vtop->type, &align);
       /* align to stack align size */
+
+      /* NOTE:(everton) this is always result in the same 
+        size, before and after size = (size + 3) & ~3;
+        because we only allow structs with members with size multiple of 4 
+      */
       size = (size + 3) & ~3;
       /* allocate the necessary size on stack */
 #ifdef TCC_TARGET_PE
@@ -921,16 +926,18 @@ ST_FUNC void gfunc_call(int nb_args) {
         gadd_sp(4);
       } else
 #endif
+      /* NOTE: (Everton) This might all be different if we define FUNC_STRUCT_PARAM_AS_PTR, ok?*/
       {
         // oad(0xec81, size); /* sub $xxx, %esp */
-        sub(sp, sp, size); /* sub sp, sp, xxx */
+        subi(sp, sp, size); /* sub sp, sp, xxx */
         /* generate structure store */
         r = get_reg(RC_INT);
-        movr(r, bp); /* mov %esp, r */
+        movr(r + 1, sp); /* mov %esp, r */
       }
       vset(&vtop->type, r | VT_LVAL, 0);
       vswap();
       vstore();
+      // gen_be32(0xcafebabe);
       args_size += size;
     } else if (is_float(vtop->type.t)) {
       tcc_error("%s, floating point not supported in poxim-gen for now",
@@ -943,7 +950,7 @@ ST_FUNC void gfunc_call(int nb_args) {
       else
         size = 12;
       // oad(0xec81, size); /* sub $xxx, %esp */
-      sub(sp, sp, size); /* sub sp, sp, xxx */
+      subi(sp, sp, size); /* sub sp, sp, xxx */
       if (size == 12)
         o(0x7cdb);
       else
@@ -977,8 +984,8 @@ ST_FUNC void gfunc_call(int nb_args) {
   func_sym = vtop->type.ref;
   func_call = func_sym->f.func_call;
   /* fast call case */
-  if ((func_call >= FUNC_FASTCALL1 && func_call <= FUNC_FASTCALL3) ||
-      func_call == FUNC_FASTCALLW) {
+  if ((func_call >= FUNC_FASTCALL1 && func_call <= FUNC_FASTCALL3) 
+      || func_call == FUNC_FASTCALLW) {
     int fastcall_nb_regs;
     const uint8_t *fastcall_regs_ptr;
     tcc_error("FUNC_FASTCALL not supported in poxim-gen for now");
@@ -1600,8 +1607,8 @@ ST_FUNC void gen_vla_sp_restore(int addr) {
 /* Subtract from the stack pointer, and push the resulting value onto the stack
  */
 ST_FUNC void gen_vla_alloc(CType *type, int align) {
-  tcc_error("gen_vla_alloc");
   int use_call = 0;
+  tcc_error("gen_vla_alloc");
 
 #if defined(CONFIG_TCC_BCHECK)
   use_call = tcc_state->do_bounds_check;

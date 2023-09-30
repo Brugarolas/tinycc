@@ -1,68 +1,68 @@
-#define DEBUG 1
+#define DEBUG 0
 
 #if !defined(DEBUG) || DEBUG == 0
-
 #include "_start.h"
 int *terminal32 = (int *)(0x88888888 >> 2);
+unsigned int strlen(const char *str);
 void putchar(int c) { *terminal32 = c; }
 
-/* @Attention, to garantee puts will work the str has to be 4 byte aligned :) 
-  That means every string will in the whole program have to be padded with zero to ensure 
-  every string is a multiple of 4 hehe, remember that last byte of str literal is always zero 
+/* @Attention, to garantee puts will work the str has to be 4 byte aligned :)
+  That means every string will in the whole program have to be padded with zero
+  to ensure every string is a multiple of 4 hehe, remember that last byte of str
+  literal is always zero
 */
 void puts(const char *str) {
-    int *ptr = (int *)str;
-    int word;
+  int *ptr = (int *)str;
+  int word;
 
-    int len = 0;
-    while (1) {
-        word = *ptr++;
+  int len = 0;
+  while (1) {
+    word = *ptr++;
 
-        len += 4;
-        // Verifica se algum byte no int é zero (terminador nulo).
-        if (((word >> 24) & 0xFF) == 0 && len != 4) {
-            return;
-        }
-        putchar((word >> 24) & 0xFF);
-        if (((word >> 16) & 0xFF)== 0) {
-            return;
-        }
-        putchar((word >> 16) & 0xFF);
-        if (((word >> 8) & 0xFF)== 0) {
-            return;
-        }
-        putchar((word >> 8) & 0xFF);
-        if (((word >> 0) & 0xFF)== 0) {
-            return;
-        }
-        putchar((word >> 0) & 0xFF);
-      
+    len += 4;
+    // Verifica se algum byte no int é zero (terminador nulo).
+    if (((word >> 24) & 0xFF) == 0) {
+      return;
     }
+    putchar((word >> 24) & 0xFF);
+    if (((word >> 16) & 0xFF) == 0) {
+      return;
+    }
+    putchar((word >> 16) & 0xFF);
+    if (((word >> 8) & 0xFF) == 0) {
+      return;
+    }
+    putchar((word >> 8) & 0xFF);
+    if (((word >> 0) & 0xFF) == 0) {
+      return;
+    }
+    putchar((word >> 0) & 0xFF);
+  }
 }
 
 unsigned int strlen(const char *str) {
-    int *ptr = (int *)str;
-    int word;
+  int *ptr = (int *)str;
+  int word;
 
-    int len = 0;
-    while (1) {
-        word = *ptr++;
+  int len = 0;
+  while (1) {
+    word = *ptr++;
 
-        len += 4;
-        // Verifica se algum byte no int é zero (terminador nulo).
-        if (((word >> 24) & 0xFF) == 0) {
-            return len - 1;
-        }
-        if (((word >> 16) & 0xFF)== 0) {
-            return len - 2;
-        }
-        if (((word >> 8) & 0xFF)== 0) {
-            return len - 3;
-        }
-        if (((word >> 0) & 0xFF)== 0) {
-            return len  - 4;
-        }
+    len += 4;
+    // Verifica se algum byte no int é zero (terminador nulo).
+    if (((word >> 24) & 0xFF) == 0) {
+      return len - 1;
     }
+    if (((word >> 16) & 0xFF) == 0) {
+      return len - 2;
+    }
+    if (((word >> 8) & 0xFF) == 0) {
+      return len - 3;
+    }
+    if (((word >> 0) & 0xFF) == 0) {
+      return len - 4;
+    }
+  }
 }
 
 typedef struct {
@@ -128,12 +128,16 @@ void printi(int num) {
 int struc_play(void) {
   vector2i v, r;
   v.x = 0x1;
-  v.y = 0x1;
+  v.y = 0x2;
 
-  r.x = 0x2;
-  r.y = 0x2;
+  r.x = 0x3;
+  r.y = 0x4;
 
+  puts("\nstruct -> ");
+  printi(r.x);
   int d = dot(v, r);
+  puts("\ndot    -> ");
+  printi(d);
   return d;
 }
 
@@ -157,22 +161,32 @@ int main() {
     printi(a);
     putchar(' ');
   }
-  return struc_play();
+  puts("ccc");
+  puts("aaabbbb");
+  // return struc_play();
 }
 
 #else
-//
 #include "_start.h"
 
 int *terminal32 = (int *)(0x88888888 >> 2);
 void putchar(int c) { *terminal32 = c; }
+// void memmove(void){}
+// void memset(void){}
+
+int main(void);
+typedef struct {
+  int x, y;
+} vector2i;
+
+// int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.y * v2.y; }
+int sum(vector2i v1) { return v1.x + v1.x;}
 
 
 int main(void) {
-  int a = 7;
-  if (a!=11 && a> 13)
-    return 17;
-  return 21;
+  // vector2i v1 = {.x = 1, .y = 2}, v2 = {.x = 7, .y = 11};
+  vector2i v1 = {.x = 1, .y = 2};
+  return sum(v1);
 }
 
 #endif

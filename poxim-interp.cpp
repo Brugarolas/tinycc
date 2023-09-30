@@ -23,7 +23,9 @@
 #define UNUSED 0x00
 #define GLOBAL
 #define MEM_SIZE 1024
+#if defined(__WIN32)
 #pragma warning(disable : 4996)
+#endif
 int32_t INSTRUCTION_COUNTER = 0;
 
 typedef volatile uint32_t vu32;
@@ -536,17 +538,17 @@ public:
 
   void Operate() {
     SetRO(0);
-
     FOP operation = (FOP)GetBits((u32)this->FPU8[0x0000000f], 4, 0);
     f32 X, Y, Z, result;
     u32 tempX = SwitchEndianess(this->X);
     u32 tempY = SwitchEndianess(this->Y);
+    (void)result;
     Z = this->Z;
 
     if (Xisfloat)
       X = *(f32 *)(&(this->X));
     else
-      X = (f32)tempY;
+      X = (f32)tempX; // X = (f32)tempY; it was like this before but might be wrong
     if (Yisfloat)
       Y = *(f32 *)(&(this->Y));
     else
@@ -2484,7 +2486,7 @@ void PushPopStr(char dest[500], const char *instruction_name,
   u32 V = GetBits(L, 10, 6);
 
   char reg[5];
-  char assembly_text[32];
+  char assembly_text[126];
   char no_register_instruction_name[35];
 
   u32 registers_to_push[] = {V, W, X, Y, Z};
