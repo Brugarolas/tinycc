@@ -9,11 +9,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
-#define _DEBUG_POXIM
+
+// #define _DEBUG_POXIM
 #define _DEBUG_OUT
 
-#ifdef _DEBUG_POXIM
+#ifndef _DEBUG_POXIM
 #define printf(x, ...)
 #define puts(x)
 #endif
@@ -633,7 +635,9 @@ GLOBAL WatchDog W{};
 GLOBAL Terminal T{};
 GLOBAL FloatDevice F{};
 
-GLOBAL u32 DEFAULT_DEVICE = (u32)0x0;
+GLOBAL u32  DEFAULT_DEVICE32 = (u32)0x0;
+GLOBAL u16  DEFAULT_DEVICE16 = (u32)0x0;
+GLOBAL u8   DEFAULT_DEVICE8 =  (u32)0x0;
 
 /*==========================Registers & RAM========================*/
 
@@ -2232,7 +2236,8 @@ u32 &AccessDevice32(u32 index, OP op) {
     return F.FPU32[index];
   }
 
-  return DEFAULT_DEVICE;
+  assert(0 && " AccessDevice32 was not a valid device");
+  return DEFAULT_DEVICE32;
 }
 
 u16 &AccessDevice16(u32 index, OP op) {
@@ -2252,6 +2257,8 @@ u16 &AccessDevice16(u32 index, OP op) {
     index = (index - 0x80'80'88'80) / 2;
     return F.FPU16[index];
   }
+  assert(0 && " AccessDevice16 was not a valid device");
+  return DEFAULT_DEVICE16;
 }
 
 u8 &AccessDevice8(u32 index, OP op) {
@@ -2260,6 +2267,7 @@ u8 &AccessDevice8(u32 index, OP op) {
     return W.WD8[wd_index];
   }
 
+  // if (op == OP::l8 && index == 0x8888888A) {
   if (op == OP::l8 && index == 0x8888888A) {
     u32 t_index = (index - T.TERMINAL_ADRESS);
     T.IO8[t_index] = 48;
@@ -2280,9 +2288,12 @@ u8 &AccessDevice8(u32 index, OP op) {
       F.should_operate = true;
       F.wait_cycles = -2;
     }
+    printf("Hello index 0x%x, (index - 0x80'80'88'80) / 1 = 0x%x", index, (index - 0x80'80'88'80) / 1);
     index = (index - 0x80'80'88'80) / 1;
     return F.FPU8[index];
   }
+  assert(0 && " AccessDevice8 was not a valid device");
+  return DEFAULT_DEVICE8;
 }
 
 // NOTE(Everton): Maybe you need to change  the Endianess

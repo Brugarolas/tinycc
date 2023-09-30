@@ -22,19 +22,20 @@ void _start(void) {
 
 
 void *memset(void *ptr, int value, size_t size) {
-  int *p = (int*)ptr;
+  // int *p = (int*)ptr;
+  // for (size_t i = 0; i < size / sizeof(int); i++) {
+  //   *p++ = value;
+  // }
+  // return ptr;
+}
+
+
+int memmove(void * dst, const void *src, int  size) {
+  int *idst = (int*)dst;
+  int *isrc = (int*)src;
   for (size_t i = 0; i < size / sizeof(int); i++) {
-    *p++ = value;
+     *idst++ = *isrc++;
   }
-  return ptr;
+  return size;
 }
 
-
-int memmove(void * dst, const void *src, int  num) {
-   unsigned char *pdst = (unsigned char *)dst;
-   const unsigned char *psrc = (const unsigned char *)src;
-   while (num--) {
-        *pdst++ = *psrc++;
-    }
-    return dst;
-}
