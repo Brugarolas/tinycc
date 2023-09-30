@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 
 #if !defined(DEBUG) || DEBUG == 0
 
@@ -20,7 +20,7 @@ void puts(const char *str) {
 
         len += 4;
         // Verifica se algum byte no int é zero (terminador nulo).
-        if (((word >> 24) & 0xFF) == 0) {
+        if (((word >> 24) & 0xFF) == 0 && len != 4) {
             return;
         }
         putchar((word >> 24) & 0xFF);
@@ -161,19 +161,18 @@ int main() {
 }
 
 #else
-
+//
 #include "_start.h"
 
 int *terminal32 = (int *)(0x88888888 >> 2);
 void putchar(int c) { *terminal32 = c; }
 
 
-
 int main(void) {
-    puts("acc");
-    puts("bcc");
-    return strlen("123");
-   // int* ptr = (int*) (4 >> 2);
+  int a = 7;
+  if (a!=11 && a> 13)
+    return 17;
+  return 21;
 }
 
 #endif

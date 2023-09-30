@@ -22,11 +22,11 @@ void _start(void) {
 
 
 void *memset(void *ptr, int value, size_t size) {
-  // int *p = (int*)ptr;
-  // for (size_t i = 0; i < size / sizeof(int); i++) {
-  //   *p++ = value;
-  // }
-  // return ptr;
+  int *p = (int*)ptr;
+  for (size_t i = 0; i < size / sizeof(int); i++) {
+    *p++ = value;
+  }
+  return ptr;
 }
 
 

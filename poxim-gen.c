@@ -243,6 +243,7 @@ ST_FUNC void gsym_addr(int t, int a) {
         swap_endianness32(((inst >> 26) << 26) | ((i & 0x3ffffff) >> 2));
     printf("%s -> n=0x%x a=0x%x t=0x%x (int)a-t=%d\n", __func__, n, a, t,
            a - t);
+    // /* TODO: Endiannes check for next addr offset which is 't' ok? */
     t = n;
     // t = 0;
   }
@@ -843,12 +844,10 @@ static void gcall_or_jmp(int is_jmp) {
     // imm =  (vtop->c.i - 4) & 0x03FFFFFF;
 
     if (is_jmp) {
-      gen_be32(opcode_calli << 26 | imm);
       bun(imm); /* bun imm */
-      printf("calli imm = %x\n", imm);
     } else {
       calli(imm); /* call imm */
-      printf("jmp imm = %x\n", imm);
+      printf("calli imm = %x\n", imm);
     }
     // oad(0xe8 + is_jmp, vtop->c.i - 4);
   } else {
@@ -1192,29 +1191,29 @@ ST_FUNC void gjmp_cond_addr(int a, int op)
 #endif
 
 ST_FUNC int gjmp_append(int n, int t) {
-  // tcc_error("gjmp_append");
-  // while (t) {
-  //   unsigned char *ptr = cur_text_section->data + t;
-  //   int i = a - t - 4;          /* offset jmp */
-  //   u32 *inst_ptr = (u32 *)(ptr);
-  //   u32 inst = swap_endianness32(*inst_ptr);
-  //   u32 n = (inst & 0x3ffffff);
-  //   // write32le(ptr, a - t - 4);
-  //   *inst_ptr =
-  //       swap_endianness32(((inst >> 26) << 26) | ((i & 0x3ffffff) >> 2));
-  //   printf("%s -> n=0x%x a=0x%x t=0x%x (int)a-t=%d\n",__func__, n, a, t, a
-  //   - t); t = n;
-  //   // t = 0;
-  // }
   void *p;
   /* insert vtop->c jump list in t */
   if (n) { // XXX: This aint workign
-    assert(0 && "well n != on gjmp_append, now you gotta really understand "
-                "this function and its side effects ->  ;-; ");
-    uint32_t n1 = n, n2;
-    while ((n2 = read32le(p = cur_text_section->data + n1)))
+    u32 n1, n2;
+    u32 *inst_ptr;
+    u32 inst;
+
+    n1 = n;
+    p = cur_text_section->data + n1;
+    inst_ptr = (u32*)(p);
+    inst = swap_endianness32(*inst_ptr);
+    n2 = (inst & 0x3ffffff);
+
+    while (n2) {
       n1 = n2;
-    write32le(p, t);
+      p = cur_text_section->data + n1;
+      inst_ptr = (u32*)(p);
+      inst = swap_endianness32(*inst_ptr);
+      n2 = (inst & 0x3ffffff);
+      printf("%s -> n=0x%x t=0x%x n1=0x%x n2=0x%x\n", __func__, n, t, n1, n2);
+    }
+    *inst_ptr =
+         swap_endianness32(((inst >> 26) << 26) | ((n2 & 0x3ffffff) >> 2));
     t = n;
   }
   return t;
