@@ -667,7 +667,7 @@ ST_FUNC void load(int r, SValue *sv) {
           greloc(cur_text_section, sv->sym, ind, R_386_32);
         }
       }
-      // gen_poxim_direct_addr(fr, sv->sym, fc);
+      // gen_poxim_direct_addr(fr, sv->sym, fc); /* I removed this because we do greloc instead*/ 
 
     } else if (v == VT_LOCAL) {
       if (fc) {
@@ -1313,7 +1313,7 @@ ST_FUNC void gen_opi(int op) {
       // NOTE:  Do believe opc is the '+' or '-'
       if (op == '+') {
         add(r + 1, r + 1, fr + 1);
-      } if (op == '&') {
+      } else if (op == '&') {
         and(r + 1, r + 1, fr + 1);
       } else {
         sub(r + 1, r + 1, fr + 1);
