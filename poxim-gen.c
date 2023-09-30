@@ -26,7 +26,6 @@
 #define LOCAL_OFFSET (4)
 #define FUNC_PROLOG_SIZE (4 * (N_INSTRUCTIONS_FOR_FUNC_PROLOG))
 
-
 #if defined(TARGET_DEFS_ONLY)
 /* number of available registers */
 #define NB_REGS (5)
@@ -307,7 +306,6 @@ static void add(int r1, int r2, int r3) {
   gen_be32(0x02 << 26 | (r1 & 0xff) << 21 | (r2 & 0xff) << 16 |
            (r3 & 0xff) << 11);
 }
-
 static void addi(int rz, int rx, int i) {
   assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS && i <= 0xFFFF);
   gen_be32(0b010010 << 26 | (rz & 0xff) << 21 | (rx & 0xff) << 16 |
@@ -323,6 +321,7 @@ static void cmpi(int rx, int i) {
   assert(rx <= POXIM_MAX_REGISTERS && i <= 0xffff);
   gen_be32(0b010111 << 26 | (rx & 0xff) << 16 | (i & 0xffff));
 }
+
 
 static void calli(int i) {
   assert(i <= 0x3ffffff);
@@ -409,8 +408,7 @@ static void movr(int r1, int r2) { add(r1, r2, 0); };
 
 static void mov(int r, int i) {
   if (!(r <= POXIM_MAX_REGISTERS && i <= 0x1fffff)) {
-    tcc_error("It's possible i have made a mistake, int is actually 20 "
-              "bits on a const mov, i'm sorry");
+    tcc_error("int is 32 bits, but a immediate value can only be 20 bit in arch poxim");
   }
   // g((u32)i);
   // g(0x92fa);
@@ -425,6 +423,31 @@ static void movs(int r, int i) {
               "bits on a const mov, i'm sorry");
   }
   gen_be32(opcode_movs << 26 | (r & 0b11111) << 21 | (i & 0x1fffff));
+}
+
+static void and(int rz, int rx, int ry) {
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS &&
+         ry <= POXIM_MAX_REGISTERS);
+  gen_be32(opcode_and << 26 | (rz & 0xff) << 21 | (rx & 0xff) << 16 |
+           (ry & 0xff) << 11);
+}
+
+static void andi(int rz, int rx, int i) {
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS);
+  movs(rt, i);
+  and(rz, rx, rt);
+}
+
+static void xor(int rz, int rx, int ry) {
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS &&
+         ry <= POXIM_MAX_REGISTERS);
+  gen_be32(opcode_xor << 26 | (rz & 0xff) << 21 | (rx & 0xff) << 16 |
+           (ry & 0xff) << 11);
+}
+static void xori(int rz, int rx, int i) {
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS);
+  movs(rt, i);
+  xor(rz, rx, rt);
 }
 
 static void s32(int rz, int rx, int i) {
@@ -449,7 +472,12 @@ static void shift(u8 sub_inst, int rz, int rx, int ry, unsigned int i) {
 
 static void sra(int rz, int rx, int ry, int i) { shift(0b111, rz, rx, ry, i); }
 
+// Rigt Logic
 static void srl(int rz, int rx, int ry, int i) { shift(0b101, rz, rx, ry, i); }
+// Left Logic
+static void sll(int rz, int rx, int ry, int i) { shift(0b001, rz, rx, ry, i); }
+// Left Arithmetic
+static void sla(int rz, int rx, int ry, int i) { shift(0b011, rz, rx, ry, i); }
 /***************************
  << END POXIM Instructions
 ****************************/
@@ -536,7 +564,7 @@ static void gen_modrm(int op_reg, int r, Sym *sym, int c) {
 ST_FUNC void load(int r, SValue *sv) {
   int v, t, ft, fc, fr, bt;
   u8 opcode = -1;
-  u32 imm = -1;
+  u32 imm = -1, rbp = bp2;
   SValue v1;
 
 #ifdef TCC_TARGET_PE
@@ -581,9 +609,9 @@ ST_FUNC void load(int r, SValue *sv) {
       // tcc_error("We aint supporting byte for now or bool");
       // o(0xbe0f); /* movsbl */
     } else if ((ft & VT_TYPE) == (VT_BYTE | VT_UNSIGNED)) {
-
-      tcc_error("We aint supporting unsigned byte for now or bool");
-      o(0xb60f); /* movzbl */
+      imm = (fc + LOCAL_OFFSET) & 0xFFFF;
+      opcode = opcode_l8;
+      // o(0xb60f); /* movzbl */
     } else if ((ft & VT_TYPE) == VT_SHORT) {
       tcc_error("We aint supporting short for now or bool");
       o(0xbf0f); /* movswl */
@@ -606,15 +634,25 @@ ST_FUNC void load(int r, SValue *sv) {
     } else if ((ft & VT_TYPE) == (VT_QLONG)) {
       /* l64 */
       tcc_error("poxim does not support VT_QLONG type");
+    } else if ((ft & VT_TYPE) == (VT_QLONG)) {
+      tcc_error("poxim does not support VT_QLONG type");
     } else {
       tcc_error("poxim does not support %x type", (ft & VT_TYPE));
     }
-    //DONE:  gen_modrm(r, fr, sv->sym, fc);
+    // DONE:  gen_modrm(r, fr, sv->sym, fc);
     if ((fr & VT_VALMASK) == VT_LOCAL) {
       /* currently, we use only bp2 as base */
-      gen_be32(opcode << 26 | (r + 1) << 21 | bp2 << 16 | (imm));
+      gen_be32(opcode << 26 | (r + 1) << 21 | rbp << 16 | (imm));
     } else {
-      gen_be32(opcode << 26 | (r + 1) << 21 | ((fr & VT_VALMASK) + 1) << 16);
+      u32 reg = ((fr & VT_VALMASK) + 1);
+      if (opcode == opcode_l8) {
+        u32 rtemp = rt2;
+        movr(rtemp, reg);
+        sll(r0, rtemp, rtemp, 2);
+        gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | rtemp << 16);
+      } else {
+        gen_be32(opcode << 26 | (r + 1) << 21 | reg << 16);
+      }
     }
     gen_poxim_direct_addr(fr, sv->sym, (fc));
 
@@ -636,14 +674,15 @@ ST_FUNC void load(int r, SValue *sv) {
         if ((VT_LOCAL & VT_VALMASK) == VT_LOCAL) {
           /* in x86 would be lea xxx(%ebp), r */
           /* currently, we use only bp2 as base */
-          addi(r + 1, bp2, (fc + LOCAL_OFFSET) >> 2);
+          addi(r + 1, rbp, (fc + LOCAL_OFFSET) >> 2);
         } else {
-          assert(0 && "first time i saw this case, inspect further, although it must be correct anyways");
+          assert(0 && "first time i saw this case, inspect further, "
+                      "although it must be correct anyways");
           movr(r + 1, ((VT_LOCAL & VT_VALMASK) + 1));
         }
         // TODO:  check if we can do someething like this addi(r+1, bp2,
         // fc >> 2);
-        //  o(0x8d); 
+        //  o(0x8d);
         // TODO:@symbolcheck
         gen_poxim_direct_addr(VT_LOCAL, sv->sym, fc);
         // gen_modrm(r, VT_LOCAL, sv->sym, fc);
@@ -684,7 +723,7 @@ ST_FUNC void load(int r, SValue *sv) {
 ST_FUNC void store(int r, SValue *v) {
   int fr, bt, ft, fc;
   u32 opcode = -1;
-  u32 imm = -1;
+  u32 imm = -1, rbp = bp2;
 
 #ifdef TCC_TARGET_PE
   SValue v2;
@@ -716,9 +755,7 @@ ST_FUNC void store(int r, SValue *v) {
       o(0x66);
     }
     if (bt == VT_BYTE || bt == VT_BOOL) {
-      // tcc_error("(bt == VT_BYTE || bt == VT_BOOL poxim not hanlded %s",
-      //           __func__);
-      imm = ((fc + LOCAL_OFFSET) >> 2) & 0xFFFF;
+      imm = (fc + LOCAL_OFFSET) & 0xFFFF;
       opcode = opcode_s8;
     } else if (bt == VT_INT) { // VT_INT
       imm = ((fc + LOCAL_OFFSET) >> 2) & 0xFFFF;
@@ -733,30 +770,46 @@ ST_FUNC void store(int r, SValue *v) {
   if (fr == VT_CONST) {
     // TODO:  check the endiannes of this, does it need changing?
     if ((v->r & VT_VALMASK) == VT_LOCAL) {
-        movs(r + 1, (fc));
+      movs(r + 1, (fc));
     } else {
-        movr(r + 1, ((v->r & VT_VALMASK)+1));
+      movr(r + 1, ((v->r & VT_VALMASK) + 1));
     }
     gen_poxim_addr(v->r, v->sym, fc);
-
 
   } else if (fr == VT_LOCAL) {
     // tcc_error("VT_LOCAL poxim not hanlded %s", __func__);
     /* currently, we use only ebp as base */
     // v->r
+
     if ((v->r & VT_VALMASK) == VT_LOCAL) {
-       gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | bp2 << 16 | (imm));
+      gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | rbp << 16 | (imm));
     } else {
-        gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | ((v->r & VT_VALMASK) + 1) << 16);
+      u32 reg = ((v->r & VT_VALMASK) + 1);
+      if (opcode == opcode_s8) {
+        u32 rtemp = rt2;
+        movr(rtemp, reg);
+        sll(r0, rtemp, rtemp, 2);
+        gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | rtemp << 16);
+      } else {
+        gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | reg << 16);
+      }
     }
     gen_poxim_addr(v->r, v->sym, fc);
 
   } else if (v->r & VT_LVAL) {
-    //TODO: does this break anythin? s32(r + 1, fr + 1, 0);
+    // TODO: does this break anythin? s32(r + 1, fr + 1, 0);
     if ((v->r & VT_VALMASK) == VT_LOCAL) {
-       gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | bp2 << 16 | (imm));
+      gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | rbp << 16 | (imm));
     } else {
-       gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | ((v->r & VT_VALMASK) + 1) << 16);
+      u32 reg = ((v->r & VT_VALMASK) + 1);
+      if (opcode == opcode_s8) {
+        u32 rtemp = rt2;
+        movr(rtemp, reg);
+        sll(r0, rtemp, rtemp, 2);
+        gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | rtemp << 16);
+      } else {
+        gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | reg << 16);
+      }
     }
     gen_poxim_addr(v->r, v->sym, fc);
   } else if (fr != r) {
@@ -1186,7 +1239,7 @@ ST_FUNC int gjmp_cond(int op, int t) {
     break;
   } /* 0x95 */
   case TOK_ULE: {
-    assert(0 && "jmp cond not handled TOK_ULE");
+    opcode = opcode_bbt;
     break;
   } /* 0x96 */
   case TOK_UGT: {
@@ -1241,11 +1294,17 @@ ST_FUNC void gen_opi(int op) {
       c = vtop->c.i;
       if (op == '+') {
         addi(r + 1, r + 1, c);
-      } else {
+      } else if (op == '-') {
         subi(r + 1, r + 1, c);
+      } else if (op == '^') {
+        xori(r + 1, r + 1, c);
+      } else if (op == '&') {
+        andi(r + 1, r + 1, c);
+      } else {
+        assert(0 && "op not handled");
+      }
         // o(0x81);
         // oad(0xc0 | (opc << 3) | r, c);
-      }
     } else {
       gv2(RC_INT, RC_INT);
       r = vtop[-1].r;
@@ -1254,9 +1313,12 @@ ST_FUNC void gen_opi(int op) {
       // NOTE:  Do believe opc is the '+' or '-'
       if (op == '+') {
         add(r + 1, r + 1, fr + 1);
+      } if (op == '&') {
+        and(r + 1, r + 1, fr + 1);
       } else {
         sub(r + 1, r + 1, fr + 1);
       }
+
       // o((opc << 3) | 0x01);
       // o(0xc0 + r + fr * 8);
     }
@@ -1278,12 +1340,11 @@ ST_FUNC void gen_opi(int op) {
     opcode = 3;
     goto gen_op8;
   case '&':
-    tcc_error("%s poxim-gen not handled &", __func__);
-    opcode = 4;
+    opcode = opcode_and;
     goto gen_op8;
   case '^':
-    tcc_error("%s poxim-gen not handled ^", __func__);
-    opcode = 6;
+    // tcc_error("%s poxim-gen not handled ^", __func__);
+    opcode = opcode_xor;
     goto gen_op8;
   case '|':
     tcc_error("%s poxim-gen not handled | ", __func__);
@@ -1385,6 +1446,7 @@ ST_FUNC void gen_opi(int op) {
   case TOK_NE:
   case TOK_EQ:
   case TOK_LT:
+  case TOK_UGT:
   case TOK_ULT:
   case TOK_GT: {
   gen_cmp:

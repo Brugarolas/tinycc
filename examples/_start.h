@@ -14,6 +14,7 @@ void int0(void);
 
 int  main(void);
 void *memset(void *ptr, int value, size_t size);
+int memmove(void *, const void *, int );
 void _start(void) {
     main();
     int0();
@@ -26,4 +27,14 @@ void *memset(void *ptr, int value, size_t size) {
     *p++ = value;
   }
   return ptr;
+}
+
+
+int memmove(void * dst, const void *src, int  num) {
+   unsigned char *pdst = (unsigned char *)dst;
+   const unsigned char *psrc = (const unsigned char *)src;
+   while (num--) {
+        *pdst++ = *psrc++;
+    }
+    return dst;
 }

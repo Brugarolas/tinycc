@@ -181,7 +181,7 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr,
 
   sym_index = ELFW(R_SYM)(rel->r_info);
 
-  assert( type == R_386_32 || type == R_386_PC32);
+  assert(type == R_386_32 || type == R_386_PC32);
 
   switch (type) {
   case R_386_32:
@@ -206,28 +206,44 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr,
       u32 inst = swap_endianness32(*inst_ptr);
       i32 opcode = bits_at(inst, 31, 26);
       i32 rest = 0;
+      b8 handled = 0;
 
       switch (opcode) {
-        case opcode_l32: {
-            i32 rz = bits_at(inst, 25, 21);
-            abs_val >>= 2;
-            rest = rz << 21 | rt << 16;
-            printf("inst = %B \n", inst);
-          break;
-        }
-        case opcode_call: {
-            abs_val >>= 2;
-            rest = rt << 16;
-          break;
-        }
-        default:
-          assert(0 && "unhandled case");
+      case opcode_l32: {
+        i32 rz = bits_at(inst, 25, 21);
+        abs_val >>= 2;
+        rest = rz << 21 | rt << 16;
+        printf("inst = %B \n", inst);
+        break;
+      }
+      case opcode_call: {
+        abs_val >>= 2;
+        rest = rt << 16;
+        break;
+      }
+      case opcode_mov:
+      case opcode_movs: {
+        i32 rz = bits_at(inst, 25, 21);
+        handled = 1;
+        abs_val = (abs_val >> 2) & 0x1fffff;
+        rest = (rz & 0b11111) << 21 | rt << 16;
+        *inst_ptr = swap_endianness32(opcode_mov << 26 
+																			| (rz & 0b11111) << 21 
+																			| (abs_val & 0xFFFFFFFF));
+        // *(inst_ptr2) = swap_endianness32(opcode_add << 26  | rest);
+
+        break;
+      }
+      default:
+        assert(0 && "unhandled case");
       }
 
-      *inst_ptr = swap_endianness32(0x00 << 26 
-                                     |(rt & 0b11111) << 21 
-                                     |(abs_val & 0xFFFFFFFF));
-      *(inst_ptr2) = swap_endianness32( opcode << 26 | rest);
+      if (!handled) {
+
+        *inst_ptr = swap_endianness32(0x00 << 26 | (rt & 0b11111) << 21 |
+                                      (abs_val & 0xFFFFFFFF));
+        *(inst_ptr2) = swap_endianness32(opcode << 26 | rest);
+      }
     }
     return;
     if (s1->output_type == TCC_OUTPUT_DLL) {
