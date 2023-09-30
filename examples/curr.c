@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 
 #if !defined(DEBUG) || DEBUG == 0
 #include "_start.h"
@@ -169,8 +169,8 @@ int main() {
 #else
 #include "_start.h"
 
-int *terminal32 = (int *)(0x88888888 >> 2);
-void putchar(int c) { *terminal32 = c; }
+// int *terminal32 = (int *)(0x88888888 >> 2);
+// void putchar(int c) { *terminal32 = c; }
 // void memmove(void){}
 // void memset(void){}
 
@@ -180,13 +180,15 @@ typedef struct {
 } vector2i;
 
 // int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.y * v2.y; }
-int sum(vector2i v1) { return v1.x + v1.x;}
+int sum(vector2i v, int a) { return v.x + v.y + a;}
 
 
 int main(void) {
   // vector2i v1 = {.x = 1, .y = 2}, v2 = {.x = 7, .y = 11};
   vector2i v1 = {.x = 1, .y = 2};
-  return sum(v1);
+  memset(&v1, 0xcc,  sizeof(vector2i));
+  // int a = sum(v1, 3);
+  return v1.x;
 }
 
 #endif

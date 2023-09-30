@@ -33,7 +33,7 @@ utils: bin2strhex.c
 # XXX: The necessary flags to compile directly to binary as we need: -nostdlib -static -Wl,--oformat=binary 
 run: TCC = tcc 
 run: bin_extension = .bin
-run: dump all run-i386 utils interp dirs
+run: dump all run-i386 utils interp dirs examples
 	./$(TCC_RUN)
 	./$(DUMP) --bin $(dir_bin)/$(file_curr)$(bin_extension) > $(dir_dump)/$(file_curr).poxim.dump
 	./$(INTERP) --bin $(dir_bin)/$(file_curr)$(bin_extension)  $(dir_interp)/$(file_curr).interp
@@ -47,7 +47,7 @@ run-i386: dump all utils interp dirs
 	# objcopy -O binary --only-section=.text  <rest>
 
 EXAMPLES := $(patsubst ./examples/%.c, %, $(wildcard ./examples/*.c))
-examples: run
+examples: ./$(TCC) dirs interp dump # If the binary havent changed, so we don't need to run examples
 	for var in $(EXAMPLES) ; do \
 		./tcc -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
 		./poxim-dump --bin $(dir_bin)/$$var.bin > $(dir_dump)/$$var.poxim.dump && \

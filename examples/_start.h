@@ -14,7 +14,8 @@ void int0(void);
 
 int  main(void);
 void *memset(void *ptr, int value, size_t size);
-int memmove(void *, const void *, int );
+
+int memmove(void *, const void *, size_t );
 void _start(void) {
     main();
     int0();
@@ -23,14 +24,14 @@ void _start(void) {
 
 void *memset(void *ptr, int value, size_t size) {
   int *p = (int*)ptr;
-  for (size_t i = 0; i < size / sizeof(int); i++) {
+  for (size_t _ = 0; _ < size / sizeof(int); _++) {
     *p++ = value;
   }
   return ptr;
 }
 
 
-int memmove(void * dst, const void *src, int  size) {
+int memmove(void * dst, const void *src, size_t size) {
   int *idst = (int*)dst;
   int *isrc = (int*)src;
   for (size_t i = 0; i < size / sizeof(int); i++) {

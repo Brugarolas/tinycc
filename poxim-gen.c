@@ -619,7 +619,7 @@ ST_FUNC void load(int r, SValue *sv) {
       o(0xbf0f); /* movswl */
     } else if ((ft & VT_TYPE) == (VT_SHORT | VT_UNSIGNED)) {
       tcc_error("We aint supporting (VT_SHORT | VT_UNSIGNED)");
-      imm = (fc + LOCAL_OFFSET) >> 0 & 0xFFFF;
+      imm = (fc + LOCAL_OFFSET) >> 1 & 0xFFFF;
       opcode = opcode_l8;
       // o(0xb70f); /* movzwl */
     } else if ((ft & VT_TYPE) == (VT_INT)) {
@@ -627,7 +627,7 @@ ST_FUNC void load(int r, SValue *sv) {
       imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
       opcode = 0b011010;
     } else if ((ft & VT_TYPE) == (VT_INT | VT_UNSIGNED)) {
-      imm = (fc + LOCAL_OFFSET) >> 0 & 0xFFFF;
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
       opcode = opcode_l32;
     } else if ((ft & VT_TYPE) == (VT_PTR)) {
       /* l32 */
@@ -932,7 +932,11 @@ ST_FUNC void gfunc_call(int nb_args) {
         subi(sp, sp, size); /* sub sp, sp, xxx */
         /* generate structure store */
         r = get_reg(RC_INT);
-        movr(r + 1, sp); /* mov %esp, r */
+
+        movr(rt, sp); /* mov rt sp */
+        srl(r0,rt, rt, 2); /* this is a pointer now and since every pointer in
+        shifted in poxim we need to scale it  before passing to memove*/
+        movr(r + 1, rt); /* mov %esp, r */
       }
       vset(&vtop->type, r | VT_LVAL, 0);
       vswap();
