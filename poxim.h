@@ -84,7 +84,7 @@ void set_bit(u32 *number, u8 nth_bit, u8 choice);
 void fill_bits(u32 *number, u8 start, u8 end, u8 bit_choice);
 
 /* pretty names for the registers */
-enum { r0 = 0, r1, r2, r3, r4, rf, bp, bp2, rt, rt2, rdiv, rmod, rmul, sp = 30 };
+enum { r0 = 0, r1, r2, r3, r4, rf, bp, bp2, rt, rt2, rret, rdiv, rmod, rmul, sp = 30 };
 
 typedef enum : u8 {
   //:> Format Type 'U'

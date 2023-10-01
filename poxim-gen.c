@@ -624,6 +624,7 @@ ST_FUNC void load(int r, SValue *sv) {
       // o(0xb70f); /* movzwl */
     } else if ((ft & VT_TYPE) == (VT_FUNC)) {
       imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
       opcode = opcode_l32;
     } else if ((ft & VT_TYPE) == (VT_PTR)) {
       /* l32 */
@@ -1153,11 +1154,16 @@ ST_FUNC void gfunc_epilog(void) {
   if (func_ret_sub == 0) {
     gen_le32(0x7c); /* ret */
   } else {
-    tcc_error("idk return n ? not supported for now, idk what cases this "
-              "might arise");
-    o(0xc2); /* ret n */
-    g(func_ret_sub);
-    g(func_ret_sub >> 8);
+    // tcc_error("idk return n ? not supported for now, idk what cases this "
+    //           "might arise");
+    pop(rret);
+    addi(sp, sp, func_ret_sub);
+    push(rret);
+    gen_le32(0x7c); /* ret */
+
+    // o(0xc2); /* ret n */
+    // g(func_ret_sub);
+    // g(func_ret_sub >> 8);
   }
   saved_ind = ind;
   ind = func_sub_sp_offset - FUNC_PROLOG_SIZE;

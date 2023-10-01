@@ -1,6 +1,13 @@
 #define DEBUG 0
 
+// #define __poxim__
+#if !defined(__clang__) &&  !defined(__GNUC__) && !defined(__GNUG__)
+  // other checks __clang_major__, __clang_minor__ and __clang_patchlevel__
+  #define __poxim__
+#endif
+
 #if !defined(DEBUG) || DEBUG == 0
+#if defined(__poxim__)
 #include "_start.h"
 int *terminal32 = (int *)(0x88888888 >> 2);
 
@@ -8,6 +15,9 @@ unsigned int strlen(const char *str);
 void putchar(int c) { *terminal32 = c; }
 void puti(int num);
 void puts(const char *str);
+#else 
+#include <stdio.h>
+#endif
 
 
 //>>********************** Printing ********************* //
@@ -16,6 +26,7 @@ void puts(const char *str);
   to ensure every string is a multiple of 4 hehe, remember that last byte of str
   literal is always zero
 */
+#if defined(__poxim__)
 void puts(const char *str) {
   int *ptr = (int *)str;
   int word;
@@ -93,7 +104,7 @@ void puti(int num) {
   }
 
   // Find the divisor for the largest digit place
-  while (num / divisor > 10) {
+  while (num / divisor > 9) {
     divisor *= 10;
   }
 
@@ -110,6 +121,11 @@ void puti(int num) {
     divisor /= 10;
   }
 }
+
+#else
+#define puti(x) printf("%d", x)
+#define puts(input) fputs(input, stdout); // no new line just line mine
+#endif
 //<<********************** Printing ********************* //
 
 //>>********************** Struct ********************* //
@@ -217,8 +233,8 @@ int fibonnacci(int n) {
 
 void recursion_play(void) {
 
-  for (size_t i = 0; i < MAX_FIB; i++) {
-    puts("fibonnaci");
+  for (int i = 0; i < MAX_FIB; i++) {
+    puts("  fibonnaci ");
     putchar('(');
     puti(i);
     putchar(')');
@@ -228,23 +244,158 @@ void recursion_play(void) {
     puti(fibonnacci(i));
     putchar('\n');
   }
-
 }
 //<<********************** Recursion ********************* //
 
+//>>********************** Machine Code Execution ********************* //
+//<<********************** Machine Code Execution ********************* //
 
+
+//>>********************** Polymorphism ********************* //
+typedef struct {
+  void (*speak)(void);
+} Animal;
+
+typedef struct{
+  Animal base;
+  void (*speak)(void);
+  int age;
+} Cat;
+
+typedef struct {
+  Animal base;
+  int age[12];
+} Dog;
+
+
+void dog_speak(void) {
+  puts(
+    "hello I'm doggo\n"
+    "^..^      /   \n"
+    "/_/\\_____/   \n"
+    "   /\\   /\\  \n"
+    "  /  \\ /  \\ \n"
+  );
+}
+
+void cat_speak(void) {
+  puts(
+    "i'm little kitty \n"
+    "       ,_     _        \n"
+    "   |\\\\_,-~/          \n"
+    "   / _  _ |    ,--.    \n"
+    "  (  @  @ )   / ,-'    \n"
+    "   \\  _T_/-._( (      \n"
+    "   /         `. \\     \n"
+    "  |         _  \\ |    \n"
+    "   \\ \\ ,  /      |   \n"
+    "    || |-_\\__   /     \n"
+    "   ((_/`(____,-'       \n"
+  );
+}
+
+Dog create_dog(void) {
+  Dog d;
+  d.base.speak = dog_speak;
+  // d.age = 2;
+  return d;
+}
+
+void animal_generic_speak(Animal* a){
+  a->speak();
+}
+
+void polymorphism_play(){
+    cat_speak();
+}
+//<<********************** Polymorphism ********************* //
+
+//>>********************** Matrices ********************* //
+#define ROW1 4
+#define COL1 3
+#define ROW2 3
+#define COL2 4
+void multiply_matrices(int *mat1, int row1, int col1, int *mat2, int row2, int col2, int *result) {
+    int i, j, k;
+
+    for (i = 0; i < row1; i++) {
+        for (j = 0; j < col2; j++) {
+            result[i * col2 + j] = 0;
+            for (k = 0; k < col1; k++) {
+                result[i * col2 + j] += mat1[i * col1 + k] * mat2[k * col2 + j];
+            }
+        }
+    }
+}
+
+void print_matrix(int *mat, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            putchar(' ');
+            puti(mat[i * cols + j]);
+            putchar(' ');
+        }
+        putchar('\n');
+    }
+}
+
+int matrix_play() {
+    int matrix1[ROW1][COL1] = {{1, 2, 3},
+                              {4, 5, 6},
+                              {7, 8, 9},
+                              {10, 11, 12}};
+
+    int matrix2[ROW2][COL2] = {{1, 2, 3, 4},
+                              {5, 6, 7, 8},
+                              {9, 10, 11, 12}};
+
+    int result[ROW1][COL2];
+    
+
+    if (COL1 != ROW2) {
+        puts("Matrix multiplication not possible. Inner dimensions must match.\n");
+        return 1;
+    }
+
+    puts("\n\tMatrix A\n");
+    print_matrix((int*) matrix1, ROW1, COL1);
+
+    puts("\n\tMatrix B\n");
+    print_matrix((int*) matrix2, ROW2, COL2);
+
+
+    multiply_matrices((int*)matrix1, ROW1, COL1, (int*)matrix2, ROW2, COL2, (int*)result);
+    puts("\n\tA*B = Matrix C\n");
+    print_matrix((int*) result , ROW1, COL2);
+
+    return 0;
+}
+//<<********************** Matrices ********************* //
+
+//>>********************** Memory set and move ********************* //
+//<<********************** Memory set and move ********************* //
+
+//>>********************** Globals ********************* //
+//<<********************** Globals ********************* //
+
+#define MARK_CONST 40
 #define mark(n)  do{ int i = n; putchar('\n'); while(i--) putchar('-'); putchar('\n');} while(0);
 int main(void) {
 
-  mark(25);
+  mark(MARK_CONST);
   recursion_play();
   
-  mark(25);
+  mark(MARK_CONST);
   sort_play();
 
-  mark(25);
+  mark(MARK_CONST);
   struct_play();
 
+  mark(MARK_CONST);
+  matrix_play();
+
+  mark(MARK_CONST);
+  polymorphism_play();
 
   return 69;
 }
@@ -254,47 +405,7 @@ int main(void) {
 
 int *terminal32 = (int *)(0x88888888 >> 2);
 void putchar(int c) { *terminal32 = c; }
-//
-//
-// int main(void);
-// typedef struct {
-//   int x, y;
-// } vector2i;
-//
-// void printi(int num) {
-//   int divisor = 1;
-//   int isNegative = 0;
-//
-//   // Handle negative numbers
-//   if (num < 0) {
-//     isNegative = 1;
-//     num = -num;
-//   }
-//
-//   // Find the divisor for the largest digit place
-//   while (num / divisor > 10) {
-//     divisor *= 10;
-//   }
-//
-//   // If the number was negative, print the minus sign
-//   if (isNegative > 0) {
-//     putchar('-');
-//   } else {
-//     // putchar('+');
-//   }
-//   // Extract and print each digit
-//   while (divisor > 0) {
-//     int digit = (num / divisor) % 10;
-//     putchar('0' + digit);
-//     divisor /= 10;
-//   }
-// }
-//
-// int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.i * v2.y; }
-// int sum(vector2i v) { return v.x + v.y;}
 
-
-// void memset(void){}
 void func() {
 
   putchar('o');
