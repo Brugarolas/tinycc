@@ -30,7 +30,6 @@ void *memset(void *ptr, int value, size_t size) {
   return ptr;
 }
 
-
 int memmove(void * dst, const void *src, size_t size) {
   int *idst = (int*)dst;
   int *isrc = (int*)src;

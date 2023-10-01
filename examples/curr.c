@@ -161,10 +161,12 @@ int main() {
     printi(a);
     putchar(' ');
   }
-  puts("ccc");
-  puts("aaabbbb");
-  // return struc_play();
+  // puts("ccc...........\n");
+  puts("\n.............\n");
+  printi(struc_play());
+  puts("\n.............\n");
 }
+
 
 #else
 #include "_start.h"
@@ -176,19 +178,21 @@ int main() {
 
 int main(void);
 typedef struct {
-  int x, y;
+  int x, y, z, w;
 } vector2i;
 
 // int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.y * v2.y; }
-int sum(vector2i v, int a) { return v.x + v.y + a;}
+int sum(vector2i v) { return v.x + v.y 
+  + v.z;}
 
 
 int main(void) {
   // vector2i v1 = {.x = 1, .y = 2}, v2 = {.x = 7, .y = 11};
-  vector2i v1 = {.x = 1, .y = 2};
-  memset(&v1, 0xcc,  sizeof(vector2i));
-  // int a = sum(v1, 3);
-  return v1.x;
+  vector2i v1 = {.x = 0xc1, .y = 0xc2, .z=0xc3};
+  vector2i v2;
+  memmove(&v2, &v1, sizeof(vector2i));
+  // memset(&v1, 0xcf,  sizeof(vector2i));
+  return sum(v1);
 }
 
 #endif

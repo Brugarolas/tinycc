@@ -70,7 +70,7 @@
 #define LDOUBLE_SIZE 12
 #define LDOUBLE_ALIGN 4
 /* maximum alignment (for aligned attribute support) */
-#define MAX_ALIGN 8
+#define MAX_ALIGN 4
 
 /* define if return values need to be extended explicitely
    at caller side (for interfacing with non-TCC compilers) */
@@ -932,10 +932,13 @@ ST_FUNC void gfunc_call(int nb_args) {
         subi(sp, sp, size); /* sub sp, sp, xxx */
         /* generate structure store */
         r = get_reg(RC_INT);
-
         movr(rt, sp); /* mov rt sp */
-        srl(r0,rt, rt, 2); /* this is a pointer now and since every pointer in
-        shifted in poxim we need to scale it  before passing to memove*/
+        /* This is a pointer now and since every pointer in
+           shifted in poxim we need to scale it  before passing to memove
+        */
+        srl(r0, rt, rt, 2);
+        printf("size of struct = 0x%x", size);
+        addi(rt, rt, 1); 
         movr(r + 1, rt); /* mov %esp, r */
       }
       vset(&vtop->type, r | VT_LVAL, 0);

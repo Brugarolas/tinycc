@@ -94,28 +94,41 @@ Disassembly of section .data:
       e6:	c3                   	ret
       e7:	55                   	push   ebp
       e8:	89 e5                	mov    ebp,esp
-      ea:	81 ec 08 00 00 00    	sub    esp,0x8
-      f0:	b8 08 00 00 00       	mov    eax,0x8
+      ea:	81 ec 24 00 00 00    	sub    esp,0x24
+      f0:	b8 10 00 00 00       	mov    eax,0x10
       f5:	50                   	push   eax
       f6:	b8 00 00 00 00       	mov    eax,0x0
       fb:	50                   	push   eax
-      fc:	8d 45 f8             	lea    eax,[ebp-0x8]
+      fc:	8d 45 f0             	lea    eax,[ebp-0x10]
       ff:	50                   	push   eax
      100:	e8 1c ff ff ff       	call   0x21
      105:	83 c4 0c             	add    esp,0xc
-     108:	b8 01 00 00 00       	mov    eax,0x1
-     10d:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
-     110:	b8 02 00 00 00       	mov    eax,0x2
-     115:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
-     118:	b8 08 00 00 00       	mov    eax,0x8
-     11d:	50                   	push   eax
-     11e:	b8 cc 00 00 00       	mov    eax,0xcc
-     123:	50                   	push   eax
-     124:	8d 45 f8             	lea    eax,[ebp-0x8]
-     127:	50                   	push   eax
-     128:	e8 f4 fe ff ff       	call   0x21
-     12d:	83 c4 0c             	add    esp,0xc
-     130:	8b 45 f8             	mov    eax,DWORD PTR [ebp-0x8]
-     133:	c9                   	leave
-     134:	c3                   	ret
+     108:	b8 c1 00 00 00       	mov    eax,0xc1
+     10d:	89 45 f0             	mov    DWORD PTR [ebp-0x10],eax
+     110:	b8 c2 00 00 00       	mov    eax,0xc2
+     115:	89 45 f4             	mov    DWORD PTR [ebp-0xc],eax
+     118:	b8 c3 00 00 00       	mov    eax,0xc3
+     11d:	89 45 f8             	mov    DWORD PTR [ebp-0x8],eax
+     120:	b8 10 00 00 00       	mov    eax,0x10
+     125:	50                   	push   eax
+     126:	8d 45 f0             	lea    eax,[ebp-0x10]
+     129:	50                   	push   eax
+     12a:	8d 45 e0             	lea    eax,[ebp-0x20]
+     12d:	50                   	push   eax
+     12e:	e8 3d ff ff ff       	call   0x70
+     133:	83 c4 0c             	add    esp,0xc
+     136:	81 ec 10 00 00 00    	sub    esp,0x10
+     13c:	89 e0                	mov    eax,esp
+     13e:	b9 10 00 00 00       	mov    ecx,0x10
+     143:	51                   	push   ecx
+     144:	8d 4d f0             	lea    ecx,[ebp-0x10]
+     147:	51                   	push   ecx
+     148:	50                   	push   eax
+     149:	89 45 dc             	mov    DWORD PTR [ebp-0x24],eax
+     14c:	e8 1f ff ff ff       	call   0x70
+     151:	83 c4 0c             	add    esp,0xc
+     154:	e8 76 ff ff ff       	call   0xcf
+     159:	83 c4 10             	add    esp,0x10
+     15c:	c9                   	leave
+     15d:	c3                   	ret
 	...
