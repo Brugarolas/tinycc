@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 0
 
 #if !defined(DEBUG) || DEBUG == 0
 #include "_start.h"
@@ -165,8 +165,8 @@ void sort_play(void) {
   int arr[] = {-1, -564, 420, 69, 1200};
   int n = sizeof(arr) / sizeof(arr[0]);
   int i, a;
-
-  printi(arr[1]);
+  int l = 2;
+  printi(*(arr + 2));
   for (i = 0; i < n; i++) {
     a = arr[i];
     printi(a);
@@ -203,67 +203,56 @@ int main(void) {
 
 // int *terminal32 = (int *)(0x88888888 >> 2);
 // void putchar(int c) { *terminal32 = c; }
-// void memmove(void){}
-// void memset(void){}
-
-// int *terminal32 = (int *)(0x88888888 >> 2);
 //
-// unsigned int strlen(const char *str);
-// void putchar(int c) { *terminal32 = c; }
-
-#include <stdio.h>
-int main(void);
-typedef struct {
-  int x, y;
-} vector2i;
-
-void printi(int num) {
-  int divisor = 1;
-  int isNegative = 0;
-
-  // Handle negative numbers
-  if (num < 0) {
-    isNegative = 1;
-    num = -num;
-  }
-
-  // Find the divisor for the largest digit place
-  while (num / divisor > 10) {
-    divisor *= 10;
-  }
-
-  // If the number was negative, print the minus sign
-  if (isNegative > 0) {
-    putchar('-');
-  } else {
-    // putchar('+');
-  }
-  // Extract and print each digit
-  while (divisor > 0) {
-    int digit = (num / divisor) % 10;
-    putchar('0' + digit);
-    divisor /= 10;
-  }
-}
-
-int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.y * v2.y; }
+//
+// int main(void);
+// typedef struct {
+//   int x, y;
+// } vector2i;
+//
+// void printi(int num) {
+//   int divisor = 1;
+//   int isNegative = 0;
+//
+//   // Handle negative numbers
+//   if (num < 0) {
+//     isNegative = 1;
+//     num = -num;
+//   }
+//
+//   // Find the divisor for the largest digit place
+//   while (num / divisor > 10) {
+//     divisor *= 10;
+//   }
+//
+//   // If the number was negative, print the minus sign
+//   if (isNegative > 0) {
+//     putchar('-');
+//   } else {
+//     // putchar('+');
+//   }
+//   // Extract and print each digit
+//   while (divisor > 0) {
+//     int digit = (num / divisor) % 10;
+//     putchar('0' + digit);
+//     divisor /= 10;
+//   }
+// }
+//
+// int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.i * v2.y; }
 // int sum(vector2i v) { return v.x + v.y;}
 
+void memset(void){}
 
 int main(void) {
-  // vector2i v1 = {.x = 1, .y = 2}, v2 = {.x = 7, .y = 11};
-  // vector2i v1 = {.x = 0xc1, .y = 0xc2};
-  // vector2i v2;
-  // vector2i v1 = {.x=-7, .y=2}, v2 = {.x=3, .y=-4};
-  vector2i v1 = {.x=1, .y=2}, v2 = {.x=3, .y=4};
-  // memmove(&v2, &v1, sizeof(vector2i));
-  // memset(&v1, 0xcf,  sizeof(vector2i));
-  int a;
-  a = dot(v1, v2);
-  printi(a);
-  printi(12312314);
-  putchar('\n');
-  return a;
+
+  int a[]  = {1,2,3};
+  // int p[] = {0xDFFFFFFF};
+  // goto *p;
+  // int ret = arr[i];
+  int ret = *(a + 1);
+  return ret;
+  // putchar('\n');
 }
 
 #endif

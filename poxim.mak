@@ -18,6 +18,8 @@ dirs:
 debug: run
 	gdb --args 	$(TCC_RUN)
 
+debug-i386: TCC = tcc-i386
+debug-i386: bin_extension = .i386.bin
 debug-i386: run-i386
 	gdb --args $(TCC_RUN)
 
@@ -49,9 +51,11 @@ run-i386: dump all utils interp dirs
 EXAMPLES := $(patsubst ./examples/%.c, %, $(wildcard ./examples/*.c))
 examples: ./$(TCC) dirs interp dump # If the binary havent changed, so we don't need to run examples
 	for var in $(EXAMPLES) ; do \
-		./tcc -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
-		./poxim-dump --bin $(dir_bin)/$$var.bin > $(dir_dump)/$$var.poxim.dump && \
-		./poxim-interp --bin $(dir_bin)/$$var.bin  $(dir_interp)/$$var.interp ; \
+		echo "[INFO] : running example" $$var; \
+		echo  ./$(TCC) -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
+		./$(TCC) -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
+		./$(DUMP) --bin $(dir_bin)/$$var.bin > $(dir_dump)/$$var.poxim.dump && \
+		./$(INTERP) --bin $(dir_bin)/$$var.bin  $(dir_interp)/$$var.interp ; \
 	done
 
 

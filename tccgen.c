@@ -2959,9 +2959,11 @@ redo:
 				everything is added a flat number to pointer,
 				So we do'nt scale the type size @hack
 			*/
-				// vtop[-1].type.ref->type.t = (vtop[-1].type.ref->type.t & ~(0xf)) | VT_BYTE;
 				type1 = vtop[-1].type;
-				// vtop[-1].c.i = 0;
+        vpushi(1); /* size is always one in this hack */ 
+				// vtop[-1].type.ref->type.t = (vtop[-1].type.ref->type.t & ~(0xf)) | VT_BYTE;
+			  // vpush_type_size(pointed_type(&vtop[-1].type), &align);
+			  gen_op('*');
 			#else
 			type1 = vtop[-1].type;
 			vpush_type_size(pointed_type(&vtop[-1].type), &align);
