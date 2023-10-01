@@ -1,0 +1,25 @@
+[TERMINAL]
+
+-------------------------
+fibonnaci(0) = 0
+fibonnaci(1) = 1
+fibonnaci(2) = 1
+fibonnaci(3) = 2
+fibonnaci(4) = 3
+fibonnaci(5) = 5
+fibonnaci(6) = 8
+fibonnaci(7) = 13
+
+-------------------------
+ before sort:
+	-1 -564 420 69 1200 300 
+ after sort:
+	-564 -1 69 300 420 1200 
+-------------------------
+
+structs: 
+	   v1.x = -7 v1.y = 2 
+	   v2.x = 3 v2.y = -4 
+
+dot:
+		v1*v2 =  -29

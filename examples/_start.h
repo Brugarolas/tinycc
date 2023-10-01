@@ -14,8 +14,8 @@ void int0(void);
 
 int  main(void);
 void *memset(void *ptr, int value, size_t size);
-
 int memmove(void *, const void *, size_t );
+
 void _start(void) {
     main();
     int0();

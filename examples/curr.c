@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 0
 
 #if !defined(DEBUG) || DEBUG == 0
 #include "_start.h"
@@ -9,6 +9,8 @@ void putchar(int c) { *terminal32 = c; }
 void puti(int num);
 void puts(const char *str);
 
+
+//>>********************** Printing ********************* //
 /* @Attention, to garantee puts will work the str has to be 4 byte aligned :)
   That means every string will in the whole program have to be padded with zero
   to ensure every string is a multiple of 4 hehe, remember that last byte of str
@@ -24,22 +26,32 @@ void puts(const char *str) {
 
     len += 4;
     // Verifica se algum byte no int é zero (terminador nulo).
-    if (((word >> 24) & 0xFF) == 0) {
+    int
+      b1 = ((word >> 24) & 0xFF),
+      b2 = ((word >> 16) & 0xFF),
+      b3 = ((word >> 8 ) & 0xFF),
+      b4 = ((word >> 0 ) & 0xFF)
+    ;
+    if ( b1 == 0 && len != 4) {
       return;
     }
-    putchar((word >> 24) & 0xFF);
-    if (((word >> 16) & 0xFF) == 0) {
+    if (b1)
+      putchar((word >> 24) & 0xFF);
+    if (b2 == 0 && len != 4) {
       return;
     }
-    putchar((word >> 16) & 0xFF);
-    if (((word >> 8) & 0xFF) == 0) {
+    if (b2)
+      putchar((word >> 16) & 0xFF);
+    if (b3 == 0 && len != 4) {
       return;
     }
-    putchar((word >> 8) & 0xFF);
-    if (((word >> 0) & 0xFF) == 0) {
+    if (b3)
+      putchar((word >> 8) & 0xFF);
+    if (b4 == 0 && len != 4) {
       return;
     }
-    putchar((word >> 0) & 0xFF);
+    if (b4)
+      putchar((word >> 0) & 0xFF);
   }
 }
 
@@ -68,47 +80,15 @@ unsigned int strlen(const char *str) {
   }
 }
 
-typedef struct {
-  int x, y;
-} vector2i;
 
-int dot(vector2i v1, vector2i v2) { 
-  int result = v1.x * v2.x + v1.y * v2.y; 
-  return result;
-}
-
-void bubble_sort(int arr[], int n) {
-  int temp;
-  int swapped;
-
-  for (int i = 0; i < n - 1; i++) {
-    swapped = 0;
-
-    for (int j = 0; j < n - 1 - i; j++) {
-      // Compare adjacent elements
-      if (arr[j] > arr[j + 1]) {
-        // Swap them if they are in the wrong order
-        temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
-        swapped = 1; // Set the swapped flag
-      }
-    }
-
-    // If no two elements were swapped in this pass, the array is sorted
-    if (swapped == 0) {
-      break;
-    }
-  }
-}
 
 void puti(int num) {
   int divisor = 1;
-  int isNegative = 0;
+  int is_negative = 0;
 
   // Handle negative numbers
   if (num < 0) {
-    isNegative = 1;
+    is_negative = 1;
     num = -num;
   }
 
@@ -118,7 +98,7 @@ void puti(int num) {
   }
 
   // If the number was negative, print the minus sign
-  if (isNegative > 0) {
+  if (is_negative > 0) {
     putchar('-');
   } else {
     // putchar('+');
@@ -129,6 +109,18 @@ void puti(int num) {
     putchar('0' + digit);
     divisor /= 10;
   }
+}
+//<<********************** Printing ********************* //
+
+//>>********************** Struct ********************* //
+
+typedef struct {
+  int x, y;
+} vector2i;
+
+int dot(vector2i v1, vector2i v2) { 
+  int result = v1.x * v2.x + v1.y * v2.y; 
+  return result;
 }
 
 int struct_play(void) {
@@ -160,13 +152,41 @@ int struct_play(void) {
   puti(dot(v1, v2));
   return 1;
 }
+//<<********************** Struct ********************* //
+
+//>>********************** Sorting ********************* //
+
+void bubble_sort(int arr[], int n) {
+  int temp;
+  int swapped;
+
+  for (int i = 0; i < n - 1; i++) {
+    swapped = 0;
+
+    for (int j = 0; j < n - 1 - i; j++) {
+      // Compare adjacent elements
+      if (arr[j] > arr[j + 1]) {
+        // Swap them if they are in the wrong order
+        temp = arr[j];
+        arr[j] = arr[j + 1];
+        arr[j + 1] = temp;
+        swapped = 1; // Set the swapped flag
+      }
+    }
+
+    // If no two elements were swapped in this pass, the array is sorted
+    if (swapped == 0) {
+      break;
+    }
+  }
+}
 
 void sort_play(void) {
-  int arr[] = {-1, -564, 420, 69, 1200};
+  int arr[] = {-1, -564, 420, 69, 1200, 300};
   int n = sizeof(arr) / sizeof(arr[0]);
   int i, a;
   int l = 2;
-  puti(*(arr + 2));
+  puts("before sort:\n\t");
   for (i = 0; i < n; i++) {
     a = arr[i];
     puti(a);
@@ -176,15 +196,18 @@ void sort_play(void) {
   putchar('\n');
   bubble_sort(arr, n);
 
+  puts(" after sort:\n\t");
   for (i = 0; i < n; i++) {
     a = arr[i];
     puti(a);
     putchar(' ');
   }
 }
+//<<********************** Sorting ********************* //
 
 
-
+//>>********************** Recursion ********************* //
+#define MAX_FIB 8
 int fibonnacci(int n) {
   if (n < 2) {
     return n;
@@ -194,19 +217,27 @@ int fibonnacci(int n) {
 
 void recursion_play(void) {
 
-    for (size_t i = 0; i < 8; i++) {
-      puts("\tfibonnacci");
-      puti(i);
-      puts(")= ");
-      puti(fibonnacci(i));
-    }
+  for (size_t i = 0; i < MAX_FIB; i++) {
+    puts("fibonnaci");
+    putchar('(');
+    puti(i);
+    putchar(')');
+    putchar(' ');
+    putchar('=');
+    putchar(' ');
+    puti(fibonnacci(i));
+    putchar('\n');
+  }
 
 }
+//<<********************** Recursion ********************* //
 
 
 #define mark(n)  do{ int i = n; putchar('\n'); while(i--) putchar('-'); putchar('\n');} while(0);
 int main(void) {
 
+  mark(25);
+  recursion_play();
   
   mark(25);
   sort_play();
@@ -214,8 +245,6 @@ int main(void) {
   mark(25);
   struct_play();
 
-  mark(25);
-  recursion_play();
 
   return 69;
 }
@@ -223,8 +252,8 @@ int main(void) {
 #else
 #include "_start.h"
 
-// int *terminal32 = (int *)(0x88888888 >> 2);
-// void putchar(int c) { *terminal32 = c; }
+int *terminal32 = (int *)(0x88888888 >> 2);
+void putchar(int c) { *terminal32 = c; }
 //
 //
 // int main(void);
@@ -266,14 +295,23 @@ int main(void) {
 
 
 // void memset(void){}
+void func() {
+
+  putchar('o');
+}
 
 int main(void) {
 
-  int ret = 0x7c;
-  int bun = 0xDF;
-  bun = bun << 26;
-  int p[] = {ret, bun, ret};
-  goto *p;
+  int a = (int)main -4;
+  // int i = -1;
+  // int ret = 0x7c;
+  // int bun = 0xDF;
+  // bun = bun << 26;
+  // int p[] = {bun, bun, ret};
+  //
+  void (*f)(void) = func;
+  f();
+  // goto *p;
   // putchar('\n');
 }
 

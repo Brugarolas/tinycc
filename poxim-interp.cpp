@@ -681,6 +681,7 @@ u32 &CR = registers[26];
 /*========================================================================*/
 /*===========================IO GLOBALS=======================*/
 GLOBAL std::ofstream assembly_out;
+GLOBAL std::ofstream terminal_out;
 
 /*_______________________________________________________________________________________________________________________*/
 /*===========================Start of
@@ -711,7 +712,17 @@ int main(int argc, char **argv) {
   } else {
     StoreHexInstructions(filename_in, MEM.instructions, sizeof(MEM.instructions));
   }
+
   assembly_out.open(filename_out, std::ios::out);
+
+  // Duplicate the filename of assembly_out and remove the previous extension, if there is one
+  std::string terminal_out_filename = filename_out;
+  size_t last_dot_index = terminal_out_filename.find_last_of('.');
+  if (last_dot_index != std::string::npos) {
+    terminal_out_filename.erase(last_dot_index);
+  }
+  terminal_out_filename.append(".term");
+  terminal_out.open(terminal_out_filename, std::ios::out);
 
   ExecuteCode(MEM.instructions);
 
@@ -793,6 +804,7 @@ void ExecuteCode(u32 instructions[]) {
 void PrintTerminal() {
   printf("[TERMINAL]\n");
   assembly_out << "[TERMINAL]\n";
+  terminal_out << "[TERMINAL]\n";
 
   T.AddIn();
   while (T.HasNext()) {
@@ -801,10 +813,12 @@ void PrintTerminal() {
     if (c) {
       printf("%c", c);
       assembly_out << c;
+      terminal_out << c;
     }
   }
   puts("");
   assembly_out << "\n";
+  terminal_out << "\n";
 }
 
 void ProcessExpression(Expression ex) {

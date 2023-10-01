@@ -622,6 +622,9 @@ ST_FUNC void load(int r, SValue *sv) {
       imm = (fc + LOCAL_OFFSET) >> 1 & 0xFFFF;
       opcode = opcode_l8;
       // o(0xb70f); /* movzwl */
+    } else if ((ft & VT_TYPE) == (VT_FUNC)) {
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
+      opcode = opcode_l32;
     } else if ((ft & VT_TYPE) == (VT_PTR)) {
       /* l32 */
       opcode = opcode_l32;
