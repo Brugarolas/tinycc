@@ -768,7 +768,7 @@ ST_FUNC void store(int r, SValue *v) {
       opcode = opcode_s8;
     } else if (bt == VT_INT) { // VT_INT
       imm = ((fc + LOCAL_OFFSET) >> 2) & 0xFFFF;
-      opcode = 0b011101;
+      opcode = opcode_s32;
     } else if (bt == VT_PTR) {
       imm = ((fc + LOCAL_OFFSET) >> 2) & 0xFFFF;
       opcode = 0b011101;
@@ -777,13 +777,15 @@ ST_FUNC void store(int r, SValue *v) {
     }
   }
   if (fr == VT_CONST) {
+    u32 reg = ((v->r & VT_VALMASK) + 1);
     // TODO:  check the endiannes of this, does it need changing?
     if ((v->r & VT_VALMASK) == VT_LOCAL) {
       movs(r + 1, (fc));
     } else {
-      movr(r + 1, ((v->r & VT_VALMASK) + 1));
+       gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | reg << 16);
+      // movr(r + 1, ((v->r & VT_VALMASK) + 1) & 0b11111);
     }
-    gen_poxim_addr(v->r, v->sym, fc);
+    gen_poxim_direct_addr(v->r, v->sym, fc);
 
   } else if (fr == VT_LOCAL) {
     // tcc_error("VT_LOCAL poxim not hanlded %s", __func__);
@@ -803,7 +805,8 @@ ST_FUNC void store(int r, SValue *v) {
         gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | reg << 16);
       }
     }
-    gen_poxim_addr(v->r, v->sym, fc);
+    gen_poxim_direct_addr(v->r, v->sym, fc);
+    // gen_poxim_addr(v->r, v->sym, fc);
 
   } else if (v->r & VT_LVAL) {
     // TODO: does this break anythin? s32(r + 1, fr + 1, 0);
@@ -820,7 +823,8 @@ ST_FUNC void store(int r, SValue *v) {
         gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | reg << 16);
       }
     }
-    gen_poxim_addr(v->r, v->sym, fc);
+    gen_poxim_direct_addr(v->r, v->sym, fc);
+    // gen_poxim_addr(v->r, v->sym, fc);
   } else if (fr != r) {
     tcc_error("fr != r poxim not hanlded %s", __func__);
     o(0xc0 + fr + r * 8); /* mov r, fr */
@@ -1154,10 +1158,9 @@ ST_FUNC void gfunc_epilog(void) {
   if (func_ret_sub == 0) {
     gen_le32(0x7c); /* ret */
   } else {
-    // tcc_error("idk return n ? not supported for now, idk what cases this "
-    //           "might arise");
+    tcc_error("poxim does not support 'ret n' you probably are trying to return a struct, try passing by pointer");
     pop(rret);
-    addi(sp, sp, func_ret_sub);
+    addi(sp, sp, func_ret_sub - 4);
     push(rret);
     gen_le32(0x7c); /* ret */
 

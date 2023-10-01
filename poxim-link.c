@@ -216,6 +216,13 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr,
         printf("inst = %B \n", inst);
         break;
       }
+      case opcode_s32: {
+        i32 rz = bits_at(inst, 25, 21);
+        abs_val >>= 2;
+        rest = rz << 21 | rt << 16;
+        printf("inst = %B \n", inst);
+        break;
+      }
       case opcode_call: {
         abs_val >>= 2;
         rest = rt << 16;

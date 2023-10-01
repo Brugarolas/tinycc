@@ -1,12 +1,11 @@
-#define DEBUG 0
+#define DEBUG 1
 
-// #define __poxim__
+#if !defined(DEBUG) || DEBUG == 0
 #if !defined(__clang__) &&  !defined(__GNUC__) && !defined(__GNUG__)
   // other checks __clang_major__, __clang_minor__ and __clang_patchlevel__
   #define __poxim__
 #endif
 
-#if !defined(DEBUG) || DEBUG == 0
 #if defined(__poxim__)
 #include "_start.h"
 int *terminal32 = (int *)(0x88888888 >> 2);
@@ -248,6 +247,7 @@ void recursion_play(void) {
 //<<********************** Recursion ********************* //
 
 //>>********************** Machine Code Execution ********************* //
+
 //<<********************** Machine Code Execution ********************* //
 
 
@@ -264,24 +264,27 @@ typedef struct{
 
 typedef struct {
   Animal base;
-  int age[12];
 } Dog;
 
 
 void dog_speak(void) {
   puts(
-    "hello I'm doggo\n"
-    "^..^      /   \n"
-    "/_/\\_____/   \n"
-    "   /\\   /\\  \n"
-    "  /  \\ /  \\ \n"
+"hello I'm doggo         \n"
+"              /)-_-(\\  \n"
+"               (o o)    \n"
+"       .-----__/\\o/    \n"
+"      /  __      /      \n"
+"  \\__/\\ /  \\_\\ |/   \n"
+"       \\\\     ||      \n"
+"       //     ||        \n"
+"       |\\     |\\      \n"
   );
 }
 
 void cat_speak(void) {
   puts(
-    "i'm little kitty \n"
-    "       ,_     _        \n"
+    "i'm little kitty       \n"
+    "   ,_      _           \n"
     "   |\\\\_,-~/          \n"
     "   / _  _ |    ,--.    \n"
     "  (  @  @ )   / ,-'    \n"
@@ -294,11 +297,12 @@ void cat_speak(void) {
   );
 }
 
-Dog create_dog(void) {
-  Dog d;
-  d.base.speak = dog_speak;
-  // d.age = 2;
-  return d;
+void create_cat(Cat* c) {
+  c->base.speak = cat_speak;
+}
+
+void create_dog(Dog* d) {
+  d->base.speak = dog_speak;
 }
 
 void animal_generic_speak(Animal* a){
@@ -306,7 +310,11 @@ void animal_generic_speak(Animal* a){
 }
 
 void polymorphism_play(){
-    cat_speak();
+    Dog d; create_dog(&d);
+    Cat c; create_cat(&c);
+    animal_generic_speak((Animal*)&c);
+    putchar('\n');
+    animal_generic_speak((Animal*)&d);
 }
 //<<********************** Polymorphism ********************* //
 
@@ -406,24 +414,11 @@ int main(void) {
 int *terminal32 = (int *)(0x88888888 >> 2);
 void putchar(int c) { *terminal32 = c; }
 
-void func() {
-
-  putchar('o');
-}
-
+int a = 'a';
 int main(void) {
-
-  int a = (int)main -4;
-  // int i = -1;
-  // int ret = 0x7c;
-  // int bun = 0xDF;
-  // bun = bun << 26;
-  // int p[] = {bun, bun, ret};
-  //
-  void (*f)(void) = func;
-  f();
-  // goto *p;
-  // putchar('\n');
+  a = 'b';
+  putchar(a);
 }
+
 
 #endif
