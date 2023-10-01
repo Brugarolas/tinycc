@@ -36,7 +36,7 @@ utils: bin2strhex.c
 # XXX: The necessary flags to compile directly to binary as we need: -nostdlib -static -Wl,--oformat=binary 
 run: TCC = ./tcc 
 run: bin_extension = .bin
-run: dump all run-i386 utils interp dirs examples
+run: dump all utils interp dirs examples
 	$(TCC_RUN)
 	$(DUMP) --bin $(dir_bin)/$(file_curr)$(bin_extension) > $(dir_dump)/$(file_curr).poxim.dump
 	$(INTERP) --bin $(dir_bin)/$(file_curr)$(bin_extension)  $(dir_interp)/$(file_curr).interp
