@@ -6,7 +6,7 @@ int *terminal32 = (int *)(0x88888888 >> 2);
 
 unsigned int strlen(const char *str);
 void putchar(int c) { *terminal32 = c; }
-void printi(int num);
+void puti(int num);
 void puts(const char *str);
 
 /* @Attention, to garantee puts will work the str has to be 4 byte aligned :)
@@ -102,7 +102,7 @@ void bubble_sort(int arr[], int n) {
   }
 }
 
-void printi(int num) {
+void puti(int num) {
   int divisor = 1;
   int isNegative = 0;
 
@@ -137,27 +137,27 @@ int struct_play(void) {
   puts("\nstructs: \n");
 
   puts("\t   v1.x = ");
-  printi(v1.x);
+  puti(v1.x);
   putchar(' ');
 
   puts("v1.y = ");
-  printi(v1.y);
+  puti(v1.y);
   putchar(' ');
 
   putchar('\n');
 
   puts("\t   v2.x = ");
-  printi(v2.x);
+  puti(v2.x);
   putchar(' ');
 
   puts("v2.y = ");
-  printi(v2.y);
+  puti(v2.y);
   putchar(' ');
 
   putchar('\n');
 
   puts("\ndot:\n\t\tv1*v2 =  ");
-  printi(dot(v1, v2));
+  puti(dot(v1, v2));
   return 1;
 }
 
@@ -166,10 +166,10 @@ void sort_play(void) {
   int n = sizeof(arr) / sizeof(arr[0]);
   int i, a;
   int l = 2;
-  printi(*(arr + 2));
+  puti(*(arr + 2));
   for (i = 0; i < n; i++) {
     a = arr[i];
-    printi(a);
+    puti(a);
     putchar(' ');
   }
 
@@ -178,9 +178,29 @@ void sort_play(void) {
 
   for (i = 0; i < n; i++) {
     a = arr[i];
-    printi(a);
+    puti(a);
     putchar(' ');
   }
+}
+
+
+
+int fibonnacci(int n) {
+  if (n < 2) {
+    return n;
+  }
+  return fibonnacci(n - 1) +  fibonnacci(n - 2);
+}
+
+void recursion_play(void) {
+
+    for (size_t i = 0; i < 24; i++) {
+      puts("fibonnacci(");
+      puti(i);
+      puts(")=");
+      puti(fibonnacci(i));
+    }
+
 }
 
 
@@ -191,15 +211,17 @@ int main(void) {
   mark(25);
   sort_play();
 
-
   mark(25);
   struct_play();
+
+  mark(25);
+  recursion_play();
 
   return 69;
 }
 
 #else
-// #include "_start.h"
+#include "_start.h"
 
 // int *terminal32 = (int *)(0x88888888 >> 2);
 // void putchar(int c) { *terminal32 = c; }
@@ -242,15 +264,17 @@ int main(void) {
 // int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.i * v2.y; }
 // int sum(vector2i v) { return v.x + v.y;}
 
-void memset(void){}
 
+// void memset(void){}
 int main(void) {
 
+  int i  = 1;
   int a[]  = {1,2,3};
+  int* b = a + 2;
   // int p[] = {0xDFFFFFFF};
   // goto *p;
-  // int ret = arr[i];
-  int ret = *(a + 1);
+  int ret = *b;
+  // int ret = *(a + 1);
   return ret;
   // putchar('\n');
 }

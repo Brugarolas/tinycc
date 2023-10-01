@@ -2368,9 +2368,18 @@ static void gen_opic(int op) {
                (r = vtop[-1].r & (VT_VALMASK | VT_LVAL | VT_SYM),
                 r == (VT_CONST | VT_SYM) || r == VT_LOCAL)) {
       /* symbol + constant case */
-      if (op == '-')
+      if (op == '-') {
         l2 = -l2;
+      }
+      #if defined(TCC_TARGET_POXIM)
+      //XXX: Hack
+      if ((vtop[-1].type.t ) == 0x45 ) {
+          l2 *= 4;
+      }
       l2 += vtop[-1].c.i;
+      #else
+      l2 += vtop[-1].c.i;
+      #endif
       /* The backends can't always deal with addends to symbols
          larger than +-1<<31.  Don't construct such.  */
       if ((int)l2 != l2)
@@ -2982,7 +2991,12 @@ redo:
       } else
 #endif
       {
+			#if defined(TCC_TARGET_POXIM)
+        //XXX: HACK
         gen_opic(op);
+        #else
+        gen_opic(op);
+      #endif
       }
       type1.t &= ~(VT_ARRAY | VT_VLA);
       /* put again type if gen_opic() swaped operands */
