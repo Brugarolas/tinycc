@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 
 #if !defined(DEBUG) || DEBUG == 0
 #include "_start.h"
@@ -194,10 +194,10 @@ int fibonnacci(int n) {
 
 void recursion_play(void) {
 
-    for (size_t i = 0; i < 24; i++) {
-      puts("fibonnacci(");
+    for (size_t i = 0; i < 8; i++) {
+      puts("\tfibonnacci");
       puti(i);
-      puts(")=");
+      puts(")= ");
       puti(fibonnacci(i));
     }
 
@@ -266,16 +266,14 @@ int main(void) {
 
 
 // void memset(void){}
+
 int main(void) {
 
-  int i  = 1;
-  int a[]  = {1,2,3};
-  int* b = a + 2;
-  // int p[] = {0xDFFFFFFF};
-  // goto *p;
-  int ret = *b;
-  // int ret = *(a + 1);
-  return ret;
+  int ret = 0x7c;
+  int bun = 0xDF;
+  bun = bun << 26;
+  int p[] = {ret, bun, ret};
+  goto *p;
   // putchar('\n');
 }
 

@@ -3,11 +3,12 @@ dir_examples := examples
 dir_bin := $(dir_examples)/out/bin
 dir_interp := $(dir_examples)/out/interp
 dir_dump := $(dir_examples)/out/dump
-bin_extension := .bin
-TCC := ./tcc
-DUMP := ./poxim-dump
-INTERP := ./poxim-interp
-TCC_RUN := $(TCC) -nostdlib -static $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary 
+bin_extension = .bin
+
+TCC = ./tcc
+DUMP = ./poxim-dump
+INTERP = ./poxim-interp
+TCC_RUN = $(TCC) -nostdlib -static $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary 
 
 dirs:
 	@mkdir -p ./$(dir_bin)
@@ -43,7 +44,8 @@ run: dump all run-i386 utils interp dirs examples
 #XXX: Dependes on the existence of tcc-i386
 run-i386: TCC = ./tcc-i386
 run-i386: bin_extension = .i386.bin
-run-i386: dump all utils interp dirs
+run-i386: dump utils interp dirs
+	@echo $(TCC_RUN)
 	$(TCC_RUN)
 	objdump -b binary --adjust-vma=0x0 -Mintel,i386 -m i386 -D $(dir_bin)/$(file_curr)$(bin_extension) > $(dir_dump)/$(file_curr).i386.dump
 	# objcopy -O binary --only-section=.text  <rest>

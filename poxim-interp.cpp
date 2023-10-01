@@ -735,9 +735,9 @@ void ExecuteCode(u32 instructions[]) {
 
     u32 intruction_index = PC / 4ul;
 
-    if (PC > MEM_SIZE * 4)
+    if (PC > MEM_SIZE * 32)
       break;
-    if (intruction_index > 4096)
+    if (intruction_index > (MEM_SIZE * 32) >> 2)
       break;
 
     // Seeting  the Next instruction
@@ -1959,9 +1959,7 @@ void call(Operands op) {
   PC = ((registers[op.X] + (i32)op.I) << 2) - 4;
   R0 = 0;
 
-  ExtendBit(op.I, 25);
-  // TODO(Everton): CONFIRM that it doesnt need to increase 4 in these PC
-  // expresions.
+  // ExtendBit(op.I, 25);
 }
 
 void ret(Operands op) {

@@ -856,11 +856,19 @@ static void gcall_or_jmp(int is_jmp) {
     // oad(0xe8 + is_jmp, vtop->c.i - 4);
   } else {
     /* otherwise, indirect call */
-    tcc_error("indirect call not supported in poxim");
-    assert(0);
     r = gv(RC_INT);
-    o(0xff); /* call/jmp *r */
-    o(0xd0 + r + (is_jmp << 4));
+    // o(0xff); /* call/jmp *r */
+    // o(0xd0 + r + (is_jmp << 4));
+    if (is_jmp) {
+      // tcc_error("indirect jmp not supported in poxim, try using a function pointer");
+      call(r+1, 0); /* call r */
+      printf("bun r = %x\n", r+1);
+      /* cleanup the stack since we pushed the addr because of previous call */
+      addi(sp, sp, 4); 
+    } else {
+      call(r+1, 0); /* call r */
+      printf("call r = %x\n", r+1);
+    }
   }
 }
 
