@@ -3,8 +3,11 @@
 #if !defined(DEBUG) || DEBUG == 0
 #include "_start.h"
 int *terminal32 = (int *)(0x88888888 >> 2);
+
 unsigned int strlen(const char *str);
 void putchar(int c) { *terminal32 = c; }
+void printi(int num);
+void puts(const char *str);
 
 /* @Attention, to garantee puts will work the str has to be 4 byte aligned :)
   That means every string will in the whole program have to be padded with zero
@@ -69,7 +72,10 @@ typedef struct {
   int x, y;
 } vector2i;
 
-int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.y * v2.y; }
+int dot(vector2i v1, vector2i v2) { 
+  int result = v1.x * v2.x + v1.y * v2.y; 
+  return result;
+}
 
 void bubble_sort(int arr[], int n) {
   int temp;
@@ -107,7 +113,7 @@ void printi(int num) {
   }
 
   // Find the divisor for the largest digit place
-  while (num / divisor > 11) {
+  while (num / divisor > 10) {
     divisor *= 10;
   }
 
@@ -125,28 +131,42 @@ void printi(int num) {
   }
 }
 
-int struc_play(void) {
-  vector2i v, r;
-  v.x = 0x1;
-  v.y = 0x2;
+int struct_play(void) {
+  vector2i v1 = {.x=-7, .y=2}, v2 = {.x=3, .y=-4};
 
-  r.x = 0x3;
-  r.y = 0x4;
+  puts("\nstructs: \n");
 
-  puts("\nstruct -> ");
-  printi(r.x);
-  int d = dot(v, r);
-  puts("\ndot    -> ");
-  printi(d);
-  return d;
+  puts("\t   v1.x = ");
+  printi(v1.x);
+  putchar(' ');
+
+  puts("v1.y = ");
+  printi(v1.y);
+  putchar(' ');
+
+  putchar('\n');
+
+  puts("\t   v2.x = ");
+  printi(v2.x);
+  putchar(' ');
+
+  puts("v2.y = ");
+  printi(v2.y);
+  putchar(' ');
+
+  putchar('\n');
+
+  puts("\ndot:\n\t\tv1*v2 =  ");
+  printi(dot(v1, v2));
+  return 1;
 }
 
-int main() {
+void sort_play(void) {
   int arr[] = {-1, -564, 420, 69, 1200};
   int n = sizeof(arr) / sizeof(arr[0]);
   int i, a;
 
-  printi(arr[2]);
+  printi(arr[1]);
   for (i = 0; i < n; i++) {
     a = arr[i];
     printi(a);
@@ -161,38 +181,89 @@ int main() {
     printi(a);
     putchar(' ');
   }
-  // puts("ccc...........\n");
-  puts("\n.............\n");
-  printi(struc_play());
-  puts("\n.............\n");
 }
 
 
+#define mark(n)  do{ int i = n; putchar('\n'); while(i--) putchar('-'); putchar('\n');} while(0);
+int main(void) {
+
+  
+  mark(25);
+  sort_play();
+
+
+  mark(25);
+  struct_play();
+
+  return 69;
+}
+
 #else
-#include "_start.h"
+// #include "_start.h"
 
 // int *terminal32 = (int *)(0x88888888 >> 2);
 // void putchar(int c) { *terminal32 = c; }
 // void memmove(void){}
 // void memset(void){}
 
+// int *terminal32 = (int *)(0x88888888 >> 2);
+//
+// unsigned int strlen(const char *str);
+// void putchar(int c) { *terminal32 = c; }
+
+#include <stdio.h>
 int main(void);
 typedef struct {
-  int x, y, z, w;
+  int x, y;
 } vector2i;
 
-// int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.y * v2.y; }
-int sum(vector2i v) { return v.x + v.y 
-  + v.z;}
+void printi(int num) {
+  int divisor = 1;
+  int isNegative = 0;
+
+  // Handle negative numbers
+  if (num < 0) {
+    isNegative = 1;
+    num = -num;
+  }
+
+  // Find the divisor for the largest digit place
+  while (num / divisor > 10) {
+    divisor *= 10;
+  }
+
+  // If the number was negative, print the minus sign
+  if (isNegative > 0) {
+    putchar('-');
+  } else {
+    // putchar('+');
+  }
+  // Extract and print each digit
+  while (divisor > 0) {
+    int digit = (num / divisor) % 10;
+    putchar('0' + digit);
+    divisor /= 10;
+  }
+}
+
+int dot(vector2i v1, vector2i v2) { return v1.x * v2.x + v1.y * v2.y; }
+// int sum(vector2i v) { return v.x + v.y;}
 
 
 int main(void) {
   // vector2i v1 = {.x = 1, .y = 2}, v2 = {.x = 7, .y = 11};
-  vector2i v1 = {.x = 0xc1, .y = 0xc2, .z=0xc3};
-  vector2i v2;
-  memmove(&v2, &v1, sizeof(vector2i));
+  // vector2i v1 = {.x = 0xc1, .y = 0xc2};
+  // vector2i v2;
+  // vector2i v1 = {.x=-7, .y=2}, v2 = {.x=3, .y=-4};
+  vector2i v1 = {.x=1, .y=2}, v2 = {.x=3, .y=4};
+  // memmove(&v2, &v1, sizeof(vector2i));
   // memset(&v1, 0xcf,  sizeof(vector2i));
-  return sum(v1);
+  int a;
+  a = dot(v1, v2);
+  printi(a);
+  printi(12312314);
+  putchar('\n');
+  return a;
 }
 
 #endif
