@@ -1,6 +1,16 @@
-#define DEBUG 1
+#define DEBUG 0
+
+#ifndef count_of
+#define count_of(x)                                                            \
+  ((sizeof(x) / sizeof(0[x])))
+#endif
 
 #if !defined(DEBUG) || DEBUG == 0
+#define __poxim__
+/*
+  If we're not using clang not gcc then we define poxim 
+  this is for us to run both on tcc-poxim and gcc and not change the code
+*/
 #if !defined(__clang__) &&  !defined(__GNUC__) && !defined(__GNUG__)
   // other checks __clang_major__, __clang_minor__ and __clang_patchlevel__
   #define __poxim__
@@ -45,23 +55,29 @@ void puts(const char *str) {
     if ( b1 == 0 && len != 4) {
       return;
     }
-    if (b1)
+    if (b1) {
       putchar((word >> 24) & 0xFF);
+    }
+
     if (b2 == 0 && len != 4) {
       return;
     }
-    if (b2)
+    if (b2) {
       putchar((word >> 16) & 0xFF);
+    }
+
     if (b3 == 0 && len != 4) {
       return;
     }
-    if (b3)
+    if (b3) {
       putchar((word >> 8) & 0xFF);
+    }
     if (b4 == 0 && len != 4) {
       return;
     }
-    if (b4)
+    if (b4) {
       putchar((word >> 0) & 0xFF);
+    }
   }
 }
 
@@ -138,7 +154,7 @@ int dot(vector2i v1, vector2i v2) {
   return result;
 }
 
-int struct_play(void) {
+int structure_play(void) {
   vector2i v1 = {.x=-7, .y=2}, v2 = {.x=3, .y=-4};
 
   puts("\nstructs: \n");
@@ -248,6 +264,27 @@ void recursion_play(void) {
 
 //>>********************** Machine Code Execution ********************* //
 
+// Machine instructions
+unsigned int code[] =  {
+  0x01E001A4,  // mov r15, 420 
+  0x75E70000,  // s32 [r7-0], r15  /* r7-0 is a pointer to the fist element on the current function frame */
+  0x7C000000,  // ret
+};
+
+void machine_code_play(void) {
+  int num = 2; // &a is r7-0
+  puts("value before runtime machine code execution");
+  puts(" \nnum = "); puti(num); 
+
+  void (*jit)(void);
+  jit = (void(*)(void))(code);
+  jit();
+
+  puts("\nvalue of 'num' after jit ");
+  puts(" \nnum = "); puti(num); 
+   
+}
+
 //<<********************** Machine Code Execution ********************* //
 
 
@@ -315,6 +352,7 @@ void polymorphism_play(){
     animal_generic_speak((Animal*)&c);
     putchar('\n');
     animal_generic_speak((Animal*)&d);
+
 }
 //<<********************** Polymorphism ********************* //
 
@@ -347,7 +385,7 @@ void print_matrix(int *mat, int rows, int cols) {
     }
 }
 
-int matrix_play() {
+int matrices_play() {
     int matrix1[ROW1][COL1] = {{1, 2, 3},
                               {4, 5, 6},
                               {7, 8, 9},
@@ -380,31 +418,72 @@ int matrix_play() {
 }
 //<<********************** Matrices ********************* //
 
-//>>********************** Memory set and move ********************* //
-//<<********************** Memory set and move ********************* //
+//>>********************** Memory play  ********************* //
+int global_arr1[] = {991, 992, 993}; 
+int global_arr2[] = {881, 882, 883}; 
+int global_arr3[count_of(global_arr1)];
 
-//>>********************** Globals ********************* //
-//<<********************** Globals ********************* //
+void print_arr(int* arr, int n) {
+  putchar('[');
+  for (size_t i = 0; i < n; i++) {
+    puti(i[arr]);
+    if(i < n-1) {
+      putchar(',');
+      putchar(' ');
+    }
+  } 
+  putchar(']');
+}
+
+void mem_play(void) {
+  // Change the global_arr to point to global_arr2
+  int local_arr4[count_of(global_arr1)];
+
+  puts("global array 1: \n");
+  print_arr(global_arr1, count_of(global_arr1));
+
+  puts("\nglobal array 2: \n");
+  print_arr(global_arr2, count_of(global_arr2));
+
+  puts("\nmemmove(dst=global_arr1, src=global_arr2, sizeof(global_arr1))\n");
+  memmove(global_arr1, global_arr2, sizeof(global_arr1));
+  puts("global array 1 after memmove : \n");
+  print_arr(global_arr1, count_of(global_arr1));
+
+  puts("\nglobal array 3 is global and therefore zero initialized: \n");
+  print_arr(global_arr3, count_of(global_arr3));
+
+  puts("\nlocal array 4 is local not initialized and therefore its values are garbage: \n");
+  print_arr(local_arr4, count_of(local_arr4));
+
+  puts("\nmemset(dst=local_arr4, value=22, sizeof(local_arr4))\n");
+  memset(local_arr4, 22, sizeof(local_arr4));
+  print_arr(local_arr4, count_of(local_arr4));
+
+}
+//<<********************** Memory play ********************* //
+
 
 #define MARK_CONST 40
 #define mark(n)  do{ int i = n; putchar('\n'); while(i--) putchar('-'); putchar('\n');} while(0);
+
+#define example(x)  mark(MARK_CONST); puts( " \t    \t>> " #x); putchar('\n'); x(); \
+  // do{ int i = 2; ; while(i--) puts("    "); } while(0);
 int main(void) {
 
-  mark(MARK_CONST);
-  recursion_play();
+  example(recursion_play);
   
-  mark(MARK_CONST);
-  sort_play();
+  example(sort_play);
 
-  mark(MARK_CONST);
-  struct_play();
+  example(structure_play);
 
-  mark(MARK_CONST);
-  matrix_play();
+  example(matrices_play);
 
-  mark(MARK_CONST);
-  polymorphism_play();
+  example(mem_play);
 
+  example(polymorphism_play);
+
+  example(machine_code_play);
   return 69;
 }
 
