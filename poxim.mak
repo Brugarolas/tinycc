@@ -8,8 +8,11 @@ bin_extension = .bin
 TCC = ./tcc
 DUMP = ./poxim-dump
 INTERP = ./poxim-interp
-TCC_RUN = $(TCC) -nostdlib -static $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary 
-TCC_RUN = $(TCC)  $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary 
+
+# Not necessary to provide these options anymore since they're default in poxim arch
+# Although it is necessary to run with tcc-i386
+# TCC_RUN = $(TCC) -nostdlib -static $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary 
+TCC_RUN = $(TCC)  $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) 
 
 dirs:
 	@mkdir -p ./$(dir_bin)
@@ -44,6 +47,7 @@ run: dump all utils interp dirs examples
 
 #XXX: Dependes on the existence of tcc-i386
 run-i386: TCC = ./tcc-i386
+run-i386: TCC_RUN = $(TCC) -nostdlib -static $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary
 run-i386: bin_extension = .i386.bin
 run-i386: dump utils interp dirs
 	@echo $(TCC_RUN)
