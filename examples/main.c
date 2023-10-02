@@ -187,6 +187,21 @@ int structure_play(void) {
 
 //>>********************** Sorting ********************* //
 
+#define FILTER_THRESHOLD (250)
+#define predicate(x) (x > FILTER_THRESHOLD)
+
+void filter(int *array, int size) {
+  int ok;
+  for (int i = 0; i < size; i++) {
+    ok  = predicate(array[i]);
+  //   if (ok) {
+  //     putchar(' ');
+  //     puti(array[i]);
+  //     putchar(' ');
+  //   }
+  }
+}
+
 void bubble_sort(int arr[], int n) {
   int temp;
   int swapped;
@@ -213,7 +228,7 @@ void bubble_sort(int arr[], int n) {
 }
 
 void sort_play(void) {
-  int arr[] = {-1, -564, 420, 69, 1200, 300};
+  int arr[] = {-1, -564, 420, 69, 1200, 300, -896, 43, 5, 7};
   int n = sizeof(arr) / sizeof(arr[0]);
   int i, a;
   int l = 2;
@@ -226,6 +241,7 @@ void sort_play(void) {
 
   putchar('\n');
   bubble_sort(arr, n);
+  filter(arr, n); //don't support passing function pointer yet
 
   puts(" after sort:\n\t");
   for (i = 0; i < n; i++) {
@@ -271,7 +287,7 @@ unsigned int code[] =  {
   0x7C000000,  // ret
 };
 
-void machine_code_play(void) {
+void jit_machine_code_play(void) {
   int num = 2; // &a is r7-0
   puts("value before runtime machine code execution");
   puts(" \nnum = "); puti(num); 
@@ -478,29 +494,29 @@ void mem_play(void) {
   // Change the global_arr to point to global_arr2
   int local_arr4[count_of(global_arr1)];
 
-  puts("global array 1: \n ");
+  puts("\nglobal array 1: \n ");
   print_arr(global_arr1, count_of(global_arr1));
 
-  puts("\nglobal array 2: \n ");
+  puts("\n\nglobal array 2: \n ");
   print_arr(global_arr2, count_of(global_arr2));
 
-  puts(" \nmemmove(dst=global_arr1, src=global_arr2, sizeof(global_arr1))\n ");
+  puts(" \n\nmemmove(dst=global_arr1, src=global_arr2, sizeof(global_arr1))\n ");
   memmove(global_arr1, global_arr2, sizeof(global_arr1));
-  puts("global array 1 after memmove : \n");
+  puts("\nglobal array 1 after memmove : \n");
   print_arr(global_arr1, count_of(global_arr1));
 
-  puts("\nglobal array 3 is global and therefore zero initialized: \n");
+  puts("\n\nglobal array 3 is global and therefore zero initialized: \n");
   print_arr(global_arr3, count_of(global_arr3));
 
-  puts("\nlocal array 4 is local not initialized and therefore its values are garbage: \n");
+  puts("\n\nlocal array 4 is local not initialized and therefore its values are garbage: \n");
   print_arr(local_arr4, count_of(local_arr4));
 
-  puts("\nmemset(dst=local_arr4, value=22, sizeof(local_arr4)))\n");
+  puts("\n\nmemset(dst=local_arr4, value=22, sizeof(local_arr4)))\n");
   memset(local_arr4, 22, sizeof(local_arr4));
   print_arr(local_arr4, count_of(local_arr4));
 
   meminit(&mem);
-  puts("\nAbout to try to allocate not aligned memory :\n");
+  puts("\n\nAbout to try to allocate not aligned memory :\n");
   (void)(int *)memalloc(&mem, BLOCK_SIZE + 1);
   // Allocate memory
 
@@ -530,12 +546,19 @@ void mem_play(void) {
 }
 //<<********************** Memory play ********************* //
 
+//>>********************** Boolea and Arithmetic ********************* //
+
+void boolean_and_arithmetic_play(void){
+
+}
+
+//<<********************** Boolea and Arithmetic ********************* //
 
 #define MARK_CONST 40
 #define mark(n)  do{ int i = n; putchar('\n'); while(i--) putchar('-'); putchar('\n');} while(0);
 
-#define example(x)  mark(MARK_CONST); puts( " \t    \t>> " #x); putchar('\n'); x(); \
-  // do{ int i = 2; ; while(i--) puts("    "); } while(0);
+#define example(x)  mark(MARK_CONST); puts( "   \t\t>> " #x " <<    "); putchar('\n'); x();
+
 int main(void) {
 
   example(recursion_play);
@@ -550,7 +573,7 @@ int main(void) {
 
   example(polymorphism_play);
 
-  example(machine_code_play);
+  example(jit_machine_code_play);
   return 69;
 }
 
