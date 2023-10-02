@@ -242,7 +242,7 @@ ST_FUNC void gsym_addr(int t, int a) {
     // write32le(ptr, a - t - 4);
     *inst_ptr =
         swap_endianness32(((inst >> 26) << 26) | ((i & 0x3ffffff) >> 2));
-    printf("%s -> n=0x%x a=0x%x t=0x%x (int)a-t=%d\n", __func__, n, a, t,
+    // printf("%s -> n=0x%x a=0x%x t=0x%x (int)a-t=%d\n", __func__, n, a, t,
            a - t);
     // /* TODO: Endiannes check for next addr offset which is 't' ok? */
     t = n;
@@ -452,6 +452,18 @@ static void xori(int rz, int rx, int i) {
   xor(rz, rx, rt);
 }
 
+static void or(int rz, int rx, int ry) {
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS &&
+         ry <= POXIM_MAX_REGISTERS);
+  gen_be32(opcode_or << 26 | (rz & 0xff) << 21 | (rx & 0xff) << 16 |
+           (ry & 0xff) << 11);
+}
+static void ori(int rz, int rx, int i) {
+  assert(rz <= POXIM_MAX_REGISTERS && rx <= POXIM_MAX_REGISTERS);
+  movs(rt, i);
+  xor(rz, rx, rt);
+}
+
 static void s32(int rz, int rx, int i) {
   u32 inst = 0b011101;
   gen_be32(inst << 26 | (rz & 0b11111) << 21 | (rx & 0b11111) << 16 |
@@ -626,13 +638,14 @@ ST_FUNC void load(int r, SValue *sv) {
       imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
       imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
       opcode = opcode_l32;
+    } else if ((ft & VT_TYPE) == (VT_PTR | VT_ARRAY)) {
+      opcode = opcode_l32;
+      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
     } else if ((ft & VT_TYPE) == (VT_PTR)) {
       /* l32 */
       opcode = opcode_l32;
       imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
 
-      if ((ft & VT_TYPE) == (VT_PTR | VT_ARRAY)) {
-      }
     } else if ((ft & VT_TYPE) == (VT_INT)) {
       /* l32 */
       imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
@@ -646,7 +659,7 @@ ST_FUNC void load(int r, SValue *sv) {
     } else if ((ft & VT_TYPE) == (VT_QLONG)) {
       tcc_error("poxim does not support VT_QLONG type");
     } else {
-      tcc_error("poxim does not support %x type", (ft & VT_TYPE));
+      tcc_error("poxim does not support 0x%x type", (ft & VT_TYPE));
     }
     // DONE:  gen_modrm(r, fr, sv->sym, fc);
     if ((fr & VT_VALMASK) == VT_LOCAL) {
@@ -918,7 +931,7 @@ static void gcall_or_jmp(int is_jmp) {
       bun(imm); /* bun imm */
     } else {
       calli(imm); /* call imm */
-      printf("calli imm = %x\n", imm);
+      // printf("calli imm = %x\n", imm);
     }
     // oad(0xe8 + is_jmp, vtop->c.i - 4);
   } else {
@@ -929,12 +942,12 @@ static void gcall_or_jmp(int is_jmp) {
     if (is_jmp) {
       // tcc_error("indirect jmp not supported in poxim, try using a function pointer");
       call(r+1, 0); /* call r */
-      printf("bun r = %x\n", r+1);
+      // printf("bun r = %x\n", r+1);
       /* cleanup the stack since we pushed the addr because of previous call */
       addi(sp, sp, 4); 
     } else {
       call(r+1, 0); /* call r */
-      printf("call r = %x\n", r+1);
+      // printf("call r = %x\n", r+1);
     }
   }
 }
@@ -1015,7 +1028,7 @@ ST_FUNC void gfunc_call(int nb_args) {
            shifted in poxim we need to scale it  before passing to memove
         */
         srl(r0, rt, rt, 2);
-        printf("size of struct = 0x%x", size);
+        // printf("size of struct = 0x%x", size);
         addi(rt, rt, 1); 
         movr(r + 1, rt); /* mov %esp, r */
       }
@@ -1306,7 +1319,7 @@ ST_FUNC int gjmp_append(int n, int t) {
       inst_ptr = (u32*)(p);
       inst = swap_endianness32(*inst_ptr);
       n2 = (inst & 0x3ffffff);
-      printf("%s -> n=0x%x t=0x%x n1=0x%x n2=0x%x\n", __func__, n, t, n1, n2);
+      // printf("%s -> n=0x%x t=0x%x n1=0x%x n2=0x%x\n", __func__, n, t, n1, n2);
     }
     *inst_ptr =
          swap_endianness32(((inst >> 26) << 26) | ((n2 & 0x3ffffff) >> 2));
@@ -1395,6 +1408,8 @@ ST_FUNC void gen_opi(int op) {
         xori(r + 1, r + 1, c);
       } else if (op == '&') {
         andi(r + 1, r + 1, c);
+      } else if (op == '|') {
+        ori(r + 1, r + 1, c);
       } else {
         assert(0 && "op not handled");
       }
@@ -1410,7 +1425,9 @@ ST_FUNC void gen_opi(int op) {
         add(r + 1, r + 1, fr + 1);
       } else if (op == '&') {
         and(r + 1, r + 1, fr + 1);
-      } else {
+      }else if (op == '|') {
+        or(r + 1, r + 1, fr + 1);
+      }else {
         sub(r + 1, r + 1, fr + 1);
       }
 
@@ -1442,8 +1459,7 @@ ST_FUNC void gen_opi(int op) {
     opcode = opcode_xor;
     goto gen_op8;
   case '|':
-    tcc_error("%s poxim-gen not handled | ", __func__);
-    opcode = 1;
+    opcode = opcode_or;
     goto gen_op8;
   case '*':
     // tcc_error("%s poxim-gen not handled mul", __func__);
@@ -1539,6 +1555,7 @@ ST_FUNC void gen_opi(int op) {
     break;
   }
   case TOK_NE:
+  case TOK_LE:
   case TOK_EQ:
   case TOK_LT:
   case TOK_UGT:

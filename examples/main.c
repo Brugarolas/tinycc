@@ -25,6 +25,9 @@ void puts(const char *str);
 #else
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#define puti(x) printf("%d", x)
+#define puts(input) fputs(input, stdout) // no new line just line mine
 #endif
 
 //>>********************** Printing ********************* //
@@ -128,10 +131,6 @@ void puti(int num) {
     divisor /= 10;
   }
 }
-
-#else
-#define puti(x) printf("%d", x)
-#define puts(input) fputs(input, stdout) // no new line just line mine
 #endif
 //<<********************** Printing ********************* //
 
@@ -179,23 +178,36 @@ int structure_play(void) {
 
 //>>********************** Sorting ********************* //
 
+void print_arr(int *arr, int n) {
+  putchar('[');
+  for (size_t i = 0; i < n; i++) {
+    puti(i[arr]);
+    if (i < n - 1) {
+      putchar(',');
+      putchar(' ');
+    }
+  }
+  putchar(']');
+}
+
 #define FILTER_THRESHOLD (250)
-#define predicate(x) (x > FILTER_THRESHOLD)
+// #define predicate(x) (x > FILTER_THRESHOLD)
 
-void filter(int *array, int size) {
+void filter(int *array, int size, int (*predicate)(int)) {
 
-  puts("\nFiltering \n");
   int ok;
   for (int i = 0; i < size; i++) {
     ok = predicate(array[i]);
-      if (ok) {
-        putchar(' ');
-        puti(array[i]);
-        putchar(' ');
-      }
+    if (ok) {
+      putchar(' ');
+      puti(array[i]);
+      putchar(' ');
+    }
   }
   putchar('\n');
 }
+
+int bigger_than_threshold(int a) { return a > FILTER_THRESHOLD; }
 
 void bubble_sort(int arr[], int n) {
   int temp;
@@ -227,23 +239,20 @@ void sort_play(void) {
   int n = sizeof(arr) / sizeof(arr[0]);
   int i, a;
   int l = 2;
-  puts("before sort:\n\t");
-  for (i = 0; i < n; i++) {
-    a = arr[i];
-    puti(a);
-    putchar(' ');
-  }
-
+  puts("   Before sort:\n\t  ");
+  print_arr(arr, n);
   putchar('\n');
   bubble_sort(arr, n);
-  filter(arr, n); // don't support passing function pointer yet
 
-  puts(" after sort:\n\t");
-  for (i = 0; i < n; i++) {
-    a = arr[i];
-    puti(a);
-    putchar(' ');
-  }
+  puts("   After sort:\n\t  ");
+  print_arr(arr, n);
+  putchar('\n');
+
+  puts("   Some Filtering by func pointer\n   ");
+  filter(arr, n, bigger_than_threshold); // Support for function passing
+  putchar('\n');
+
+
 }
 //<<********************** Sorting ********************* //
 
@@ -271,6 +280,7 @@ void recursion_play(void) {
   }
 }
 //<<********************** Recursion ********************* //
+
 
 //>>********************** Machine Code Execution ********************* //
 // Machine instructions for Poxim Architecture
@@ -419,17 +429,6 @@ int global_arr1[] = {991, 992, 993};
 int global_arr2[] = {881, 882, 883};
 int global_arr3[count_of(global_arr1)];
 
-void print_arr(int *arr, int n) {
-  putchar('[');
-  for (size_t i = 0; i < n; i++) {
-    puti(i[arr]);
-    if (i < n - 1) {
-      putchar(',');
-      putchar(' ');
-    }
-  }
-  putchar(']');
-}
 
 #define POOL_SIZE 216 // Adjust this to your desired memory pool size
 #define BLOCK_SIZE 32 // Adjust this to your desired block size
@@ -527,11 +526,93 @@ void mem_play(void) {
 }
 //<<********************** Memory play ********************* //
 
-//>>********************** Boolea and Arithmetic ********************* //
+//>>********************** Boolean and Arithmetic ********************* //
+#define FIZZ putchar('F'); putchar('i'); putchar('z'); putchar('z')
+#define BUZZ putchar('B'); putchar('u'); putchar('z'); putchar('z')
 
-void boolean_and_arithmetic_play(void) {}
+void fizz_buzz(int n) {
+  for (int i = 1; i <= n; i++) {
+    putchar('\n');
+    if (i % 3 == 0 && i % 5 == 0) {
+      FIZZ; BUZZ;
+    } else if (i % 3 == 0) {
+      FIZZ;
+    } else if (i % 5 == 0) {
+      BUZZ;
+    } else {
+      puti(i);
+    }
+  }
+}
 
-//<<********************** Boolea and Arithmetic ********************* //
+void putbool(int c) {
+  if (c) {
+    puts("true");
+  } else {
+    puts("false");
+  }
+}
+
+#define ARR_COUNT 54
+#define bool_test(exp)                                                         \
+  puts(" \n" #exp "   ");                                                      \
+  putbool(exp);
+#define int_test(i, j, op)                                                     \
+  putchar('\n');                                                                     \
+  puti(i);                                                                     \
+  puts(#op);                                                                   \
+  puti(j);                                                                     \
+  puts("  =  ");                                                               \
+  puti(i op j);
+// Function to generate a random integer
+void boolean_and_arithmetic_play(void) {
+  fizz_buzz(25);
+  bool_test(5 >= 5);
+  bool_test(5 > 5);
+
+  bool_test(5 >= 6);
+  bool_test(5 > 6);
+
+  bool_test(6 > 6);
+  bool_test(6 >= 6);
+
+  bool_test(5 < 6);
+  bool_test(5 <= 6);
+
+  bool_test(5 >= 6);
+  bool_test(5 > 6);
+
+  bool_test(6 > 6);
+  bool_test(6 >= 6);
+
+  bool_test(5 < 6);
+  bool_test(5 <= 6);
+
+  for (int i = 1; i < 5; i++) {
+    for (int j = 1; j < 5; j++) {
+      int_test(i,10, % );
+      int_test(i, 10, /);
+      int_test(i ,j, *);
+      int_test(i ,j, *);
+      int_test(i ,j, &);
+      int_test(i ,j, |);
+      int_test(i,j,+ );
+      int_test(i,j,- );
+      int_test(i,j,- );
+    }
+  }
+
+  for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < 5; j++) {
+      bool_test(i < j);
+      bool_test(j <= j);
+      bool_test(i > j);
+      bool_test(j >= i);
+      bool_test(!j);
+    }
+  }
+}
+//<<********************** Boolean and Arithmetic ********************* //
 
 #define MARK_CONST 40
 #define mark(n)                                                                \
@@ -555,6 +636,8 @@ int main(void) {
 
   example(sort_play);
 
+  example(boolean_and_arithmetic_play);
+
   example(structure_play);
 
   example(matrices_play);
@@ -563,7 +646,10 @@ int main(void) {
 
   example(polymorphism_play);
 
+#if defined __poxim__ // machine dependet
   example(jit_machine_code_play);
+#endif
+
   return 69;
 }
 
@@ -571,7 +657,7 @@ int main(void) {
 
 int *terminal32 = (int *)(0x88888888 >> 2);
 void putchar(int c) { *terminal32 = c; }
-void memset(void){}
+void memset(void) {}
 
 void bubble_sort(int arr[], int n) {
   int temp;
@@ -598,7 +684,6 @@ void bubble_sort(int arr[], int n) {
   }
 }
 
-
 void filter(int *array, int size, int (*predicate)(int)) {
   int ok;
   for (int i = 0; i < size; i++) {
@@ -611,16 +696,13 @@ void filter(int *array, int size, int (*predicate)(int)) {
   }
 }
 
-int allgood(int a) {
-  return 1;
-}
+int allgood(int a) { return 1; }
 int main(void) {
 
   int arr[] = {-1, -564, 420, 69, 1200, 300, -896, 43, 5, 7};
   int n = sizeof(arr) / sizeof(arr[0]);
   int i, a;
   int l = 2;
-
 
   for (i = 0; i < n; i++) {
     a = arr[i];
