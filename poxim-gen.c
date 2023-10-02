@@ -701,11 +701,70 @@ ST_FUNC void load(int r, SValue *sv) {
         o(0xe8 + r); /* mov %ebp, r */
       }
     } else if (v == VT_CMP) {
-      tcc_error("%s poxim-gen does not support load cmp", __func__);
-      o(0x0f); /* setxx %br */
-      o(fc);
-      o(0xc0 + r);
-      o(0xc0b60f + r * 0x90000); /* movzbl %al, %eax */
+        switch (fc) {
+        case TOK_UGE: {
+          opcode = opcode_bae;
+          break;
+        } /* 0x93 */
+        case TOK_EQ: {
+          opcode = opcode_beq;
+          break;
+        } /* 0x94 */
+        case TOK_NE: {
+          opcode = opcode_bne;
+          break;
+        } /* 0x95 */
+        case TOK_ULE: {
+          opcode = opcode_bbe;
+          break;
+        } /* 0x96 */
+        case TOK_UGT: {
+          opcode = opcode_bat;
+          break;
+        } /* 0x97 */
+        case TOK_Nset: {
+          assert(0 && "jmp cond not handled TOK_Nset");
+          break;
+        } /* 0x98 */
+        case TOK_Nclear: {
+          assert(0 && "jmp cond not handled TOK_Nclear");
+          break;
+        } /* 0x99 */
+        case TOK_LT: {
+          opcode = opcode_blt;
+          break;
+        } /* 0x9c */
+        case TOK_GE: {
+          opcode = opcode_bge;
+          break;
+        } /* 0x9d */
+        case TOK_LE: {
+          opcode = opcode_ble;
+          break;
+        } /* 0x9e */
+        case TOK_GT: {
+          opcode = opcode_bgt;
+          break;
+        } /* 0x9f */
+        default: {
+          assert(0 && " Unknown token for a jump instruction");
+        }
+      }
+      {
+        int words_to_jmp = 2;
+        oad(opcode, words_to_jmp);  /* jmp if cond */
+        mov(r+1, 0);  /* move zero to r is false */
+        bun(1);
+        mov(r+1, 1);  /* move zero to 1 is true */
+
+      }
+      // o(0x0f); /* setxx %br */
+      // o(fc);
+      // o(0xc0 + r);
+      // o(0xc0b60f + r * 0x90000); /* movzbl %al, %eax */
+      //  examples in i386
+      // 5a4:	0f 9f c0             	setg   al
+      // 5a7:	0f b6 c0             	movzx  eax,al
     } else if (v == VT_JMP) {
       t = v & 1;
       mov(r + 1, t); /* mov r, 0 */

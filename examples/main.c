@@ -1,18 +1,17 @@
 #define DEBUG 0
 
 #ifndef count_of
-#define count_of(x)                                                            \
-  ((sizeof(x) / sizeof(0[x])))
+#define count_of(x) ((sizeof(x) / sizeof(0 [x])))
 #endif
 
 #if !defined(DEBUG) || DEBUG == 0
 /*
-  If we're not using clang not gcc then we define poxim 
+  If we're not using clang not gcc then we define poxim
   this is for us to run both on tcc-poxim and gcc and not change the code
 */
-#if !defined(__clang__) &&  !defined(__GNUC__) && !defined(__GNUG__)
-  // other checks __clang_major__, __clang_minor__ and __clang_patchlevel__
-  #define __poxim__
+#if !defined(__clang__) && !defined(__GNUC__) && !defined(__GNUG__)
+// other checks __clang_major__, __clang_minor__ and __clang_patchlevel__
+#define __poxim__
 #endif
 
 #if defined(__poxim__)
@@ -23,11 +22,10 @@ unsigned int strlen(const char *str);
 void putchar(int c) { *terminal32 = c; }
 void puti(int num);
 void puts(const char *str);
-#else 
+#else
 #include <stdio.h>
 #include <stdlib.h>
 #endif
-
 
 //>>********************** Printing ********************* //
 /* @Attention, to garantee puts will work the str has to be 4 byte aligned :)
@@ -46,13 +44,9 @@ void puts(const char *str) {
 
     len += 4;
     // Verifica se algum byte no int é zero (terminador nulo).
-    int
-      b1 = ((word >> 24) & 0xFF),
-      b2 = ((word >> 16) & 0xFF),
-      b3 = ((word >> 8 ) & 0xFF),
-      b4 = ((word >> 0 ) & 0xFF)
-    ;
-    if ( b1 == 0 && len != 4) {
+    int b1 = ((word >> 24) & 0xFF), b2 = ((word >> 16) & 0xFF),
+        b3 = ((word >> 8) & 0xFF), b4 = ((word >> 0) & 0xFF);
+    if (b1 == 0 && len != 4) {
       return;
     }
     if (b1) {
@@ -106,8 +100,6 @@ unsigned int strlen(const char *str) {
   }
 }
 
-
-
 void puti(int num) {
   int divisor = 1;
   int is_negative = 0;
@@ -139,7 +131,7 @@ void puti(int num) {
 
 #else
 #define puti(x) printf("%d", x)
-#define puts(input) fputs(input, stdout); // no new line just line mine
+#define puts(input) fputs(input, stdout) // no new line just line mine
 #endif
 //<<********************** Printing ********************* //
 
@@ -149,13 +141,13 @@ typedef struct {
   int x, y;
 } vector2i;
 
-int dot(vector2i v1, vector2i v2) { 
-  int result = v1.x * v2.x + v1.y * v2.y; 
+int dot(vector2i v1, vector2i v2) {
+  int result = v1.x * v2.x + v1.y * v2.y;
   return result;
 }
 
 int structure_play(void) {
-  vector2i v1 = {.x=-7, .y=2}, v2 = {.x=3, .y=-4};
+  vector2i v1 = {.x = -7, .y = 2}, v2 = {.x = 3, .y = -4};
 
   puts("\nstructs: \n");
 
@@ -191,15 +183,18 @@ int structure_play(void) {
 #define predicate(x) (x > FILTER_THRESHOLD)
 
 void filter(int *array, int size) {
+
+  puts("\nFiltering \n");
   int ok;
   for (int i = 0; i < size; i++) {
-    ok  = predicate(array[i]);
-  //   if (ok) {
-  //     putchar(' ');
-  //     puti(array[i]);
-  //     putchar(' ');
-  //   }
+    ok = predicate(array[i]);
+      if (ok) {
+        putchar(' ');
+        puti(array[i]);
+        putchar(' ');
+      }
   }
+  putchar('\n');
 }
 
 void bubble_sort(int arr[], int n) {
@@ -241,7 +236,7 @@ void sort_play(void) {
 
   putchar('\n');
   bubble_sort(arr, n);
-  filter(arr, n); //don't support passing function pointer yet
+  filter(arr, n); // don't support passing function pointer yet
 
   puts(" after sort:\n\t");
   for (i = 0; i < n; i++) {
@@ -252,14 +247,13 @@ void sort_play(void) {
 }
 //<<********************** Sorting ********************* //
 
-
 //>>********************** Recursion ********************* //
 #define MAX_FIB 8
 int fibonnacci(int n) {
   if (n < 2) {
     return n;
   }
-  return fibonnacci(n - 1) +  fibonnacci(n - 2);
+  return fibonnacci(n - 1) + fibonnacci(n - 2);
 }
 
 void recursion_play(void) {
@@ -278,38 +272,38 @@ void recursion_play(void) {
 }
 //<<********************** Recursion ********************* //
 
-
 //>>********************** Machine Code Execution ********************* //
 // Machine instructions for Poxim Architecture
-unsigned int code[] =  {
-  0x01E001A4,  // mov r15, 420 
-  0x75E70000,  // s32 [r7-0], r15  /* r7-0 is a pointer to the fist element on the current function frame */
-  0x7C000000,  // ret
+unsigned int code[] = {
+    0x01E001A4, // mov r15, 420
+    0x75E70000, // s32 [r7-0], r15  /* r7-0 is a pointer to the fist element on
+                // the current function frame */
+    0x7C000000, // ret
 };
 
 void jit_machine_code_play(void) {
   int num = 2; // &a is r7-0
   puts("value before runtime machine code execution");
-  puts(" \nnum = "); puti(num); 
+  puts(" \nnum = ");
+  puti(num);
 
   void (*jit)(void);
-  jit = (void(*)(void))(code);
+  jit = (void (*)(void))(code);
   jit();
 
   puts("\nvalue of 'num' after jit ");
-  puts(" \nnum = "); puti(num); 
-   
+  puts(" \nnum = ");
+  puti(num);
 }
 
 //<<********************** Machine Code Execution ********************* //
-
 
 //>>********************** Polymorphism ********************* //
 typedef struct {
   void (*speak)(void);
 } Animal;
 
-typedef struct{
+typedef struct {
   Animal base;
   void (*speak)(void);
   int age;
@@ -319,56 +313,46 @@ typedef struct {
   Animal base;
 } Dog;
 
-
 void dog_speak(void) {
-  puts(
-"hello I'm doggo         \n"
-"              /)-_-(\\  \n"
-"               (o o)    \n"
-"       .-----__/\\o/    \n"
-"      /  __      /      \n"
-"  \\__/\\ /  \\_\\ |/   \n"
-"       \\\\     ||      \n"
-"       //     ||        \n"
-"       |\\     |\\      \n"
-  );
+  puts("hello I'm doggo         \n"
+       "              /)-_-(\\  \n"
+       "               (o o)    \n"
+       "       .-----__/\\o/    \n"
+       "      /  __      /      \n"
+       "  \\__/\\ /  \\_\\ |/   \n"
+       "       \\\\     ||      \n"
+       "       //     ||        \n"
+       "       |\\     |\\      \n");
 }
 
 void cat_speak(void) {
-  puts(
-    "i'm little kitty       \n"
-    "   ,_      _           \n"
-    "   |\\\\_,-~/          \n"
-    "   / _  _ |    ,--.    \n"
-    "  (  @  @ )   / ,-'    \n"
-    "   \\  _T_/-._( (      \n"
-    "   /         `. \\     \n"
-    "  |         _  \\ |    \n"
-    "   \\ \\ ,  /      |   \n"
-    "    || |-_\\__   /     \n"
-    "   ((_/`(____,-'       \n"
-  );
+  puts("i'm little kitty       \n"
+       "   ,_      _           \n"
+       "   |\\\\_,-~/          \n"
+       "   / _  _ |    ,--.    \n"
+       "  (  @  @ )   / ,-'    \n"
+       "   \\  _T_/-._( (      \n"
+       "   /         `. \\     \n"
+       "  |         _  \\ |    \n"
+       "   \\ \\ ,  /      |   \n"
+       "    || |-_\\__   /     \n"
+       "   ((_/`(____,-'       \n");
 }
 
-void create_cat(Cat* c) {
-  c->base.speak = cat_speak;
-}
+void create_cat(Cat *c) { c->base.speak = cat_speak; }
 
-void create_dog(Dog* d) {
-  d->base.speak = dog_speak;
-}
+void create_dog(Dog *d) { d->base.speak = dog_speak; }
 
-void animal_generic_speak(Animal* a){
-  a->speak();
-}
+void animal_generic_speak(Animal *a) { a->speak(); }
 
-void polymorphism_play(){
-    Dog d; create_dog(&d);
-    Cat c; create_cat(&c);
-    animal_generic_speak((Animal*)&c);
-    putchar('\n');
-    animal_generic_speak((Animal*)&d);
-
+void polymorphism_play() {
+  Dog d;
+  create_dog(&d);
+  Cat c;
+  create_cat(&c);
+  animal_generic_speak((Animal *)&c);
+  putchar('\n');
+  animal_generic_speak((Animal *)&d);
 }
 //<<********************** Polymorphism ********************* //
 
@@ -377,77 +361,73 @@ void polymorphism_play(){
 #define COL1 3
 #define ROW2 3
 #define COL2 4
-void multiply_matrices(int *mat1, int row1, int col1, int *mat2, int row2, int col2, int *result) {
-    int i, j, k;
+void multiply_matrices(int *mat1, int row1, int col1, int *mat2, int row2,
+                       int col2, int *result) {
+  int i, j, k;
 
-    for (i = 0; i < row1; i++) {
-        for (j = 0; j < col2; j++) {
-            result[i * col2 + j] = 0;
-            for (k = 0; k < col1; k++) {
-                result[i * col2 + j] += mat1[i * col1 + k] * mat2[k * col2 + j];
-            }
-        }
+  for (i = 0; i < row1; i++) {
+    for (j = 0; j < col2; j++) {
+      result[i * col2 + j] = 0;
+      for (k = 0; k < col1; k++) {
+        result[i * col2 + j] += mat1[i * col1 + k] * mat2[k * col2 + j];
+      }
     }
+  }
 }
 
 void print_matrix(int *mat, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            putchar(' ');
-            puti(mat[i * cols + j]);
-            putchar(' ');
-        }
-        putchar('\n');
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      putchar(' ');
+      puti(mat[i * cols + j]);
+      putchar(' ');
     }
+    putchar('\n');
+  }
 }
 
 int matrices_play() {
-    int matrix1[ROW1][COL1] = {{1, 2, 3},
-                              {4, 5, 6},
-                              {7, 8, 9},
-                              {10, 11, 12}};
+  int matrix1[ROW1][COL1] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}};
 
-    int matrix2[ROW2][COL2] = {{1, 2, 3, 4},
-                              {5, 6, 7, 8},
-                              {9, 10, 11, 12}};
+  int matrix2[ROW2][COL2] = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}};
 
-    int result[ROW1][COL2];
-    
+  int result[ROW1][COL2];
 
-    if (COL1 != ROW2) {
-        puts("Matrix multiplication not possible. Inner dimensions must match.\n");
-        return 1;
-    }
+  if (COL1 != ROW2) {
+    puts("Matrix multiplication not possible. Inner dimensions must "
+         "match.\n");
+    return 1;
+  }
 
-    puts("\n\tMatrix A\n");
-    print_matrix((int*) matrix1, ROW1, COL1);
+  puts("\n\tMatrix A\n");
+  print_matrix((int *)matrix1, ROW1, COL1);
 
-    puts("\n\tMatrix B\n");
-    print_matrix((int*) matrix2, ROW2, COL2);
+  puts("\n\tMatrix B\n");
+  print_matrix((int *)matrix2, ROW2, COL2);
 
+  multiply_matrices((int *)matrix1, ROW1, COL1, (int *)matrix2, ROW2, COL2,
+                    (int *)result);
+  puts("\n\tA*B = Matrix C\n");
+  print_matrix((int *)result, ROW1, COL2);
 
-    multiply_matrices((int*)matrix1, ROW1, COL1, (int*)matrix2, ROW2, COL2, (int*)result);
-    puts("\n\tA*B = Matrix C\n");
-    print_matrix((int*) result , ROW1, COL2);
-
-    return 0;
+  return 0;
 }
 //<<********************** Matrices ********************* //
 
 //>>********************** Memory play  ********************* //
-int global_arr1[] = {991, 992, 993}; 
-int global_arr2[] = {881, 882, 883}; 
+int global_arr1[] = {991, 992, 993};
+int global_arr2[] = {881, 882, 883};
 int global_arr3[count_of(global_arr1)];
 
-void print_arr(int* arr, int n) {
+void print_arr(int *arr, int n) {
   putchar('[');
   for (size_t i = 0; i < n; i++) {
     puti(i[arr]);
-    if(i < n-1) {
+    if (i < n - 1) {
       putchar(',');
       putchar(' ');
     }
-  } 
+  }
   putchar(']');
 }
 
@@ -471,24 +451,25 @@ int *memalloc(MemAlloc *mem, size_t size) {
     puts(" bytes ");
     return NULL;
   }
-  #ifdef __poxim__
+#ifdef __poxim__
   if (mem->free_ptr + (size) > mem->memory_pool + (POOL_SIZE)) {
-  #else
+#else
   if (mem->free_ptr + (size >> 2) > mem->memory_pool + (POOL_SIZE >> 2)) {
-  #endif
+#endif
     puts("\nIt's over, we ain't gonna give you no more memmory. It's full");
     return NULL;
   }
 
   void *ptr = mem->free_ptr;
-  #ifdef __poxim__
-  mem->free_ptr += size; //NOTE: This is different from gcc and clang beucase of how we handle pointers
-  #else
-  mem->free_ptr += size>>2; //NOTE: This is different from gcc and clang beucase of how we handle pointers
-  #endif
+#ifdef __poxim__
+  mem->free_ptr += size; // NOTE: This is different from gcc and clang beucase
+                         // of how we handle pointers
+#else
+  mem->free_ptr += size >> 2; // NOTE: This is different from gcc and clang
+                              // beucase of how we handle pointers
+#endif
   return mem->free_ptr;
 }
-
 
 void mem_play(void) {
   // Change the global_arr to point to global_arr2
@@ -500,7 +481,8 @@ void mem_play(void) {
   puts("\n\nglobal array 2: \n ");
   print_arr(global_arr2, count_of(global_arr2));
 
-  puts(" \n\nmemmove(dst=global_arr1, src=global_arr2, sizeof(global_arr1))\n ");
+  puts(" \n\nmemmove(dst=global_arr1, src=global_arr2, "
+       "sizeof(global_arr1))\n ");
   memmove(global_arr1, global_arr2, sizeof(global_arr1));
   puts("\nglobal array 1 after memmove : \n");
   print_arr(global_arr1, count_of(global_arr1));
@@ -508,7 +490,8 @@ void mem_play(void) {
   puts("\n\nglobal array 3 is global and therefore zero initialized: \n");
   print_arr(global_arr3, count_of(global_arr3));
 
-  puts("\n\nlocal array 4 is local not initialized and therefore its values are garbage: \n");
+  puts("\n\nlocal array 4 is local not initialized and therefore its values "
+       "are garbage: \n");
   print_arr(local_arr4, count_of(local_arr4));
 
   puts("\n\nmemset(dst=local_arr4, value=22, sizeof(local_arr4)))\n");
@@ -519,7 +502,6 @@ void mem_play(void) {
   puts("\n\nAbout to try to allocate not aligned memory :\n");
   (void)(int *)memalloc(&mem, BLOCK_SIZE + 1);
   // Allocate memory
-
 
   int *ptr, previous = 0;
   while (1) {
@@ -542,27 +524,35 @@ void mem_play(void) {
       previous = *ptr;
     }
   }
-
 }
 //<<********************** Memory play ********************* //
 
 //>>********************** Boolea and Arithmetic ********************* //
 
-void boolean_and_arithmetic_play(void){
-
-}
+void boolean_and_arithmetic_play(void) {}
 
 //<<********************** Boolea and Arithmetic ********************* //
 
 #define MARK_CONST 40
-#define mark(n)  do{ int i = n; putchar('\n'); while(i--) putchar('-'); putchar('\n');} while(0);
+#define mark(n)                                                                \
+  do {                                                                         \
+    int i = n;                                                                 \
+    putchar('\n');                                                             \
+    while (i--)                                                                \
+      putchar('-');                                                            \
+    putchar('\n');                                                             \
+  } while (0);
 
-#define example(x)  mark(MARK_CONST); puts( "   \t\t>> " #x " <<    "); putchar('\n'); x();
+#define example(x)                                                             \
+  mark(MARK_CONST);                                                            \
+  puts("   \t\t>> " #x " <<    ");                                             \
+  putchar('\n');                                                               \
+  x();
 
 int main(void) {
 
   example(recursion_play);
-  
+
   example(sort_play);
 
   example(structure_play);
@@ -578,16 +568,72 @@ int main(void) {
 }
 
 #else
-#include "poxim-malloc.c"
 
-// int *terminal32 = (int *)(0x88888888 >> 2);
-// void putchar(int c) { *terminal32 = c; }
-//
-// int a = 'a';
-// int main(void) {
-//   a = 'b';
-//   putchar(a);
-// }
+int *terminal32 = (int *)(0x88888888 >> 2);
+void putchar(int c) { *terminal32 = c; }
+void memset(void){}
 
+void bubble_sort(int arr[], int n) {
+  int temp;
+  int swapped;
+
+  for (int i = 0; i < n - 1; i++) {
+    swapped = 0;
+
+    for (int j = 0; j < n - 1 - i; j++) {
+      // Compare adjacent elements
+      if (arr[j] > arr[j + 1]) {
+        // Swap them if they are in the wrong order
+        temp = arr[j];
+        arr[j] = arr[j + 1];
+        arr[j + 1] = temp;
+        swapped = 1; // Set the swapped flag
+      }
+    }
+
+    // If no two elements were swapped in this pass, the array is sorted
+    if (swapped == 0) {
+      break;
+    }
+  }
+}
+
+
+void filter(int *array, int size, int (*predicate)(int)) {
+  int ok;
+  for (int i = 0; i < size; i++) {
+    ok = predicate(array[i]);
+    //   if (ok) {
+    //     putchar(' ');
+    //     puti(array[i]);
+    //     putchar(' ');
+    //   }
+  }
+}
+
+int allgood(int a) {
+  return 1;
+}
+int main(void) {
+
+  int arr[] = {-1, -564, 420, 69, 1200, 300, -896, 43, 5, 7};
+  int n = sizeof(arr) / sizeof(arr[0]);
+  int i, a;
+  int l = 2;
+
+
+  for (i = 0; i < n; i++) {
+    a = arr[i];
+    putchar(' ');
+  }
+
+  putchar('\n');
+  bubble_sort(arr, n);
+  filter(arr, n, allgood); // don't support passing function pointer yet
+
+  for (i = 0; i < n; i++) {
+    a = arr[i];
+  }
+}
 
 #endif
