@@ -242,8 +242,7 @@ ST_FUNC void gsym_addr(int t, int a) {
     // write32le(ptr, a - t - 4);
     *inst_ptr =
         swap_endianness32(((inst >> 26) << 26) | ((i & 0x3ffffff) >> 2));
-    // printf("%s -> n=0x%x a=0x%x t=0x%x (int)a-t=%d\n", __func__, n, a, t,
-           a - t);
+    // printf("%s -> n=0x%x a=0x%x t=0x%x (int)a-t=%d\n", __func__, n, a, t, a - t);
     // /* TODO: Endiannes check for next addr offset which is 't' ok? */
     t = n;
     // t = 0;

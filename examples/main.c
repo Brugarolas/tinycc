@@ -251,8 +251,6 @@ void sort_play(void) {
   puts("   Some Filtering by func pointer\n   ");
   filter(arr, n, bigger_than_threshold); // Support for function passing
   putchar('\n');
-
-
 }
 //<<********************** Sorting ********************* //
 
@@ -280,7 +278,6 @@ void recursion_play(void) {
   }
 }
 //<<********************** Recursion ********************* //
-
 
 //>>********************** Machine Code Execution ********************* //
 // Machine instructions for Poxim Architecture
@@ -429,7 +426,6 @@ int global_arr1[] = {991, 992, 993};
 int global_arr2[] = {881, 882, 883};
 int global_arr3[count_of(global_arr1)];
 
-
 #define POOL_SIZE 216 // Adjust this to your desired memory pool size
 #define BLOCK_SIZE 32 // Adjust this to your desired block size
 
@@ -527,14 +523,23 @@ void mem_play(void) {
 //<<********************** Memory play ********************* //
 
 //>>********************** Boolean and Arithmetic ********************* //
-#define FIZZ putchar('F'); putchar('i'); putchar('z'); putchar('z')
-#define BUZZ putchar('B'); putchar('u'); putchar('z'); putchar('z')
+#define FIZZ                                                                   \
+  putchar('F');                                                                \
+  putchar('i');                                                                \
+  putchar('z');                                                                \
+  putchar('z')
+#define BUZZ                                                                   \
+  putchar('B');                                                                \
+  putchar('u');                                                                \
+  putchar('z');                                                                \
+  putchar('z')
 
 void fizz_buzz(int n) {
   for (int i = 1; i <= n; i++) {
     putchar('\n');
     if (i % 3 == 0 && i % 5 == 0) {
-      FIZZ; BUZZ;
+      FIZZ;
+      BUZZ;
     } else if (i % 3 == 0) {
       FIZZ;
     } else if (i % 5 == 0) {
@@ -547,9 +552,16 @@ void fizz_buzz(int n) {
 
 void putbool(int c) {
   if (c) {
-    puts("true");
+    putchar('t');
+    putchar('r');
+    putchar('u');
+    putchar('e');
   } else {
-    puts("false");
+    putchar('f');
+    putchar('a');
+    putchar('l');
+    putchar('s');
+    putchar('e');
   }
 }
 
@@ -557,16 +569,25 @@ void putbool(int c) {
 #define bool_test(exp)                                                         \
   puts(" \n" #exp "   ");                                                      \
   putbool(exp);
-#define int_test(i, j, op)                                                     \
-  putchar('\n');                                                                     \
+#define int_test(i, j, op, opchar)                                             \
+  putchar('\n');                                                               \
   puti(i);                                                                     \
-  puts(#op);                                                                   \
+  putchar(' ');                                                                \
+  putchar(opchar);                                                             \
+  putchar(' ');                                                                \
   puti(j);                                                                     \
-  puts("  =  ");                                                               \
+  putchar(' ');                                                                \
+  putchar('=');                                                                \
+  putchar(' ');                                                                \
   puti(i op j);
 // Function to generate a random integer
 void boolean_and_arithmetic_play(void) {
   fizz_buzz(25);
+
+  bool_test(5 == 5);
+  bool_test(5 != 5);
+  bool_test(6 == 5);
+  bool_test(6 != 5);
   bool_test(5 >= 5);
   bool_test(5 > 5);
 
@@ -588,29 +609,18 @@ void boolean_and_arithmetic_play(void) {
   bool_test(5 < 6);
   bool_test(5 <= 6);
 
-  for (int i = 1; i < 5; i++) {
-    for (int j = 1; j < 5; j++) {
-      int_test(i,10, % );
-      int_test(i, 10, /);
-      int_test(i ,j, *);
-      int_test(i ,j, *);
-      int_test(i ,j, &);
-      int_test(i ,j, |);
-      int_test(i,j,+ );
-      int_test(i,j,- );
-      int_test(i,j,- );
+  for (int i = 2; i <= 5; i++) {
+    for (int j = 2; j <= 5; j++) {
+      int_test(i, 10, %, '%');
+      int_test(i, 10, /, '/');
+      int_test(i, j, *, '*');
+      int_test(i, j, &, '&');
+      int_test(i, j, |, '|');
+      int_test(i, j, +, '+');
+      int_test(i, j, -, '-');
     }
   }
 
-  for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++) {
-      bool_test(i < j);
-      bool_test(j <= j);
-      bool_test(i > j);
-      bool_test(j >= i);
-      bool_test(!j);
-    }
-  }
 }
 //<<********************** Boolean and Arithmetic ********************* //
 
@@ -632,11 +642,12 @@ void boolean_and_arithmetic_play(void) {
 
 int main(void) {
 
+  example(boolean_and_arithmetic_play);
+
   example(recursion_play);
 
   example(sort_play);
 
-  example(boolean_and_arithmetic_play);
 
   example(structure_play);
 
