@@ -1275,11 +1275,11 @@ ST_FUNC int gjmp_cond(int op, int t) {
     break;
   } /* 0x95 */
   case TOK_ULE: {
-    opcode = opcode_bbt;
+    opcode = opcode_bbe;
     break;
   } /* 0x96 */
   case TOK_UGT: {
-    assert(0 && "jmp cond not handled TOK_UGT");
+    opcode = opcode_bat;
     break;
   } /* 0x97 */
   case TOK_Nset: {
@@ -1291,7 +1291,7 @@ ST_FUNC int gjmp_cond(int op, int t) {
     break;
   } /* 0x99 */
   case TOK_LT: {
-    assert(0 && "jmp cond not handled TOK_LT");
+    opcode = opcode_blt;
     break;
   } /* 0x9c */
   case TOK_GE: {
@@ -1299,11 +1299,11 @@ ST_FUNC int gjmp_cond(int op, int t) {
     break;
   } /* 0x9d */
   case TOK_LE: {
-    opcode = 0b110010;
+    opcode = opcode_ble;
     break;
   } /* 0x9e */
   case TOK_GT: {
-    assert(0 && "jmp cond not handled TOK_GT");
+    opcode = opcode_bgt;
     break;
   } /* 0x9f */
   default: {
@@ -1484,6 +1484,7 @@ ST_FUNC void gen_opi(int op) {
   case TOK_LT:
   case TOK_UGT:
   case TOK_ULT:
+  case TOK_GE:
   case TOK_GT: {
   gen_cmp:
     if ((vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST) {

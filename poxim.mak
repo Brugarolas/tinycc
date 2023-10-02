@@ -1,4 +1,4 @@
-file_curr := curr
+file_curr := main
 dir_examples := examples
 dir_bin := $(dir_examples)/out/bin
 dir_interp := $(dir_examples)/out/interp
@@ -54,10 +54,10 @@ EXAMPLES := $(patsubst ./examples/%.c, %, $(wildcard ./examples/*.c))
 examples: ./$(TCC) dirs interp dump # If the binary havent changed, so we don't need to run examples
 	for var in $(EXAMPLES) ; do \
 		echo "[INFO] : running example" $$var; \
-		echo  ./$(TCC) -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
+		echo  $(TCC) -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
 		$(TCC) -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
 		$(DUMP) --bin $(dir_bin)/$$var.bin > $(dir_dump)/$$var.poxim.dump && \
-		$(INTERP) #--bin $(dir_bin)/$$var.bin  $(dir_interp)/$$var.interp ; \
+		$(INTERP) --bin $(dir_bin)/$$var.bin  $(dir_interp)/$$var.interp ; \
 	done
 
 

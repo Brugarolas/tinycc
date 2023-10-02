@@ -242,7 +242,7 @@ void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr,
         break;
       }
       default:
-        assert(0 && "unhandled case");
+        assert(0 && "Linking unhandled case for poxim opcode relocation");
       }
 
       if (!handled) {

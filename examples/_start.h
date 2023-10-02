@@ -1,4 +1,5 @@
 #define __poxim__
+#define NULL (void*)0
 asm (                                                                                
 "_init:\n"
 		/* mov sp, 0x7FFC */
