@@ -31,7 +31,7 @@
 #include "i386-asm.c"
 #elif defined(TCC_TARGET_POXIM)
 #include "poxim-gen.c"
-// #include "poxim-link.c"
+#include "poxim-link.c"
 // #include "poxim-asm.c"
 #elif defined(TCC_TARGET_ARM)
 #include "arm-gen.c"
@@ -853,6 +853,11 @@ LIBTCCAPI TCCState *tcc_new(void)
 #endif
 #ifdef TCC_TARGET_I386
     s->seg_size = 32;
+#endif
+#ifdef TCC_TARGET_POXIM
+    s->output_format = TCC_OUTPUT_FORMAT_BINARY;
+    s->static_link = 1;
+    s->nostdlib = 1;
 #endif
     /* enable this if you want symbols with leading underscore on windows: */
 #if defined TCC_TARGET_MACHO /* || defined TCC_TARGET_PE */

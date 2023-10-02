@@ -9,6 +9,7 @@ TCC = ./tcc
 DUMP = ./poxim-dump
 INTERP = ./poxim-interp
 TCC_RUN = $(TCC) -nostdlib -static $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary 
+TCC_RUN = $(TCC)  $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary 
 
 dirs:
 	@mkdir -p ./$(dir_bin)
