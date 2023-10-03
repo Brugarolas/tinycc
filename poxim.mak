@@ -1,5 +1,6 @@
 file_curr := main
 dir_examples := examples
+dir_out := $(dir_examples)/out/
 dir_bin := $(dir_examples)/out/bin
 dir_interp := $(dir_examples)/out/interp
 dir_dump := $(dir_examples)/out/dump
@@ -65,5 +66,7 @@ examples: ./$(TCC) dirs interp dump # If the binary havent changed, so we don't 
 		$(INTERP) --bin $(dir_bin)/$$var.bin  $(dir_interp)/$$var.interp ; \
 	done
 
+
+clean:
 
 .PHONY: run run-i386

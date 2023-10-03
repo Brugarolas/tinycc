@@ -481,10 +481,13 @@ tcov-tes% : tcc_c$(EXESUF)
 tcc_c$(EXESUF): $($T_FILES)
 	$S$(TCC) tcc.c -o $@ -ftest-coverage $(DEFINES)
 
+include $(TOP)/poxim.mak
+
 clean:
 	@rm -f tcc$(EXESUF) tcc_c$(EXESUF) tcc_p$(EXESUF) *-tcc$(EXESUF)
 	@rm -f tags ETAGS *.o *.a *.so* *.out *.log lib*.def *.exe *.dll
 	@rm -f a.out *.dylib *_.h *.pod *.tcov
+	@rm -rf $(dir_out)
 	@$(MAKE) -s -C lib $@
 	@$(MAKE) -s -C tests $@
 
@@ -493,7 +496,6 @@ distclean: clean
 	@rm -vf $(TCCDOCS)
 
 
-include $(TOP)/poxim.mak
 
 .PHONY: all clean test tar tags ETAGS doc distclean install uninstall FORCE util
 
