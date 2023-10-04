@@ -635,7 +635,6 @@ ST_FUNC void load(int r, SValue *sv) {
       // o(0xb70f); /* movzwl */
     } else if ((ft & VT_TYPE) == (VT_FUNC)) {
       imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
-      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
       opcode = opcode_l32;
     } else if ((ft & VT_TYPE) == (VT_PTR | VT_ARRAY)) {
       opcode = opcode_l32;
@@ -787,12 +786,11 @@ ST_FUNC void load(int r, SValue *sv) {
       gsym((fc));
       mov(r + 1, t ^ 1); /* mov r, 1 */
     } else if (v == VT_JMPI) {
-      tcc_error("%s poxim-gen does not support load jmp", __func__);
       t = v & 1;
-      oad(0xb8 + r, t); /* mov $1, r */
-      o(0x05eb);        /* jmp after */
-      gsym(fc);
-      oad(0xb8 + r, t ^ 1); /* mov $0, r */
+      mov(r + 1, t); /* mov r, 0 */
+      bun(1);        /* bun to next instruction */
+      gsym((fc));
+      mov(r + 1, t ^ 1); /* mov r, 1 */
     } else if (v != r) {
       movr(r + 1, v + 1); /* mov  r, v */
     }

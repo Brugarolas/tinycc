@@ -6,7 +6,7 @@ void puti(int num);
 void puts(const char *str);
 void print_arr(int *arr, int n);
 void print_matrix(int *mat, int rows, int cols);
-
+void putbool(int c);
 //>>********************** Printing ********************* //
 /* @Attention, to garantee puts will work the str has to be 4 byte aligned :)
   That means every string will in the whole program have to be padded with zero
@@ -132,4 +132,18 @@ void print_matrix(int *mat, int rows, int cols) {
   }
 }
 
+void putbool(int c) {
+  if (c) {
+    putchar('t');
+    putchar('r');
+    putchar('u');
+    putchar('e');
+  } else {
+    putchar('f');
+    putchar('a');
+    putchar('l');
+    putchar('s');
+    putchar('e');
+  }
+}
 #endif //PRINT_IMPLEMENTATION
