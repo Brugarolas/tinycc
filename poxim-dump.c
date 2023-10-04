@@ -172,7 +172,7 @@ internal void reg2str(char register_name[5], u8 id) {
   }
 }
 
-typedef enum : u8 {
+typedef enum {
   //:> Format Type 'U'
   mov = 0b000000,
   movs = 0b000001,
