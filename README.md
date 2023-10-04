@@ -25,6 +25,7 @@ Now inspect ``examples/out/`` folder. You'll see both `interp` and `dump` folder
 
 If you just want to compile the tcc-poxim you can run $ `make all` instead.
 
+
 ## Running Minimal Example
 
 You can edit the file ``examples/minimal.c`` that already includes the minimal setup
@@ -34,7 +35,6 @@ You can edit the file ``examples/minimal.c`` that already includes the minimal s
 run $ ``make examples`` to compile and interpret the same way as the other examples
 
 ![minimal_output](img/minimal.interp.png)
-
 
 
 
@@ -65,7 +65,7 @@ This is done because it might be slow to open **output.interp**.
 
 Open Replit link below and press the ``Run`` button to compile the C compiler **tcc-poxim** (executable is named only ``tcc``), compile all `.c` files in the `examples` folder using **tcc-poxim**,  **dump** and **interpret** these files in the  ``examples/out/dump/`` and ``examples/out/interp/`` respectively.
 
-- https://replit.com/@ExCyberse/tinycc-poxim
+- https://replit.com/@ExCyberse/tinycc-poxim#examples/main.c
 
 ![replit_run](img/replit_run.png)
 
@@ -76,7 +76,11 @@ This will load the Enviroment, run and show the output on a console right in the
 
 To edit the files you can fork it such as this (has to be logged on replit):
 
-For a demonstration of how it's supposed to work, see this video {{youtube video of me compiling and running tcc-poxim on Replit here}}
+![fork](img/fork.png)
+
+Then you'll have access to any thing you wanna change, just edit any file **.c** under **examples** folder and it will be compiled and interpret when you press the **Run** button on Replit
+
+![access](img/access.png)
 
 ## Doc
 
