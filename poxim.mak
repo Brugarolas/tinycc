@@ -32,7 +32,7 @@ debug-i386: run-i386
 	gdb --args $(TCC_RUN)
 
 interp: poxim-interp.cpp
-	$(CXX) -Wall -std=c++14 -ggdb ./poxim-interp.cpp -o poxim-interp
+	$(CXX) -fno-strict-aliasing -Wall -std=c++14 -ggdb ./poxim-interp.cpp -o poxim-interp
 
 dump: poxim-dump.c
 	$(CC) -Wall -std=c99 ./poxim-dump.c -ggdb -o poxim-dump -lm
@@ -46,6 +46,7 @@ utils: bin2hex interp dump
 run: TCC = ./tcc 
 run: bin_extension = .bin
 run: dump all utils interp dirs examples
+	echo -e "\n\n[INFO]: running main example" $(dir_examples)/$(file_curr).c;
 	$(TCC_RUN)
 	$(DUMP) --bin $(dir_bin)/$(file_curr)$(bin_extension) > $(dir_dump)/$(file_curr).poxim.dump
 	$(INTERP) --bin $(dir_bin)/$(file_curr)$(bin_extension)  $(dir_interp)/$(file_curr).interp
@@ -66,9 +67,9 @@ run-i386: dump utils interp dirs
 EXAMPLES := $(patsubst ./examples/%.c, %, $(wildcard ./examples/*.c))
 examples: ./$(TCC) dirs interp dump # If the binary havent changed, so we don't need to run examples
 	for var in $(EXAMPLES) ; do \
-		echo "[INFO] : running example" $$var; \
-		echo  $(TCC) -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
-		$(TCC) -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
+		echo -e "\n[INFO]: running example" $$var; \
+		echo  $(TCC)  $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin; \
+		$(TCC)  $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin && \
 		$(DUMP) --bin $(dir_bin)/$$var.bin > $(dir_dump)/$$var.poxim.dump && \
 		$(INTERP) --bin $(dir_bin)/$$var.bin  $(dir_interp)/$$var.interp ; \
 		$(BIN2HEX) $(dir_bin)/$$var.bin  $(dir_bin)/$$var.hex; \

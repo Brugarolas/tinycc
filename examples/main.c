@@ -11,7 +11,9 @@
 */
 #if !defined(__clang__) && !defined(__GNUC__) && !defined(__GNUG__)
 // other checks __clang_major__, __clang_minor__ and __clang_patchlevel__
-#define __poxim__
+  #ifndef __poxim__
+    #define __poxim__
+  #endif
 #endif
 
 #if defined(__poxim__)
