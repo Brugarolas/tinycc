@@ -3,6 +3,8 @@ poxim-dump
 poxim-interp
 examples/out/
 #
+bin2strhex
+bin2hex
 
 *~
 \#*
@@ -20,7 +22,6 @@ examples/out/
 *.bz2
 *.zip
 .gdb_history
-bin2strhex
 a.out
 tcc_g
 tcc

@@ -63,11 +63,18 @@ This is done because it might be slow to open **output.interp**.
 
 ## Playground Replit
 
-Open Replit link below and press the ``play`` button to compile the C compiler **tcc-poxim** (executable is named only ``tcc``), compile all `.c` files in the `examples` folder using **tcc-poxim**,  **dump** and **interpret** these files in the  ``examples/out/dump/`` and ``examples/out/interp/`` respectively.
+Open Replit link below and press the ``Run`` button to compile the C compiler **tcc-poxim** (executable is named only ``tcc``), compile all `.c` files in the `examples` folder using **tcc-poxim**,  **dump** and **interpret** these files in the  ``examples/out/dump/`` and ``examples/out/interp/`` respectively.
 
 - https://replit.com/@ExCyberse/tinycc-poxim
 
-To edit the files you can fork it such as this:
+![replit_run](img/replit_run.png)
+
+This will load the Enviroment, run and show the output on a console right in the middle
+
+
+![replit_output](img/replit_output.png)
+
+To edit the files you can fork it such as this (has to be logged on replit):
 
 For a demonstration of how it's supposed to work, see this video {{youtube video of me compiling and running tcc-poxim on Replit here}}
 
