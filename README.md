@@ -7,6 +7,8 @@ This project tries to extend tiny c compiler to support `Poxim Architecture`
 - C++14 capable compiler
 - C99 capable compiler
 - Linux (Only)
+- Make
+- Posix Shell (we're using shell in poxim.mak)
 
 ## Compiling TCC with Poxim Backend
 
