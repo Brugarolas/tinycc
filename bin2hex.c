@@ -12,13 +12,13 @@ int main(int argc, char *argv[]) {
 
     FILE *inputFile = fopen(inputFileName, "rb");
     if (!inputFile) {
-        perror("Error opening input file");
+        fprintf(stderr, "Error opening input file");
         return 1;
     }
 
     FILE *outputFile = fopen(outputFileName, "w");
     if (!outputFile) {
-        perror("Error opening output file");
+        fprintf(stderr, "Error opening output file");
         fclose(inputFile);
         return 1;
     }

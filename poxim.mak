@@ -50,6 +50,9 @@ run: dump all utils interp dirs examples
 	$(DUMP) --bin $(dir_bin)/$(file_curr)$(bin_extension) > $(dir_dump)/$(file_curr).poxim.dump
 	$(INTERP) --bin $(dir_bin)/$(file_curr)$(bin_extension)  $(dir_interp)/$(file_curr).interp
 
+display: run
+	cat $(dir_interp)/$(file_curr).term
+
 #XXX: Dependes on the existence of tcc-i386
 run-i386: TCC = ./tcc-i386
 run-i386: TCC_RUN = $(TCC) -nostdlib -static $(dir_examples)/$(file_curr).c -o./$(dir_bin)/$(file_curr)$(bin_extension) -I./ -I./include -L./ -Wl,--oformat=binary
@@ -74,4 +77,4 @@ examples: ./$(TCC) dirs interp dump # If the binary havent changed, so we don't 
 
 clean:
 
-.PHONY: run run-i386
+.PHONY: run run-i386 display
