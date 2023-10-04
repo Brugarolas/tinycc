@@ -26,12 +26,13 @@ Now inspect the ``examples/out/`` folder. You'll see both `interp` and `dump` fo
 
 If you just want to compile the tcc-poxim you can run `make all` instead.
 
+----
 
 ## Running Minimal Example
 
 You can edit the file ``examples/minimal.c`` that already includes the minimal setup
 
-![minimal](img/minimal.png)
+<img src="img/minimal.png" width="600">
 
 To compile and interpret the same way as the other examples run:
 
@@ -39,9 +40,9 @@ To compile and interpret the same way as the other examples run:
     $ make examples
 
 
-![minimal_output](img/minimal.interp.png)
+<img src="img/minimal.interp.png" width="600">
 
-
+----
 
 ## Compiling your own input.c
 
@@ -66,6 +67,8 @@ This will create two files called **output.interp** and **output.term**.
 The **output.term** has the output of poxim terminal. The other one has both the tracing and terminal.
 This is done because it might be slow to open **output.interp**.
 
+----
+
 ## Playground Replit
 
 Open Replit link below and press the ``Run`` button to compile the C compiler **tcc-poxim** (executable is named only ``tcc``), compile all `.c` files in the `examples` folder using **tcc-poxim**,  **dump** and **interpret** these files in the  ``examples/out/dump/`` and ``examples/out/interp/`` respectively.
@@ -74,21 +77,22 @@ Open Replit link below and press the ``Run`` button to compile the C compiler **
 ###  https://replit.com/@ExCyberse/tinycc-poxim#examples/main.c
 
 
-![replit_run](img/replit_run.png)
+
+<img src="img/replit_run.png" width="500">
 
 
 This will load the Enviroment, run and show the output on a console right in the middle
 
 
-![replit_output](img/replit_output.png)
+<img src="img/replit_output.png" width="500">
 
 To edit the files you can fork it such as this (has to be logged on replit):
 
-![fork](img/fork.png)
+<img src="img/fork.png" width="550">
 
 Then you'll have access to anything you wanna change, just edit any file **.c** under **examples** folder and it will be compiled and interpret when you press the **Run** button on Replit
 
-![access](img/access.png)
+<img src="img/access.png" width="550">
 
 ## Doc
 
