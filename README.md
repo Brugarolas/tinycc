@@ -3,9 +3,11 @@
 This project tries to extend tiny c compiler to support `Poxim Architecture`
 (docs will soon be added)
 
-## Recommended Setup for Development
+
 
 # Do this first 
+## Requirements
+- C++17 compiler
 
 $ ./configure --extra-cflags=-ggdb --debug --cpu=poxim
 

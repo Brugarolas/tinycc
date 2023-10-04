@@ -6,9 +6,11 @@ dir_interp := $(dir_examples)/out/interp
 dir_dump := $(dir_examples)/out/dump
 bin_extension = .bin
 
+CXX = g++
 TCC = ./tcc
 DUMP = ./poxim-dump
 INTERP = ./poxim-interp
+BIN2HEX = ./bin2hex
 
 # Not necessary to provide these options anymore since they're default in poxim arch
 # Although it is necessary to run with tcc-i386
@@ -30,13 +32,15 @@ debug-i386: run-i386
 	gdb --args $(TCC_RUN)
 
 interp: poxim-interp.cpp
-	g++ -Wall -ggdb ./poxim-interp.cpp -o poxim-interp
+	$(CXX) -Wall -std=c++14 -ggdb ./poxim-interp.cpp -o poxim-interp
 
 dump: poxim-dump.c
-	gcc ./poxim-dump.c -ggdb -o poxim-dump -lm
+	$(CC) -Wall -std=c99 ./poxim-dump.c -ggdb -o poxim-dump -lm
 
-utils: bin2strhex.c
-	gcc bin2strhex.c -o bin2strhex
+bin2hex: bin2hex.c
+	$(CC) -std=c99 bin2hex.c -o bin2hex
+
+utils: bin2hex interp dump
 
 # XXX: The necessary flags to compile directly to binary as we need: -nostdlib -static -Wl,--oformat=binary 
 run: TCC = ./tcc 
@@ -64,6 +68,7 @@ examples: ./$(TCC) dirs interp dump # If the binary havent changed, so we don't 
 		$(TCC) -nostdlib -static $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin -I./ -I./include -L./ -Wl,--oformat=binary && \
 		$(DUMP) --bin $(dir_bin)/$$var.bin > $(dir_dump)/$$var.poxim.dump && \
 		$(INTERP) --bin $(dir_bin)/$$var.bin  $(dir_interp)/$$var.interp ; \
+		$(BIN2HEX) $(dir_bin)/$$var.bin  $(dir_bin)/$$var.hex; \
 	done
 
 

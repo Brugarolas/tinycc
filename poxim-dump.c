@@ -333,7 +333,6 @@ internal PoximInstruction parse_instruction(u32 inst) {
 }
 
 internal void sprint_instruction(char src[512], PoximInstruction inst) {
-  char result[512] = {0};
   char rl[8], rz[8], rx[8], ry[8];
   char assembly_text[128];
 	char* bop;
@@ -836,9 +835,9 @@ internal void sprint_instruction(char src[512], PoximInstruction inst) {
     // 0x00000034:	sbr sr[1]                	SR=0x00000002
     char instruction[5];
     if (bit_at(inst.I, 0) == 0) {
-      sprintf(instruction, "%-6s", "cbr");
+      sprintf(instruction, "cbr");
     } else {
-      sprintf(instruction, "%-6s", "sbr");
+      sprintf(instruction, "sbr");
     }
 
     reg2str(rz, inst.Z);

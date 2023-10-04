@@ -424,7 +424,7 @@ struct FloatDevice {
 private:
   bool Xisfloat = false;
   bool Yisfloat = false;
-  bool Zisfloat = false;
+  // bool Zisfloat = false;
 
 public:
   union {
@@ -521,7 +521,7 @@ public:
 
   bool ReadyToOperate() {
     if (should_operate == true) {
-      if ((wait_cycles == 0)) {
+      if (0 == wait_cycles) {
         return true;
       } else if (wait_cycles > 0) {
         wait_cycles--;
@@ -554,7 +554,7 @@ public:
     else
       Y = (f32)tempY;
 
-    if (wait_cycles == 0) {
+    if (0 == wait_cycles) {
       switch (operation) {
       case FloatDevice::FOP::nop: {
         break;
