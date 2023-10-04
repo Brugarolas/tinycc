@@ -71,10 +71,11 @@ This is done because it might be slow to open **output.interp**.
 Open Replit link below and press the ``Run`` button to compile the C compiler **tcc-poxim** (executable is named only ``tcc``), compile all `.c` files in the `examples` folder using **tcc-poxim**,  **dump** and **interpret** these files in the  ``examples/out/dump/`` and ``examples/out/interp/`` respectively.
 
 
-    https://replit.com/@ExCyberse/tinycc-poxim#examples/main.c
+###  https://replit.com/@ExCyberse/tinycc-poxim#examples/main.c
 
 
 ![replit_run](img/replit_run.png)
+
 
 This will load the Enviroment, run and show the output on a console right in the middle
 
