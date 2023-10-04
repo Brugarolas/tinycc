@@ -11,19 +11,18 @@ This project tries to extend tiny c compiler to support `Poxim Architecture`
 ## Compiling TCC with Poxim Backend
 
 
-$ ./configure --cpu=poxim 
+    $ ./configure --cpu=poxim 
 
-
-$ make run CXX=clang++ CC=gcc
+    $ make run CXX=clang++ CC=gcc
 
 
 Feel free to change the **CXX** variable to another C++14 capable compiler. Same goes for **CC** variable.
 
 This will compile **tcc** with Poxim Backend and run it on the **examples/main.c** file that produces **examples/bin/main.bin** binary file. By default it also runs the other examples.
 
-Now inspect ``examples/out/`` folder. You'll see both `interp` and `dump` folder that contains the output of interpretation and dumping of **examples/bin/main.bin** file respectively.
+Now inspect the ``examples/out/`` folder. You'll see both `interp` and `dump` folder that contains the output of interpretation and dumping of **examples/bin/main.bin** file respectively.
 
-If you just want to compile the tcc-poxim you can run $ `make all` instead.
+If you just want to compile the tcc-poxim you can run `make all` instead.
 
 
 ## Running Minimal Example
@@ -32,7 +31,11 @@ You can edit the file ``examples/minimal.c`` that already includes the minimal s
 
 ![minimal](img/minimal.png)
 
-run $ ``make examples`` to compile and interpret the same way as the other examples
+To compile and interpret the same way as the other examples run:
+
+
+    $ make examples
+
 
 ![minimal_output](img/minimal.interp.png)
 
@@ -40,21 +43,21 @@ run $ ``make examples`` to compile and interpret the same way as the other examp
 
 ## Compiling your own input.c
 
-$ ./tcc input.c -o output.bin
+    $ ./tcc input.c -o output.bin
 
-##### **Important**
+#### **Important**
 
 The output is raw binary poxim machine code with **no runtime**, **statically linked**, with **no libc**, you have to define `_start` function/label yourself, also for copying array and struct (in argument passing for example) you need to define memset and memmove as well, see `examples/_start.h` to see how it can be done.
 
 ### Memory Dump
 
-$ ./poxim-dump --bin input.bin output.dump
+    $ ./poxim-dump --bin input.bin output.dump
 
 ### Execution
 
 Execute the bytes, the machine code.
 
-$ ./poxim-interp --bin input.bin output.interp
+    $ ./poxim-interp --bin input.bin output.interp
 
 This will create two files called **output.interp** and **output.term**.
 
@@ -78,7 +81,7 @@ To edit the files you can fork it such as this (has to be logged on replit):
 
 ![fork](img/fork.png)
 
-Then you'll have access to any thing you wanna change, just edit any file **.c** under **examples** folder and it will be compiled and interpret when you press the **Run** button on Replit
+Then you'll have access to anything you wanna change, just edit any file **.c** under **examples** folder and it will be compiled and interpret when you press the **Run** button on Replit
 
 ![access](img/access.png)
 
@@ -89,7 +92,7 @@ Look folder `docs` there will have 3 pdfs  and 1 video
 #### PDFs:
   - 2023-10-02-IHS-Apresentacao.pdf, this one is my real life presentation of the project
   - Poxim-Instruction-Set.pdf, this is the instruction set for the Poxim Architecture         
-  - Poxim-Backend-Details.pdf, this pdf show how tcc-poxim works internally, what are the limitations and features implemented. (will be added soon)
+  - Poxim-Backend-Details.pdf, this pdf shows how tcc-poxim works internally, what are the limitations and features implemented. (will be added soon)
 
 #### Video:
   - TCC-Compile,Dump,Interpret.mkv, this is a video of me compiling and running tcc-poxim
@@ -103,3 +106,4 @@ Look folder `docs` there will have 3 pdfs  and 1 video
 ## Tips
 
 If you're cross compiling for i386 ``pacman -S lib32-glibc`` is necessary. This might be useful for comparing outputs
+
