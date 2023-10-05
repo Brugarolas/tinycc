@@ -1,7 +1,6 @@
-int *terminal32 = (int *)(0x88888888 >> 2);
 
 unsigned int strlen(const char *str);
-void putchar(int c) { *terminal32 = c; }
+void putchar(int c);
 void puti(int num);
 void puts(const char *str);
 void print_arr(int *arr, int n);
@@ -14,6 +13,8 @@ void putbool(int c);
   literal is always zero -> '\0'
 */
 #if defined(PRINT_IMPLEMENTATION)
+int *terminal32 = (int *)(0x88888888 >> 2);
+void putchar(int c) { *terminal32 = c; }
 void puts(const char *str) {
   int *ptr = (int *)str;
   int word;

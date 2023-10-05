@@ -642,8 +642,7 @@ ST_FUNC void load(int r, SValue *sv) {
     } else if ((ft & VT_TYPE) == (VT_PTR)) {
       /* l32 */
       opcode = opcode_l32;
-      imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
-
+      imm = ((fc + LOCAL_OFFSET) >> 2) & 0xFFFF;
     } else if ((ft & VT_TYPE) == (VT_INT)) {
       /* l32 */
       imm = (fc + LOCAL_OFFSET) >> 2 & 0xFFFF;
@@ -678,8 +677,12 @@ ST_FUNC void load(int r, SValue *sv) {
 
   } else {
     if (v == VT_CONST) {
-      // o(0xb8 + r);     /* mov $xx, r */
-      movs(r + 1, fc); /* mov r, fc */
+      if (((ft & VT_TYPE) & 0x00F0) == VT_UNSIGNED) {
+        mov(r + 1, fc); /* mov r, fc */
+      } else {
+        // o(0xb8 + r);     /* mov $xx, r */
+        movs(r + 1, fc); /* mov r, fc */
+      }
       // in x86 gen_addr32(fr, sv->sym, fc);
       // TODO: Check is this break examples
       if ((fr & VT_VALMASK) == VT_CONST) {
@@ -849,7 +852,11 @@ ST_FUNC void store(int r, SValue *v) {
     u32 reg = ((v->r & VT_VALMASK) + 1);
     // TODO:  check the endiannes of this, does it need changing?
     if ((v->r & VT_VALMASK) == VT_LOCAL) {
-      movs(r + 1, (fc));
+      if (((ft & VT_TYPE) & 0x00F0) == VT_UNSIGNED) {
+        mov(r + 1, (fc));
+      } else {
+        movs(r + 1, (fc));
+      }
     } else {
        gen_be32(opcode << 26 | ((r + 1) & 0b11111) << 21 | reg << 16);
       // movr(r + 1, ((v->r & VT_VALMASK) + 1) & 0b11111);

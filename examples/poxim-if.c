@@ -2,7 +2,7 @@
 #define PRINT_IMPLEMENTATION /* Makes print.h act as .c file */
 #include "print.h" /* puts, puti, strlen, print_arr, print_matrix */
 
-#define MAX_TEST 20
+#define MAX_TEST 50
 int main(void) {
   int bools[MAX_TEST] = { 0 };
 
@@ -22,6 +22,7 @@ int main(void) {
   bools[idx++] = (e != 5 || d != 4 || 1);     // true
   bools[idx++] = (e != 5 || d != 4 && 1);     // false
   bools[idx++] = (e < 5 || d < 4 || a < b);   // true
+  bools[idx++] = !(e < 5 || d < 4 || a < b);  // false
 
   for (int i = 0; i < idx && i < MAX_TEST; i++) {
     putbool(bools[i]);

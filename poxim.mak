@@ -69,7 +69,7 @@ examples: ./$(TCC) dirs interp dump # If the binary havent changed, so we don't 
 	for var in $(EXAMPLES) ; do \
 		echo -e "\n[INFO]: running example" $$var; \
 		echo  $(TCC)  $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin; \
-		$(TCC)  $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin && \
+		$(TCC)  $(dir_examples)/$$var.c -o $(dir_bin)/$$var.bin || echo "[ERROR]:" $(dir_examples)/$$var.c && \
 		$(DUMP) --bin $(dir_bin)/$$var.bin > $(dir_dump)/$$var.poxim.dump && \
 		$(INTERP) --bin $(dir_bin)/$$var.bin  $(dir_interp)/$$var.interp ; \
 		$(BIN2HEX) $(dir_bin)/$$var.bin  $(dir_bin)/$$var.hex; \

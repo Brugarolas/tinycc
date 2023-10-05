@@ -108,9 +108,9 @@ Then you'll have access to anything you wanna change, just edit any file **.c** 
 Look folder `docs` there will have 3 pdfs  and 1 video
 
 #### PDFs:
-  - 2023-10-02-IHS-Apresentacao.pdf, this one is my real life presentation of the project
-  - Poxim-Instruction-Set.pdf, this is the instruction set for the Poxim Architecture         
-  - Poxim-Backend-Details.pdf, this pdf shows how tcc-poxim works internally, what are the limitations and features implemented. (will be added soon)
+  - ``2023-10-02-IHS-Apresentacao.pdf``, this one is my real life presentation of the project
+  - ``Poxim-Instruction-Set.pdf``, this is the instruction set for the Poxim Architecture         
+  - ``Poxim-Backend-Details.pdf``, this pdf shows how tcc-poxim works internally, what are the limitations and features implemented. 
 
 #### Video:
   - TCC-Compile,Dump,Interpret.mkv, this is a video of me compiling and running tcc-poxim
