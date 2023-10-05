@@ -15,10 +15,10 @@ This project tries to extend tiny c compiler to support `Poxim Architecture`
 
     $ ./configure --cpu=poxim --cc=gcc
 
-    $ make run CXX=clang++ CC=gcc
+    $ make run CXX=clang++
 
 
-Feel free to change the ``CXX`` variable to another C++14 capable compiler. Same goes for ``CC`` and ``--cc`` variable, but these two must be the same.
+Feel free to change the ``CXX`` variable to another C++14 capable compiler. Same goes for ``--cc`` option.
 
 This will compile **tcc** with Poxim Backend and run it on the **examples/main.c** file that produces **examples/bin/main.bin** binary file. By default it also runs the other examples.
 
