@@ -18,7 +18,7 @@ This project tries to extend tiny c compiler to support `Poxim Architecture`
     $ make run CXX=clang++ CC=gcc
 
 
-Feel free to change the **CXX** variable to another C++14 capable compiler. Same goes for **CC** and **--cc*** variable, but these two must be the same.
+Feel free to change the ``CXX`` variable to another C++14 capable compiler. Same goes for ``CC`` and ``--cc`` variable, but these two must be the same.
 
 This will compile **tcc** with Poxim Backend and run it on the **examples/main.c** file that produces **examples/bin/main.bin** binary file. By default it also runs the other examples.
 
