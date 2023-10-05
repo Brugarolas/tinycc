@@ -49,7 +49,15 @@ To compile and interpret the same way as the other examples run:
     $ make examples
 
 
+
+
 <img src="img/minimal.interp.png" width="600">
+
+This will generate 
+- ``examples/out/bin/minimal.bin``,  ``examples/out/bin/minimal.hex``
+- ``examples/out/interp/minimal.interp``, ``examples/out/interp/minimal.term``
+- ``examples/out/bin/minimal.poxim.dump``
+
 
 ----
 
