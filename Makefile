@@ -267,6 +267,7 @@ CFLAGS += -g
 LDFLAGS += -g
 endif
 
+
 # convert "include/tccdefs.h" to "tccdefs_.h"
 %_.h : include/%.h conftest.c
 	$S$(CC) -DC2STR $(filter %.c,$^) -o c2str.exe && ./c2str.exe $< $@

@@ -6,6 +6,8 @@ dir_interp := $(dir_examples)/out/interp
 dir_dump := $(dir_examples)/out/dump
 bin_extension = .bin
 
+CFLAGS += -Wno-unused -Wno-unused-variable -Wno-unknown-warning-option -Wno-unused-label -Wno-unused-function
+CFLAGS += -Wno-unused-but-set-variable -Wno-maybe-uninitialized
 CXX = g++
 TCC = ./tcc
 DUMP = ./poxim-dump

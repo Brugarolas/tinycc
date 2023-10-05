@@ -922,8 +922,7 @@ static void gen_static_call(int v) {
 
 /* 'is_jmp' is '1' if it is a jump */
 static void gcall_or_jmp(int is_jmp) {
-  int r;
-  int imm;
+  int imm = 0x000;
   if ((vtop->r & (VT_VALMASK | VT_LVAL)) == VT_CONST && (vtop->r & VT_SYM)) {
     greloc(cur_text_section, vtop->sym, ind + 1, R_386_PC32);
     /* constant and relocation case */
@@ -939,6 +938,7 @@ static void gcall_or_jmp(int is_jmp) {
     }
     // oad(0xe8 + is_jmp, vtop->c.i - 4);
   } else {
+    int r;
     /* otherwise, indirect call */
     r = gv(RC_INT);
     // o(0xff); /* call/jmp *r */
