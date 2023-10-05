@@ -111,7 +111,7 @@ Then you'll have access to anything you wanna change, just edit any file **.c** 
 
 <img src="img/access.png" width="550">
 
-## Doc
+## Docs
 
 Look folder `docs` there will have 3 pdfs  and 1 video
 
@@ -121,7 +121,7 @@ Look folder `docs` there will have 3 pdfs  and 1 video
   - ``Poxim-Backend-Details.pdf``, this pdf shows how tcc-poxim works internally, what are the limitations and features implemented. 
 
 #### Video:
-  - TCC-Compile,Dump,Interpret.mkv, this is a video of me compiling and running tcc-poxim
+  - ``TCC-Compile,Dump,Interpret.mkv``, this is a video of me compiling and running tcc-poxim
 
 
 ## Resources Used
