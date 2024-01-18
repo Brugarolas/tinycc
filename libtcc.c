@@ -2020,6 +2020,9 @@ dorun:
             break;
         case TCC_OPTION_std:
 
+            if (strcmp(optarg, "=c23") == 0)
+                s->cversion = 202310;
+
             if (strcmp(optarg, "=c17") == 0)
                 s->cversion = 201710;
 
