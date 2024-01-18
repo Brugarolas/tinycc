@@ -2019,9 +2019,15 @@ dorun:
             s->static_link = 1;
             break;
         case TCC_OPTION_std:
+
+            if (strcmp(optarg, "=c17") == 0)
+                s->cversion = 201710;
+
             if (strcmp(optarg, "=c11") == 0)
                 s->cversion = 201112;
+
             break;
+
         case TCC_OPTION_shared:
             x = TCC_OUTPUT_DLL;
             goto set_output_type;

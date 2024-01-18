@@ -35,6 +35,7 @@ static const char help[] =
     "  -fflag       set or reset (with 'no-' prefix) 'flag' (see tcc -hh)\n"
     "  -std=c99     Conform to the ISO 1999 C standard (default).\n"
     "  -std=c11     Conform to the ISO 2011 C standard.\n"
+    "  -std=c17     Conform to the ISO 2017 C Standart.\n"
     "  -Wwarning    set or reset (with 'no-' prefix) 'warning' (see tcc -hh)\n"
     "  -w           disable all warnings\n"
     "  -v --version show version\n"
