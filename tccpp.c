@@ -944,7 +944,7 @@ redo_start:
                 next_nomacro();
                 p = file->buf_ptr;
                 if (a == 0 && 
-                    (tok == TOK_ELSE || tok == TOK_ELIF || tok == TOK_ENDIF))
+                    (tok == TOK_ELSE || tok == TOK_ELIFDEF || tok == TOK_ELIF || tok == TOK_ENDIF))
                     goto the_end;
                 if (tok == TOK_IF || tok == TOK_IFDEF || tok == TOK_IFNDEF)
                     a++;
@@ -1792,6 +1792,29 @@ ST_FUNC void preprocess(int is_bof)
     next_nomacro();
  redo:
     switch(tok) {
+    
+    case TOK_ELIFDEF:
+        
+        if (s1->ifdef_stack_ptr == s1->ifdef_stack)
+            tcc_error("#elifdef without matching #ifdef");
+        
+        c = s1->ifdef_stack_ptr[-1];
+        
+        if (c > 1)
+            tcc_error("#elifdef after #else");
+
+        /* last #if/#elif expression was true: we skip */
+        if (c == 1)
+        {
+            c = 0;
+            break;
+        } 
+  
+        c = expr_preprocess(s1);
+        s1->ifdef_stack_ptr[-1] = c;
+        
+        break;
+
     case TOK_DEFINE:
         pp_debug_tok = tok;
         next_nomacro();

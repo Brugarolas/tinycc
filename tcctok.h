@@ -1,11 +1,13 @@
 /*********************************************************************/
 /* keywords */
      
-        /* C23 */
+     /* C23 */
 
 
      DEF(TOK_TRUE, "true")
      DEF(TOK_FALSE, "false")   
+
+     /* C23 END */
 
 
      DEF(TOK_INT, "int")
@@ -83,6 +85,13 @@
 /*********************************************************************/
 /* the following are not keywords. They are included to ease parsing */
 /* preprocessor only */
+
+     /* C23 */
+
+     DEF(TOK_ELIFDEF, "elifdef")
+
+     /* C23 END */
+
      DEF(TOK_DEFINE, "define")
      DEF(TOK_INCLUDE, "include")
      DEF(TOK_INCLUDE_NEXT, "include_next")
