@@ -130,6 +130,8 @@ typedef struct {
 static void init_prec(void);
 #endif
 
+static int cversion = 0;
+
 static void gen_cast(CType *type);
 static void gen_cast_s(int t);
 static inline CType *pointed_type(CType *type);
@@ -358,6 +360,8 @@ ST_FUNC void tccgen_init(TCCState *s1)
 {
     vtop = vstack - 1;
     memset(vtop, 0, sizeof *vtop);
+
+    cversion = s1->cversion;
 
     /* define some often used types */
     int_type.t = VT_INT;
@@ -3937,6 +3941,7 @@ redo:
             break;
         case TOK_NORETURN1:
         case TOK_NORETURN2:
+            
             ad->f.func_noreturn = 1;
             break;
         case TOK_CDECL1:
@@ -4766,6 +4771,10 @@ static int parse_btype(CType *type, AttributeDef *ad, int ignore_label)
             break;
         case TOK_NORETURN3:
             next();
+        
+            if (cversion >= 202310)    
+                tcc_warning("the noreturn specifier is deprectated in c23");
+        
             ad->f.func_noreturn = 1;
             break;
             /* GNUC attribute */
