@@ -30,11 +30,10 @@ C17 && C23 Migration:
 
 The point of this fork is to add support for C17 and C23 to the TCC compiler
 
-Status
-|-|-|
 | Standart | Support |
-| C17 | 70% |
-| C23 | 5% |
+|----------|---------|
+| C17      | 70%     |
+| C23      | 10%      |
 
 Documentation:
 -------------
