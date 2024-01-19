@@ -35,6 +35,8 @@ tcc.1
 tcc-doc.html
 tcc-doc.info
 
+main.c
+
 win32/doc
 win32/examples/libtcc_test.c
 win32/libtcc

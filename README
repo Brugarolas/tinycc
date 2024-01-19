@@ -1,4 +1,4 @@
-Tiny C Compiler - C Scripting Everywhere - The Smallest ANSI C compiler
+Tiny C Compiler - C Scripting Everywhere - The Smallest C compiler
 -----------------------------------------------------------------------
 
 Features:
@@ -24,6 +24,17 @@ Features:
 - C script supported : just add '#!/usr/local/bin/tcc -run' at the first
   line of your C source, and execute it directly from the command
   line.
+
+C17 && C23 Migration:
+--------------------
+
+The point of this fork is to add support for C17 and C23 to the TCC compiler
+
+Status
+|-|-|
+| Standart | Support |
+| C17 | 70% |
+| C23 | 5% |
 
 Documentation:
 -------------

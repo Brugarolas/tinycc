@@ -1,5 +1,10 @@
 /*********************************************************************/
 /* keywords */
+     
+        /* C23 */
+     DEF(TOK_TRUE, "true")
+     DEF(TOK_FALSE, "false")   
+
      DEF(TOK_INT, "int")
      DEF(TOK_VOID, "void")
      DEF(TOK_CHAR, "char")
