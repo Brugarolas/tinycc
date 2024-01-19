@@ -2029,6 +2029,9 @@ dorun:
             if (strcmp(optarg, "=c11") == 0)
                 s->cversion = 201112;
 
+            if ( !(strcmp(optarg, "=c11") == 0 || strcmp(optarg, "=c17") == 0 || strcmp(optarg, "=c23") == 0))
+                tcc_warning("undefined standart. Standart by default: C99");
+
             break;
 
         case TCC_OPTION_shared:
