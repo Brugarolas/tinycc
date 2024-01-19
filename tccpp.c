@@ -94,6 +94,7 @@ static const unsigned char tok_two_chars[] =
     0
 };
 
+static void next_binary(void);
 static void next_nomacro(void);
 
 ST_FUNC void skip(int c)
@@ -1344,6 +1345,110 @@ static void maybe_run_test(TCCState *s)
 static CachedInclude *
 search_cached_include(TCCState *s1, const char *filename, int add);
 
+static int parse_embed(TCCState *s1, int do_next, int test)
+{
+    int c, i;
+    char name[1024], buf[1024], *p;
+    CachedInclude *e;
+
+    c = skip_spaces();
+    if (c == '<' || c == '\"') {
+        cstr_reset(&tokcstr);
+        file->buf_ptr = parse_pp_string(file->buf_ptr, c == '<' ? '>' : c, &tokcstr);
+        i = tokcstr.size;
+        pstrncpy(name, tokcstr.data, i >= sizeof name ? sizeof name - 1 : i);
+        next_nomacro();
+    } else {
+        /* computed #include : concatenate tokens until result is one of
+           the two accepted forms.  Don't convert pp-tokens to tokens here. */
+	parse_flags = PARSE_FLAG_PREPROCESS
+                    | PARSE_FLAG_LINEFEED
+                    | (parse_flags & PARSE_FLAG_ASM_FILE);
+        name[0] = 0;
+        for (;;) {
+            next();
+            p = name, i = strlen(p) - 1;
+            if (i > 0
+                && ((p[0] == '"' && p[i] == '"')
+                 || (p[0] == '<' && p[i] == '>')))
+                break;
+            if (tok == TOK_LINEFEED)
+                tcc_error("'#embed' expects \"FILENAME\" or <FILENAME>");
+            pstrcat(name, sizeof name, get_tok_str(tok, &tokc));
+	}
+        c = p[0];
+        /* remove '<>|""' */
+        memmove(p, p + 1, i - 1), p[i - 1] = 0;
+    }
+
+    i = do_next ? file->include_next_index : -1;
+    for (;;) {
+        ++i;
+        if (i == 0) {
+            /* check absolute include path */
+            if (!IS_ABSPATH(name))
+                continue;
+            buf[0] = '\0';
+        } else if (i == 1) {
+            /* search in file's dir if "header.h" */
+            if (c != '\"')
+                continue;
+            p = file->true_filename;
+            pstrncpy(buf, p, tcc_basename(p) - p);
+        } else {
+            int j = i - 2, k = j - s1->nb_include_paths;
+            if (k < 0)
+                p = s1->include_paths[j];
+            else if (k < s1->nb_sysinclude_paths)
+                p = s1->sysinclude_paths[k];
+            else if (test)
+                return 0;
+            else
+                tcc_error("embeded file '%s' not found", name);
+            pstrcpy(buf, sizeof buf, p);
+            pstrcat(buf, sizeof buf, "/");
+        }
+        pstrcat(buf, sizeof buf, name);
+        e = search_cached_include(s1, buf, 0);
+        if (e && (define_find(e->ifndef_macro) || e->once)) {
+            /* no need to parse the include because the 'ifndef macro'
+               is defined (or had #pragma once) */
+#ifdef INC_DEBUG
+            printf("%s: skipping cached %s\n", file->filename, buf);
+#endif
+            return 1;
+        }
+        if (tcc_open(s1, buf) >= 0)
+            break;
+    }
+
+    if (test) {
+        tcc_close();
+    } else {
+        /* push previous file on stack */
+
+        *s1->include_stack_ptr++ = file->prev;
+        file->include_next_index = i;
+#ifdef INC_DEBUG
+        printf("%s: embeding %s\n", file->prev->filename, file->filename);
+#endif
+        /* update target deps */
+        if (s1->gen_deps) {
+            BufferedFile *bf = file;
+            while (i == 1 && (bf = bf->prev))
+                i = bf->include_next_index;
+            /* skip system include files */
+            if (s1->include_sys_deps || i - 2 < s1->nb_include_paths)
+                dynarray_add(&s1->target_deps, &s1->nb_target_deps,
+                    tcc_strdup(buf));
+        }
+        /* add include file debug info */
+        tcc_debug_bincl(s1);
+        tok_flags |= TOK_FLAG_BOF | TOK_FLAG_BOL;
+    }
+    return 1;
+}
+
 static int parse_include(TCCState *s1, int do_next, int test)
 {
     int c, i;
@@ -1852,10 +1957,17 @@ ST_FUNC void preprocess(int is_bof)
         if (s)
             define_undef(s);
         break;
+    
+    case TOK_EMBED:
+        parse_embed(s1, tok - TOK_INCLUDE, 0);
+        break;
+
     case TOK_INCLUDE:
     case TOK_INCLUDE_NEXT:
         parse_include(s1, tok - TOK_INCLUDE, 0);
         break;
+    
+
     case TOK_IFNDEF:
         c = 1;
         goto do_ifdef;
@@ -2970,6 +3082,8 @@ keep_tok_flags:
 #endif
 }
 
+
+
 static void macro_subst(
     TokenString *tok_str,
     Sym **nested_list,
@@ -3494,6 +3608,12 @@ no_subst:
         if (t == TOK_DEFINED && pp_expr)
             nosubst = 2;
     }
+}
+
+/* used by embed parse */
+static void next_binary(void)
+{
+    
 }
 
 /* return next token without macro substitution. Can read input from

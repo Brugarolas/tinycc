@@ -89,6 +89,7 @@
      /* C23 */
 
      DEF(TOK_ELIFDEF, "elifdef")
+     DEF(TOK_EMBED, "embed")
      DEF(TOK_ELIFNDEF, "elifndef")
 
      /* C23 END */
