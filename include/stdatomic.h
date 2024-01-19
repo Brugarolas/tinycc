@@ -78,7 +78,14 @@ typedef struct {
 } atomic_flag;
 
 #define ATOMIC_FLAG_INIT {0}
-#define ATOMIC_VAR_INIT(value) (value)
+
+#if __STDC_VERSION__ < 201710
+    #define ATOMIC_VAR_INIT(value) (value)
+#elif __STDC_VERSION__ >= 202310
+    #warning The ATOMIC_VAR_INIT was remove in C23
+#elif __STDC_VERSION__ == 201710
+    #warning The ATOMIC_VAR_INIT was deprecated in C17
+#endif
 
 #define atomic_flag_test_and_set_explicit(object, order)                  \
     __atomic_test_and_set((void *)(&((object)->value)), order)

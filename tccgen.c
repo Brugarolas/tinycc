@@ -47,6 +47,8 @@ static int in_sizeof;
 static int constant_p;
 ST_DATA char debug_modes;
 
+static int cversion = 0;
+
 ST_DATA SValue *vtop;
 static SValue _vstack[1 + VSTACK_SIZE];
 #define vstack (_vstack + 1)
@@ -129,8 +131,6 @@ typedef struct {
 #define precedence_parser
 static void init_prec(void);
 #endif
-
-static int cversion = 0;
 
 static void gen_cast(CType *type);
 static void gen_cast_s(int t);
@@ -6966,7 +6966,16 @@ again:
         }
         prev_scope_s(&o);
 
-    } else if (t == TOK_WHILE) {
+    } 
+
+    else if (t == TOK_STATIC_ASSERT)
+    {
+        skip('(');
+        gexpr();
+        skip(')');   
+    }
+    
+    else if (t == TOK_WHILE) {
         new_scope_s(&o);
         d = gind();
         skip('(');

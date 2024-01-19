@@ -3,7 +3,7 @@
      
      /* C23 */
 
-
+     DEF(TOK_STATIC_ASSET, "static_assert")
      DEF(TOK_TRUE, "true")
      DEF(TOK_FALSE, "false")   
 
