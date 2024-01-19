@@ -32,8 +32,8 @@ The point of this fork is to add support for C17 and C23 to the TCC compiler
 
 | Standart | Support |
 |----------|---------|
-| C17      | 70%     |
-| C23      | 40%      |
+| C17      | ~70%     |
+| C23      | ~40%      |
 
 C17 Progress:
 -------------
@@ -48,14 +48,16 @@ C17 Progress:
 -------------
 | Feature | Support | 
 |-|-|
+| CLI Support | ✅ |
 | Deprecated: <stdnoreturn.h> | ✅ |
+| Changing  __STDC_VERSION__ to 202311L | ✅ |
 | Deprecated: Noreturn function specifier | ✅ |
 | Deprecated: ctime() | ❌ |
 | Deprecated: Noreturn attribute token | ✅ |
 | Deprecated: Old feature-test macros | ❌ |
 | #elifdef | ✅ |
 | #elifndef | ✅ |
-| #embed | ✅ |
+| #embed | probably yes? (Works with oddities.... I fixing that) |
 | Deprecated: asctime() | ❌ |
 | Deprecated: DECIMAL_DIG and other macros | ❌ |
 
