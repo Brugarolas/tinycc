@@ -68,6 +68,16 @@ C17 Progress:
 /* This is not a complete list */
 ```
 
+TCC23 Extrension:
+-----------------
+
+TCC23 also offers its extensions
+
+| Feature | Description |
+| - | - |
+| #msg | print text in pp time |
+| -strict | disable all extension (tcc, tcc23, msvc, gcc) |
+
 Documentation:
 -------------
 
