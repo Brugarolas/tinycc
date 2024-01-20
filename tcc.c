@@ -39,6 +39,7 @@ static const char help[] =
     "  -std=c23     Conform to the ISO 2023 C Standart.\n"
     "  -Wwarning    set or reset (with 'no-' prefix) 'warning' (see tcc -hh)\n"
     "  -Wwarning    set or reset (with 'no-' prefix) 'warning' (see tcc -hh)\n"
+    "  -strict      disable all compiler extension (only for tcc23)"
     "  -w           disable all warnings\n"
     "  -v --version show version\n"
     "  -vv          show search paths or loaded files\n"

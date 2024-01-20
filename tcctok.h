@@ -94,6 +94,12 @@
 
      /* C23 END */
 
+     /* Extensions */
+
+     DEF(TOK_MSG, "msg")
+
+     /* Extensions end */
+
      DEF(TOK_DEFINE, "define")
      DEF(TOK_INCLUDE, "include")
      DEF(TOK_INCLUDE_NEXT, "include_next")

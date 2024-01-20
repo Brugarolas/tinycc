@@ -1625,6 +1625,7 @@ enum {
     TCC_OPTION_install_name,
     TCC_OPTION_compatibility_version ,
     TCC_OPTION_current_version,
+    TCC_OPTION_STRICT,
 };
 
 #define TCC_OPTION_HAS_ARG 0x0001
@@ -1633,6 +1634,7 @@ enum {
 static const TCCOption tcc_options[] = {
     { "h", TCC_OPTION_HELP, 0 },
     { "-help", TCC_OPTION_HELP, 0 },
+    { "-strict", TCC_OPTION_STRICT, 0 },
     { "?", TCC_OPTION_HELP, 0 },
     { "hh", TCC_OPTION_HELP2, 0 },
     { "v", TCC_OPTION_v, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
@@ -2018,6 +2020,11 @@ dorun:
         case TCC_OPTION_static:
             s->static_link = 1;
             break;
+        
+        case TCC_OPTION_STRICT:
+             
+            break;
+
         case TCC_OPTION_std:
 
             if (strcmp(optarg, "=c23") == 0)

@@ -1897,34 +1897,9 @@ ST_FUNC void preprocess(int is_bof)
     next_nomacro();
  redo:
     switch(tok) {
-    
-    case TOK_ELIFDEF:
-        
-        if (s1->cversion < 202310)
-            tcc_warning("implicit c23 feature. #elifdef supports only in c23"); 
-
-        if (s1->ifdef_stack_ptr == s1->ifdef_stack)
-            tcc_error("#elifdef without matching #ifdef");
-        
-        c = s1->ifdef_stack_ptr[-1];
-        
-        if (c > 1)
-            tcc_error("#elifdef after #else");
-
-        /* last #if/#elif expression was true: we skip */
-        if (c == 1)
-        {
-            c = 0;
-            break;
-        } 
-
-        goto do_ifdef;
-        
+   
     case TOK_ELIFNDEF:
         
-        if (s1->cversion < 202310)
-            tcc_warning("implicit c23 feature. #elifndef supports only in c23"); 
-
         if (s1->ifdef_stack_ptr == s1->ifdef_stack)
             tcc_error("#elifndef without matching #ifdef");
         
@@ -1933,14 +1908,45 @@ ST_FUNC void preprocess(int is_bof)
         if (c > 1)
             tcc_error("#elifndef after #else");
 
-        /* last #if/#elif expression was true: we skip */
+        if (s1->cversion < 202310)
+            tcc_warning("implicit c23 feature. #elifndef supports only in c23"); 
+
         if (c == 1)
         {
-            c = 1;
-            break;
+            c = 0;
+            goto test_else;
         } 
+
+        next_nomacro();
+        s = define_find(tok);
+
+        c = s ? 0 : 1;        
+        goto test_else;
  
-        goto do_ifdef;
+    case TOK_ELIFDEF:
+        
+        if (s1->ifdef_stack_ptr == s1->ifdef_stack)
+            tcc_error("#elifdef without matching #ifdef");
+        
+        c = s1->ifdef_stack_ptr[-1];
+        
+        if (c > 1)
+            tcc_error("#elifdef after #else");
+
+        if (s1->cversion < 202310)
+            tcc_warning("implicit c23 feature. #elifdef supports only in c23"); 
+
+        if (c == 1)
+        {
+            c = 0;
+            goto test_else;
+        } 
+
+        next_nomacro();
+        s = define_find(tok);
+
+        c = s ? 1 : 0;        
+        goto test_else;
         
     case TOK_DEFINE:
         pp_debug_tok = tok;
@@ -2079,6 +2085,8 @@ ST_FUNC void preprocess(int is_bof)
             total_lines += file->line_num - n;
         file->line_num = n;
         break;
+    
+    case TOK_MSG:
     case TOK_ERROR:
     case TOK_WARNING:
         q = buf;
@@ -2091,9 +2099,15 @@ ST_FUNC void preprocess(int is_bof)
         *q = '\0';
         if (tok == TOK_ERROR)
             tcc_error("#error %s", buf);
+        
+        else if (tok == TOK_MSG)        
+            printf("%s\n", buf);
+
         else
             tcc_warning("#warning %s", buf);
+
         break;
+
     case TOK_PRAGMA:
         pragma_parse(s1);
         break;
