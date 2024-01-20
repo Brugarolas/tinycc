@@ -213,6 +213,7 @@ ST_INLN int is_float(int t)
 static inline int is_integer_btype(int bt)
 {
     return bt == VT_BYTE
+        || bt == VT_BOOLK
         || bt == VT_BOOL
         || bt == VT_SHORT
         || bt == VT_INT
@@ -221,7 +222,7 @@ static inline int is_integer_btype(int bt)
 
 static int btype_size(int bt)
 {
-    return bt == VT_BYTE || bt == VT_BOOL ? 1 :
+    return bt == VT_BYTE || (bt == VT_BOOL || bt == VT_BOOLK) ? 1 :
         bt == VT_SHORT ? 2 :
         bt == VT_INT ? 4 :
         bt == VT_LLONG ? 8 :
@@ -1809,7 +1810,7 @@ ST_FUNC int gv(int rc)
 
         type.ref = NULL;
         type.t = vtop->type.t & VT_UNSIGNED;
-        if ((vtop->type.t & VT_BTYPE) == VT_BOOL)
+        if ((vtop->type.t & VT_BTYPE) == VT_BOOL || (vtop->type.t & VT_BTYPE) == VT_BOOLK)
             type.t |= VT_UNSIGNED;
 
         r = adjust_bf(vtop, bit_pos, bit_size);
@@ -2625,6 +2626,9 @@ static void type_to_str(char *buf, int buf_size,
     case VT_VOID:
         tstr = "void";
         goto add_tstr;
+    case VT_BOOLK:
+        tstr = "bool";
+        goto add_tstr;
     case VT_BOOL:
         tstr = "_Bool";
         goto add_tstr;
@@ -3146,7 +3150,7 @@ static void force_charshort_cast(void)
     int dbt = vtop->type.t;
     vtop->r &= ~VT_MUSTCAST;
     vtop->type.t = sbt;
-    gen_cast_s(dbt == VT_BOOL ? VT_BYTE|VT_UNSIGNED : dbt);
+    gen_cast_s((dbt == VT_BOOL || dbt == VT_BOOLK) ? VT_BYTE|VT_UNSIGNED : dbt);
     vtop->type.t = dbt;
 }
 
@@ -3222,7 +3226,7 @@ error:
                     vtop->c.f = (float)vtop->c.ld;
                 else if (dbt == VT_DOUBLE)
                     vtop->c.d = (double)vtop->c.ld;
-            } else if (sf && dbt == VT_BOOL) {
+            } else if (sf && dbt == VT_BOOL || sf && dbt == VT_BOOLK) {
                 vtop->c.i = (vtop->c.ld != 0);
             } else {
                 if(sf)
@@ -3236,7 +3240,7 @@ error:
 
                 if (dbt_bt == VT_LLONG || (PTR_SIZE == 8 && dbt == VT_PTR))
                     ;
-                else if (dbt == VT_BOOL)
+                else if (dbt == VT_BOOL || dbt == VT_BOOLK)
                     vtop->c.i = (vtop->c.i != 0);
                 else {
                     uint32_t m = dbt_bt == VT_BYTE ? 0xff :
@@ -3249,7 +3253,7 @@ error:
             }
             goto done;
 
-        } else if (dbt == VT_BOOL
+        } else if ((dbt == VT_BOOL || (dbt == VT_BOOLK))
             && (vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM))
                 == (VT_CONST | VT_SYM)) {
             /* addresses are considered non-zero (see tcctest.c:sinit23) */
@@ -3263,7 +3267,8 @@ error:
             goto done;
 
         /* non constant case: generate code */
-        if (dbt == VT_BOOL) {
+        if (dbt == VT_BOOL || dbt == VT_BOOLK) {
+            
             gen_test_zero(TOK_NE);
             goto done;
         }
@@ -3672,12 +3677,12 @@ ST_FUNC void vstore(void)
         /* remove bit field info to avoid loops */
         vtop[-1].type.t = ft & ~VT_STRUCT_MASK;
 
-        if (dbt == VT_BOOL) {
+        if (dbt == VT_BOOL || dbt == VT_BOOLK) {
             gen_cast(&vtop[-1].type);
             vtop[-1].type.t = (vtop[-1].type.t & ~VT_BTYPE) | (VT_BYTE | VT_UNSIGNED);
         }
         r = adjust_bf(vtop - 1, bit_pos, bit_size);
-        if (dbt != VT_BOOL) {
+        if (dbt != VT_BOOL || dbt != VT_BOOLK) {
             gen_cast(&vtop[-1].type);
             dbt = vtop[-1].type.t & VT_BTYPE;
         }
@@ -3685,7 +3690,7 @@ ST_FUNC void vstore(void)
             store_packed_bf(bit_pos, bit_size);
         } else {
             unsigned long long mask = (1ULL << bit_size) - 1;
-            if (dbt != VT_BOOL) {
+            if (dbt != VT_BOOL || dbt != VT_BOOLK) {
                 /* mask source */
                 if (dbt == VT_LLONG)
                     vpushll(mask);
@@ -4498,6 +4503,7 @@ do_decl:
                         if (bt != VT_INT && 
                             bt != VT_BYTE && 
                             bt != VT_SHORT &&
+                            bt != VT_BOOLK &&
                             bt != VT_BOOL &&
                             bt != VT_LLONG)
                             tcc_error("bitfields must have scalar type");
@@ -4662,6 +4668,11 @@ static int parse_btype(CType *type, AttributeDef *ad, int ignore_label)
             u = VT_LDOUBLE;
             goto basic_type;
 #endif
+
+        case TOK_BOOLK:
+            u = VT_BOOLK;
+            goto basic_type;            
+
         case TOK_BOOL:
             u = VT_BOOL;
             goto basic_type;
@@ -5426,7 +5437,7 @@ static void parse_atomic(int atok)
     vpush(&ct);
     PUT_R_RET(vtop, ct.t);
     t = ct.t & VT_BTYPE;
-    if (t == VT_BYTE || t == VT_SHORT || t == VT_BOOL) {
+    if (t == VT_BYTE || t == VT_SHORT || t == VT_BOOL || t == VT_BOOLK) {
 #ifdef PROMOTE_RET
         vtop->r |= BFVAL(VT_MUSTCAST, 1);
 #else
@@ -6169,7 +6180,7 @@ special_math_val:
                    matter we expect things to be already promoted to int,
                    but not larger.  */
                 t = s->type.t & VT_BTYPE;
-                if (t == VT_BYTE || t == VT_SHORT || t == VT_BOOL) {
+                if (t == VT_BYTE || t == VT_SHORT || t == VT_BOOL || t == VT_BOOLK) {
 #ifdef PROMOTE_RET
                     vtop->r |= BFVAL(VT_MUSTCAST, 1);
 #else
@@ -7674,7 +7685,9 @@ static void init_putv(init_params *p, CType *type, unsigned long c)
                 }
             } else
             switch(bt) {
-	    case VT_BOOL:
+	    
+        case VT_BOOLK:
+        case VT_BOOL:
 		*(char *)ptr = val != 0;
                 break;
 	    case VT_BYTE:

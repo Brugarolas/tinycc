@@ -32,8 +32,8 @@ The point of this fork is to add support for C17 and C23 to the TCC compiler
 
 | Standart | Support |
 |----------|---------|
-| C17      | ~70%     |
-| C23      | ~40%      |
+| C17      | ~90%     |
+| C23      | ~60%      |
 
 C17 Progress:
 -------------
@@ -42,7 +42,7 @@ C17 Progress:
 | CLI Support | ✅ |
 | Deprecated: ATOMIC_VAR_INIT | ✅ |
 | Changing  __STDC_VERSION__ to 201710L | ✅ |
-| Support for calling realloc() with zero size | No, and it won't be |
+| Support for calling realloc() with zero size | No, and it won't be (because tcc does not have a complete standard library) |
 
 С23 Progress:
 -------------
@@ -53,6 +53,9 @@ C17 Progress:
 | Changing  __STDC_VERSION__ to 202311L | ✅ |
 | Deprecated: Noreturn function specifier | ✅ |
 | Deprecated: ctime() | ❌ |
+| Deprecated: <stdbool.h> | ✅ |
+| true and false as keywords | ✅ |
+| bool as data type | ✅ |
 | Deprecated: Noreturn attribute token | ✅ |
 | Deprecated: Old feature-test macros | ❌ |
 | #elifdef | ✅ |
