@@ -5,7 +5,7 @@
 /* ISOC11 noreturn */
 #define noreturn _Noreturn
 
-#if __STDC_VERSION__ >= 202310
+#if __STDC_VERSION__ >= 202311
     #warning The stdnoreturn.h is deprecated
 #endif
 

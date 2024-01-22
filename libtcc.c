@@ -839,7 +839,7 @@ LIBTCCAPI TCCState *tcc_new(void)
     s->tcc_ext = 1;
     s->nocommon = 1;
     s->dollars_in_identifiers = 1; /*on by default like in gcc/clang*/
-    s->cversion = 199901; /* default unless -std=c11 is supplied */
+    s->cversion = 199901; /* default unless -std=c11 | c17 | c23 is supplied */
     s->warn_implicit_function_declaration = 1;
     s->warn_discarded_qualifiers = 1;
     s->ms_extensions = 1;
@@ -1634,7 +1634,7 @@ enum {
 static const TCCOption tcc_options[] = {
     { "h", TCC_OPTION_HELP, 0 },
     { "-help", TCC_OPTION_HELP, 0 },
-    { "-strict", TCC_OPTION_STRICT, 0 },
+    { "strict", TCC_OPTION_STRICT, 0 },
     { "?", TCC_OPTION_HELP, 0 },
     { "hh", TCC_OPTION_HELP2, 0 },
     { "v", TCC_OPTION_v, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
@@ -2022,13 +2022,15 @@ dorun:
             break;
         
         case TCC_OPTION_STRICT:
-             
+            s->gnu_ext = 0;
+            s->tcc_ext = 0;
+            s->ms_extensions = 0;     
             break;
 
         case TCC_OPTION_std:
 
             if (strcmp(optarg, "=c23") == 0)
-                s->cversion = 202310;
+                s->cversion = 202311;
 
             if (strcmp(optarg, "=c17") == 0)
                 s->cversion = 201710;

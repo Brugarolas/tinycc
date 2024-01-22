@@ -9,7 +9,7 @@
 #define __bool_true_false_are_defined 1
 
 
-#if __STDC_VERSION__ >= 202310
+#if __STDC_VERSION__ >= 202311
 #warning <stdbool.h> is deprecrated. We strongly recommend that you do not use this header file in conjunction with ISOC23
 #endif
 

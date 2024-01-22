@@ -168,6 +168,7 @@ static void il_type_to_str(char *buf, int buf_size,
     case VT_VOID:
         tstr = "void";
         goto add_tstr;
+    case VT_BOOLK:
     case VT_BOOL:
         tstr = "bool";
         goto add_tstr;

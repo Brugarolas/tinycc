@@ -249,3 +249,10 @@ OP(SIZEOF, "sizeof", 0x11c)
 OP(REFANYTYPE, "refanytype", 0x11d)
 OP(ANN_DATA, "ann.data", 0x122)
 OP(ANN_ARG, "ann.arg", 0x123)
+
+
+
+/* tcc23 extension for x86_64 */
+OP(SIN, "sin", 0x124)
+OP(COS, "cos", 0x125)
+/* end */
