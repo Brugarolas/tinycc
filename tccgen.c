@@ -4765,6 +4765,8 @@ static int parse_btype(CType *type, AttributeDef *ad, int ignore_label)
         case TOK_STATIC:
             g = VT_STATIC;
             goto storage;
+        
+        case TOK_USING:
         case TOK_TYPEDEF:
             g = VT_TYPEDEF;
             goto storage;
@@ -4783,7 +4785,7 @@ static int parse_btype(CType *type, AttributeDef *ad, int ignore_label)
         case TOK_NORETURN3:
             next();
         
-            if (cversion >= 202310)    
+            if (cversion >= 202311)    
                 tcc_warning("the noreturn specifier is deprectated in c23");
         
             ad->f.func_noreturn = 1;
@@ -4830,6 +4832,7 @@ static int parse_btype(CType *type, AttributeDef *ad, int ignore_label)
             type->ref = s->type.ref;
             if (t)
                 parse_btype_qualify(type, t);
+            
             t = type->t;
             /* get attributes from typedef */
             sym_to_attr(ad, s);
@@ -5479,6 +5482,10 @@ ST_FUNC void unary(void)
         t = VT_SHORT|VT_UNSIGNED;
         goto push_tokc;
 #endif
+  
+    case TOK_CBOOL:
+    t = VT_BOOLK;
+
     case TOK_CINT:
     case TOK_CCHAR: 
 	t = VT_INT;
@@ -6979,11 +6986,32 @@ again:
 
     } 
 
-    else if (t == TOK_STATIC_ASSERT)
+    else if (t == TOK_STATIC_CASSERT)
     {
+        int result;
+        const char *msg;
+
         skip('(');
-        gexpr();
-        skip(')');   
+        
+        result = expr_const();
+        msg = "static_assert fail!";
+        
+        if (tok == ',') 
+        {
+            next();
+            msg = parse_mult_str("string constant")->data;
+        }
+        
+        skip(')');
+        
+        if (result == 0)
+            tcc_error("%s", msg);
+        
+        skip(';');
+ 
+        if (cversion < 202311)    
+            tcc_warning("implicit feature from C23. static_assert as keyword support only in C23");
+    
     }
     
     else if (t == TOK_WHILE) {

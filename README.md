@@ -58,6 +58,8 @@ C17 Progress:
 | bool as data type | ✅ |
 | Deprecated: Noreturn attribute token | ✅ |
 | Deprecated: Old feature-test macros | ❌ |
+| static_assert | ✅ |
+| static_assert with message | ✅ |
 | #elifdef | ✅ |
 | #elifndef | ✅ |
 | #embed | probably yes? (Works with oddities.... I fixing that) |
