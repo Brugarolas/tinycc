@@ -3226,7 +3226,7 @@ error:
                     vtop->c.f = (float)vtop->c.ld;
                 else if (dbt == VT_DOUBLE)
                     vtop->c.d = (double)vtop->c.ld;
-            } else if (sf && dbt == VT_BOOL || sf && dbt == VT_BOOLK) {
+            } else if ((sf && dbt == VT_BOOL) || (sf && dbt == VT_BOOLK)) {
                 vtop->c.i = (vtop->c.ld != 0);
             } else {
                 if(sf)
@@ -8607,7 +8607,7 @@ static int decl(int l)
                 sym = type.ref;
                 while ((sym = sym->next) != NULL) {
                     if (!(sym->v & ~SYM_FIELD))
-                        expect("identifier");
+                        expect("123identifier");
                     if (sym->type.t == VT_VOID)
                         sym->type = int_type;
                 }
