@@ -160,7 +160,7 @@ static const char help2[] =
     ;
 
 static const char version[] =
-    "tcc version "TCC_VERSION
+    "tcc23 version "TCC_VERSION
 #ifdef TCC_GITHASH
     " "TCC_GITHASH
 #endif

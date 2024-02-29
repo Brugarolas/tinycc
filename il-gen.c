@@ -165,6 +165,11 @@ static void il_type_to_str(char *buf, int buf_size,
     if (t & VT_UNSIGNED)
         pstrcat(buf, buf_size, "unsigned ");
     switch(bt) {
+    
+    case VT_NULLPTRT:
+        tstr = "nullptr_t";
+        goto add_tstr;
+
     case VT_VOID:
         tstr = "void";
         goto add_tstr;

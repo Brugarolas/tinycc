@@ -2416,6 +2416,7 @@ static void parse_number(const char *p)
     /* parse all digits. cannot check octal numbers at this stage
        because of floating point constants */
     while (1) {
+        
         if (ch >= 'a' && ch <= 'f')
             t = ch - 'a' + 10;
         else if (ch >= 'A' && ch <= 'F')

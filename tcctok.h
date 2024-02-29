@@ -13,6 +13,7 @@
      DEF(TOK_TRUE, "true")
      DEF(TOK_FALSE, "false")   
      DEF(TOK_BOOLK, "bool")
+     DEF(TOK_NULLPTR, "nullptr")
 
      /* C23 END */
 

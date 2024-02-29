@@ -1554,7 +1554,7 @@ ST_FUNC void subst_asm_operand(CString *add_str,
 
         /* choose register operand size */
         if ((sv->type.t & VT_BTYPE) == VT_BYTE ||
-	    (sv->type.t & VT_BTYPE) == VT_BOOL)
+	    (sv->type.t & VT_BTYPE) == VT_BOOL || (sv->type.t & VT_BTYPE) == VT_BOOLK)
             size = 1;
         else if ((sv->type.t & VT_BTYPE) == VT_SHORT)
             size = 2;

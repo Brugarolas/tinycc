@@ -273,7 +273,10 @@ static int arm64_type_size(int t)
     case VT_FLOAT: return 2;
     case VT_DOUBLE: return 3;
     case VT_LDOUBLE: return 4;
-    case VT_BOOL: return 0;
+    
+    case VT_BOOLK:
+    case VT_BOOL: 
+        return 0;
     }
     assert(0);
     return 0;

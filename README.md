@@ -28,7 +28,7 @@ Features:
 C17 && C23 Migration:
 --------------------
 
-The point of this fork is to add support for C17 and C23 to the TCC compiler
+The point of this fork is to add support for C17 and C23 to the TCC compiler (LINUX)
 
 | Standart | Support |
 |----------|---------|
@@ -54,8 +54,11 @@ C17 Progress:
 | Deprecated: Noreturn function specifier | ✅ |
 | Deprecated: ctime() | ❌ |
 | Deprecated: <stdbool.h> | ✅ |
+| Modifing Binary Integer constant | ❌ |
 | true and false as keywords | ✅ |
+| u8 character constants | ❌ |
 | bool as data type | ✅ |
+| Decimal floating-point types (_Decimal32, _Decimal64, and _Decimal128) | ❌ |
 | Deprecated: Noreturn attribute token | ✅ |
 | Deprecated: Old feature-test macros | ❌ |
 | static_assert | ✅ |

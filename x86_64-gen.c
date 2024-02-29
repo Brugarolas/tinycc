@@ -444,7 +444,7 @@ void load(int r, SValue *sv)
             r = REG_VALUE(r);
         } else if ((ft & VT_BTYPE) == VT_LDOUBLE) {
             b = 0xdb, r = 5; /* fldt */
-        } else if ((ft & VT_TYPE) == VT_BYTE || (ft & VT_TYPE) == VT_BOOL) {
+        } else if ((ft & VT_TYPE) == VT_BYTE || (ft & VT_TYPE) == VT_BOOLK || (ft & VT_TYPE) == VT_BOOL) {
             b = 0xbe0f;   /* movsbl */
         } else if ((ft & VT_TYPE) == (VT_BYTE | VT_UNSIGNED)) {
             b = 0xb60f;   /* movzbl */
@@ -611,7 +611,7 @@ void store(int r, SValue *v)
         if (bt == VT_SHORT)
             o(0x66);
         o(pic);
-        if (bt == VT_BYTE || bt == VT_BOOL)
+        if (bt == VT_BYTE || bt == VT_BOOL || bt == VT_BOOLK)
             orex(0, 0, r, 0x88);
         else if (is64_type(bt))
             op64 = 0x89;
@@ -1112,6 +1112,7 @@ static X86_64_Mode classify_x86_64_inner(CType *ty)
     case VT_BYTE:
     case VT_SHORT:
     case VT_LLONG:
+    case VT_BOOLK:
     case VT_BOOL:
     case VT_PTR:
     case VT_FUNC:
